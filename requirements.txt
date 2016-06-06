@@ -3,3 +3,4 @@ requests == 2.5.1
 simplejson == 3.6.5
 websocket-client == 0.23.0
 pylatex
+pyimgur
