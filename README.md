@@ -34,4 +34,7 @@ Credits
 
 Owner
 
-- Quite Quiet
+- QuiteQuiet
+
+Contributor
+- wgma00

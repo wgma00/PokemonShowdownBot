@@ -64,6 +64,8 @@ class PokemonShowdownBot:
         print('|  Pokemon Showdown Bot  |')
         print('|      Created by:       |')
         print('|      Quite Quiet       |')
+        print('|      Contributor:      |')
+        print('|      wgma00            |')
         print('+~~~~~~~~~~~~~~~~~~~~~~~~+')
     def log(self, sort, msg, user):
         print('{sort}: {cmd} (user: {user})'.format(sort = sort, cmd = msg, user = user))

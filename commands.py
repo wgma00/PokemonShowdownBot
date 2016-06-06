@@ -41,7 +41,7 @@ usageLink = r'http://www.smogon.com/stats/2016-04/'
 CanPmReplyCommands = ['usage', 'help']
 IgnoreBroadcastPermission.append('tour')
 
-def URL(): return 'https://github.com/QuiteQuiet/PokemonShowdownBot/'
+def URL(): return 'https://github.com/wgma00/PokemonShowdownBot/'
 
 def Command(self, cmd, room, msg, user):
     ''' Returns the reply if the command exists, and False if it doesn't '''
