@@ -20,6 +20,7 @@
 
 from random import randint, sample
 import re
+import os
 import math # For funsies
 
 from data.tiers import tiers, formats
@@ -31,6 +32,7 @@ from data.replies import Lines
 from user import User
 from room import RoomCommands
 from plugins import PluginCommands, IgnoreEscaping, GameCommands, IgnoreBroadcastPermission
+from latex import latex
 
 ExternalCommands = RoomCommands.copy()
 ExternalCommands.update(PluginCommands)
@@ -43,11 +45,18 @@ def URL(): return 'https://github.com/QuiteQuiet/PokemonShowdownBot/'
 
 def Command(self, cmd, room, msg, user):
     ''' Returns the reply if the command exists, and False if it doesn't '''
-
+    print(cmd,msg)
     if cmd in ['source', 'git']:
         return 'Source code can be found at: {url}'.format(url = URL()), False
     if cmd == 'credits':
         return 'Credits can be found: {url}'.format(url = URL()), True
+    if cmd == 'latex':
+        ltx = latex()
+        if not ltx.validateRequest(msg):
+            return 'invalid latex expression', False
+        else:
+            url_upload = ltx.handleRequest(msg)
+            return 'uploaded here: ' + url_upload, True
     if cmd == 'owner':
         return 'Owned by: {owner}'.format(owner = self.owner), True
     if cmd in ['commands', 'help']:
