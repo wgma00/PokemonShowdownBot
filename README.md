@@ -14,7 +14,11 @@ The Showdown bot is built from three components:
 Setting up
 ----------
 #### Python version:
-- Python 3.4.2 (Supposedly works with 2.7 versions of the libraries too, but cannot confirm)
+- Python 3.4.2 
+
+### LaTeX
+- Guaranteed to work on a full setup. Exact packages are not known at the 
+  moment   
 
 #### Guide:
 1. Clone the git repo to your desired location
