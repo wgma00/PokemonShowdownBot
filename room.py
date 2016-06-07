@@ -103,7 +103,7 @@ class Room:
 
 # Commands
 def allowgames(bot, cmd, room, msg, user):
-    '''(?, ?, ?, ?, ?) -> (str, Bool)'''
+    '''(PSBot, str, Room, str, User) -> (str, Bool)'''
     if not user.hasRank('#'):
         return 'You do not have permission to change this. (Requires #)', False
     msg = bot.removeSpaces(msg)
@@ -132,7 +132,7 @@ def allowgames(bot, cmd, room, msg, user):
 
 
 def tour(bot, cmd, room, msg, user):
-    '''(?, ?, ?, ?, ?) -> (str, Bool)'''
+    '''(PSBot, str, Room, str, User) -> (str, Bool)'''
     if room.title == 'pm':
         return "You can't use this command in a pm.", False
     if not room.isWhitelisted(user):
@@ -144,7 +144,7 @@ def tour(bot, cmd, room, msg, user):
 
 
 def tourwl(bot, cmd, room, msg, user):
-    '''(?, ?, ?, ?, ?) -> (str, Bool)'''
+    '''(PSBot, str, Room, str, User) -> (str, Bool)'''
     if not user.hasRank('#'):
         return 'You do not have permission to change this. (Requires #)', False
     target = bot.toId(msg)
@@ -156,7 +156,7 @@ def tourwl(bot, cmd, room, msg, user):
 
 
 def untourwl(bot, cmd, room, msg, user):
-    '''(?, ?, ?, ?, ?) -> (str, Bool)'''
+    '''(PSBot, str, Room, str, User) -> (str, Bool)'''
     if not user.hasRank('#'):
         return 'You do not have permission to change this. (Requires #)', False
     target = bot.toId(msg)
