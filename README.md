@@ -12,13 +12,12 @@ The Showdown bot is built from three components:
 - The third file this rely on is room.py, as every room joined creats a new room object that store important information for the bot, such as userlists and allowed uses.
 
 Setting up
-----------
+---------
 #### Python version:
 - Python 3.4.2 
 
 ### LaTeX
-- Guaranteed to work on a full setup. Exact packages are not known at the 
-  moment   
+- Requires the following to be installed, ``texlive-full`` and ``poppler-utils``   
 
 #### Guide:
 1. Clone the git repo to your desired location

@@ -152,7 +152,7 @@ def tourwl(bot, cmd, room, msg, user):
         return 'This user is already whitelisted in that room.', False
     bot.saveDetails()
     return """{name} added to the whitelist in this
-              room.""".format(name msg), True
+              room.""".format(name=msg), True
 
 
 def untourwl(bot, cmd, room, msg, user):
