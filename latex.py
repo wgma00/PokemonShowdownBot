@@ -35,6 +35,7 @@ class latex(object):
            on the public API.
         '''
         # you will need your own verification id from imgur
+        # test ocmment
         client_id = ''
         self.client = pyimgur.Imgur(client_id)
 
