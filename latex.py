@@ -35,7 +35,6 @@ class latex(object):
            on the public API.
         '''
         # you will need your own verification id from imgur
-        # test ocmment
         client_id = ''
         self.client = pyimgur.Imgur(client_id)
 
@@ -69,5 +68,6 @@ class latex(object):
            >> validateRequest("\int \sqrt{1+\cos x + \sin x} dx")
            False
         '''
-        return msg.startswith('$') and msg.endswith('$')
+        print(msg)
+        return msg.startswith('$') and msg.endswith('$') and len(msg) > 2
 
