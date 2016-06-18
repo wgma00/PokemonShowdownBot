@@ -29,6 +29,9 @@ from data.pokedex import Pokedex
 from data.types import Types
 from data.replies import Lines
 
+#lazy fix
+import equation
+
 from user import User
 from room import RoomCommands
 from plugins import PluginCommands, IgnoreEscaping, GameCommands, IgnoreBroadcastPermission
@@ -45,7 +48,6 @@ def URL(): return 'https://github.com/wgma00/PokemonShowdownBot/'
 
 def Command(self, cmd, room, msg, user):
     ''' Returns the reply if the command exists, and False if it doesn't '''
-    print(cmd,msg)
     if cmd in ['source', 'git']:
         return 'Source code can be found at: {url}'.format(url = URL()), False
     if cmd == 'credits':
@@ -57,6 +59,15 @@ def Command(self, cmd, room, msg, user):
         else:
             url_upload = ltx.handleRequest(msg)
             return url_upload, True
+
+    if cmd == 'calc':
+        print(msg)
+        rp = equation.shunting(equation.get_input(msg))
+        post = rp[-1][2]
+        out = equation.postfixEval(post)
+        print(out)
+        return str(out), True 
+        
     if cmd == 'owner':
         return 'Owned by: {owner}'.format(owner = self.owner), True
     if cmd in ['commands', 'help']:
