@@ -20,6 +20,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 def prec(op, unary):
     '''(str, bool) -> int
        Assigns a presedence to an op depending on BEDMAS rules and gives
@@ -80,7 +81,7 @@ def eval(E):
         if E[i] != ')': ops.append((E[i], 0)) 
     return vals[-1]       
 
-def split_expr(s, delim='\n\t\v\f\r'):
+def split_expr(s, delim=' \n\t\v\f\r'):
     '''(str, str) -> [str]
        Split a string expression to tokens, ignoring whitespace delimiters.
        A vector of tokens is a more flexible format since you can decide to
@@ -108,4 +109,5 @@ def evaluate(s):
     return eval(split_expr(s))
 
 if __name__ == "__main__":
-    x = 5
+    print(evaluate("1+1"))
+    print(evaluate("1+(51 * -100)"))

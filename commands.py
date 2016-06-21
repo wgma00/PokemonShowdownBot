@@ -62,7 +62,7 @@ def Command(self, cmd, room, msg, user):
 
     if cmd == 'calc':
         print(msg)
-        return equation.evaluate(msg), True 
+        return str(equation.evaluate(msg)), True 
         
     if cmd == 'owner':
         return 'Owned by: {owner}'.format(owner = self.owner), True
