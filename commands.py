@@ -62,11 +62,7 @@ def Command(self, cmd, room, msg, user):
 
     if cmd == 'calc':
         print(msg)
-        rp = equation.shunting(equation.get_input(msg))
-        post = rp[-1][2]
-        out = equation.postfixEval(post)
-        print(out)
-        return str(out), True 
+        return equation.evaluate(msg), True 
         
     if cmd == 'owner':
         return 'Owned by: {owner}'.format(owner = self.owner), True

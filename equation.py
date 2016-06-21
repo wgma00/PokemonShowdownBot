@@ -1,124 +1,111 @@
-# temp code take from rosettacode and interactivepython
-from collections import namedtuple
-from pprint import pprint as pp
 
-OpInfo = namedtuple('OpInfo', 'prec assoc')
-L, R = 'Left Right'.split()
-
-ops = {
- '^': OpInfo(prec=4, assoc=R),
- '*': OpInfo(prec=3, assoc=L),
- '/': OpInfo(prec=3, assoc=L),
- '+': OpInfo(prec=2, assoc=L),
- '-': OpInfo(prec=2, assoc=L),
- '(': OpInfo(prec=9, assoc=L),
- ')': OpInfo(prec=0, assoc=L),
- }
-
-NUM, LPAREN, RPAREN = 'NUMBER ( )'.split()
-
-
-def get_input(inp):
-    '''(str) -> [(TOKENTYPE, tokenvalue)]
-       Inputs an expression and returns parsed list
+# The MIT License (MIT)
+#
+# Copyright (c) 2015
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+def prec(op, unary):
+    '''(str, bool) -> int
+       Assigns a presedence to an op depending on BEDMAS rules and gives
+       more presedence to unary type variables.
     '''
-    #inp = inp.replace(' ', '')
-    tokens = inp.strip().split()
-    tokenvals = []
-    for token in tokens:
-        if token in ops:
-            tokenvals.append((token, ops[token]))
-        elif token in (LPAREN, RPAREN):
-            tokenvals.append((token, token))
-        else:
-            tokenvals.append((NUM, token))
-    return tokenvals
+    if unary:
+        if op == '+' or op == '-': return 3
+        return 0
+    if op == '*' or op == '//': return 2
+    if op == '+' or op == '-': return 1
+    return 0
 
-def shunting(tokenvals):
-    '''([(TOKENTYPE, tokenvalue)] -> str
-        Turns the infix expression to a postfix expression
-        Allows for parenthesis and unary operators
-    '''
-    outq, stack = [], []
-    table = ['TOKEN,ACTION,RPN OUTPUT,OP STACK,NOTES'.split(',')]
-    for token, val in tokenvals:
-        note = action = ''
-        if token is NUM:
-            action = 'Add number to output'
-            outq.append(val)
-            table.append( (val, action, ' '.join(outq), ' '.join(s[0] for s in stack), note) )
-        elif token in ops:
-            t1, (p1, a1) = token, val
-            v = t1
-            note = 'Pop ops from stack to output'
-            while stack:
-                t2, (p2, a2) = stack[-1]
-                if (a1 == L and p1 <= p2) or (a1 == R and p1 < p2):
-                    if t1 != RPAREN:
-                        if t2 != LPAREN:
-                            stack.pop()
-                            action = '(Pop op)'
-                            outq.append(t2)
-                        else:
-                            break
-                    else:
-                        if t2 != LPAREN:
-                            stack.pop()
-                            action = '(Pop op)'
-                            outq.append(t2)
-                        else:
-                            stack.pop()
-                            action = '(Pop & discard "(")'
-                            table.append( (v, action, ' '.join(outq), ' '.join(s[0] for s in stack), note) )
-                            break
-                    table.append( (v, action, ' '.join(outq), ' '.join(s[0] for s in stack), note) )
-                    v = note = ''
-                else:
-                    note = ''
-                    break
-                note = ''
-            note = ''
-            if t1 != RPAREN:
-                stack.append((token, val))
-                action = 'Push op token to stack'
+def calc1(op, val):
+    '''(str, int) -> int'''
+    if op == '+': return val
+    if op == '-': return -val
+    
+def calc2(op, L, R):
+    '''(str, int, int) -> int'''
+    if op == '+': return L+R
+    if op == '-': return L-R
+    if op == '*': return L*R
+    if op == '//': return L/R
+    
+def is_operand(s):
+    '''(str)->Bool'''
+    return s != '(' and s != ')' and not prec(s, 0) and not prec(s, 1)
+
+def eval(E):
+    '''([str]) -> int'''
+    E = ['('] + E + [')'] 
+    print(E)
+    ops = []
+    vals = []
+    for i in range(len(E)):
+        if is_operand(E[i]):
+            vals.append(int(E[i]))
+            continue
+        if E[i] == '(':
+            ops.append(('(', False))
+            continue
+        if prec(E[i], 1) and (i == 0 or E[i-1] == '(' or prec(E[i-1], 0)):
+            ops.append((E[i], True))
+            continue
+        while prec(ops[-1][0], ops[-1][1]) >= prec(E[i], 0):
+            op = ops[-1][0]
+            is_unary = ops[-1][1]
+            ops.pop()
+            if op == '(': break
+            y = vals[-1]
+            vals.pop()
+            if is_unary:
+                vals.append(calc1(op, y))
             else:
-                action = 'Discard ")"'
-            table.append( (v, action, ' '.join(outq), ' '.join(s[0] for s in stack), note) )
-    note = 'Drain stack to output'
-    while stack:
-        v = ''
-        t2, (p2, a2) = stack[-1]
-        action = '(Pop op)'
-        stack.pop()
-        outq.append(t2)
-        table.append( (v, action, ' '.join(outq), ' '.join(s[0] for s in stack), note) )
-        v = note = ''
-    return table
+                x = vals[-1]
+                vals.pop()
+                vals.append(calc2(op, x, y))
+        if E[i] != ')': ops.append((E[i], 0)) 
+    return vals[-1]       
 
-
-def postfixEval(postfixExpr):
-    operandStack = []
-    tokenList = postfixExpr.split()
-
-    for token in tokenList:
-        if token in "0123456789":
-            operandStack.append(int(token))
+def split_expr(s, delim='\n\t\v\f\r'):
+    '''(str, str) -> [str]
+       Split a string expression to tokens, ignoring whitespace delimiters.
+       A vector of tokens is a more flexible format since you can decide to
+       parse the expression however you wish just by modifying this function.
+       >>>split_expr("1+(51 * -100)")
+       ["1","+","(","51","*","-","100",")"]
+    '''
+    ret = []
+    acc = ''
+    for i in range(len(s)):
+        if s[i].isdigit():
+            acc += s[i]
         else:
-            operand2 = operandStack.pop()
-            operand1 = operandStack.pop()
-            result = doMath(token,operand1,operand2)
-            operandStack.append(result)
-    return operandStack.pop()
+            if i > 0 and s[i-1].isdigit():
+                ret.append(acc)
+            acc = ''
+            if s[i] in delim: continue
+            ret.append(s[i])
+    if s[len(s)-1].isdigit():
+        ret.append(acc)
+    return ret
 
-def doMath(op, op1, op2):
-    if op == "*":
-        return op1 * op2
-    elif op == "/":
-        return op1 / op2
-    elif op == "+":
-        return op1 + op2
-    else:
-        return op1 - op2
+def evaluate(s):
+    ''' (str) -> int'''
+    return eval(split_expr(s))
 
-if __name__ == '__main__':
-    infix = '(1 + 2) + 3'
+if __name__ == "__main__":
+    x = 5
