@@ -29,7 +29,7 @@ def prec(op, unary):
     if unary:
         if op == '+' or op == '-': return 3
         return 0
-    if op == '*' or op == '//': return 2
+    if op == '*' or op == '/': return 2
     if op == '+' or op == '-': return 1
     return 0
 
@@ -43,7 +43,7 @@ def calc2(op, L, R):
     if op == '+': return L+R
     if op == '-': return L-R
     if op == '*': return L*R
-    if op == '//': return L/R
+    if op == '/': return L/R
     
 def is_operand(s):
     '''(str)->Bool'''

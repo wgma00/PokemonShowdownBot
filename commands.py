@@ -61,8 +61,11 @@ def Command(self, cmd, room, msg, user):
             return url_upload, True
 
     if cmd == 'calc':
-        print(msg)
-        return str(equation.evaluate(msg)), True 
+        try:
+            print(msg)
+            return str(equation.evaluate(msg)), True 
+        except Exception:
+            return 'stop trying troll', False
         
     if cmd == 'owner':
         return 'Owned by: {owner}'.format(owner = self.owner), True
