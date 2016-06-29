@@ -20,6 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+# credit to Shadba Raaj for sample code
+# http://agiliq.com/blog/2009/06/generating-pseudo-random-text-with-markov-chains-u/
+
 class Markov(object):
     '''This class will be used for determining what's the most probable message
        a user would say in a specific room
