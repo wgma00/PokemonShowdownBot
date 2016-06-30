@@ -191,7 +191,10 @@ class PSBot(PokemonShowdownBot):
                 if not room.allowGames and command in GameCommands:
                     response = 'This room does not support chatgames.'
                 else:
-                    response, samePlace = self.do(self, command, room, message[4][len(command) + 1:].lstrip(), user)
+                    if command != 'markov': 
+                        response, samePlace = self.do(self, command, room, message[4][len(command) + 1:].lstrip(), user) 
+                    else:
+                        response, samePlace = self.do(self, command, room, message[4][len(command) + 1:].lstrip(), user, roomName, self.rooms_markov) 
 
                 if response == 'NoAnswer': return
 
@@ -204,8 +207,11 @@ class PSBot(PokemonShowdownBot):
                     self.sendPm(user.id, self.escapeText(response))
                 else:
                     self.sendPm(user.id, 'Please pm the commands for a response.')
+            else:
+                # we really don't want this recording commands
+                # this will be the entry for the markov chain
+                self.rooms_markov[roomName].updateDatabase(message[4], True)
 
-            # this will be the entry for the markov chain
 
             if type(room.game) == Workshop:
                 room.game.logSession(room.title, user.rank + user.name, message[4])

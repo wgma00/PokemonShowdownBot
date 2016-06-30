@@ -46,7 +46,7 @@ IgnoreBroadcastPermission.append('tour')
 
 def URL(): return 'https://github.com/wgma00/PokemonShowdownBot/'
 
-def Command(self, cmd, room, msg, user):
+def Command(self, cmd, room, msg, user, room_name = None, markov_db=None):
     ''' Returns the reply if the command exists, and False if it doesn't '''
     if cmd in ['source', 'git']:
         return 'Source code can be found at: {url}'.format(url = URL()), False
@@ -59,10 +59,14 @@ def Command(self, cmd, room, msg, user):
         else:
             url_upload = ltx.handleRequest(msg)
             return url_upload, True
+    if cmd == 'markov':
+        if markov_db != None and room_name != None and room_name in markov_db:
+            return str(markov_db[room_name].generateText()), True
+        else:
+            return 'oops', False
 
     if cmd == 'calc':
         try:
-            print(msg)
             return str(equation.evaluate(msg)), True 
         except Exception:
             return 'stop trying troll', False

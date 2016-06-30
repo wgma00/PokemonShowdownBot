@@ -46,6 +46,7 @@ import re
 from room import Room
 from user import User
 from plugins.battling.battleHandler import BattleHandler
+from markov import Markov
 
 class PokemonShowdownBot:
     ''' Controls the most basic aspects of connecting to Pokemon Showdown 
@@ -60,6 +61,7 @@ class PokemonShowdownBot:
             self.name = self.details['user']
             self.id = self.toId(self.name)
             self.rooms = {}
+            self.rooms_markov = {}
             self.commandchar = self.details['command']
             self.intro()
             self.splitMessage = onMessage if onMessage else self.onMessage
@@ -150,6 +152,7 @@ class PokemonShowdownBot:
 
     def joinRoom(self, room, data = None):
         self.send('|/join ' + room)
+        self.rooms_markov[room] = Markov(room)
         self.rooms[room] = Room(room, data)
 
     def leaveRoom(self, room):

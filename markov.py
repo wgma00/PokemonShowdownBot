@@ -100,7 +100,7 @@ class Markov(object):
             else:
                 self.cache[key] = [w3]
 
-    def generateMarkovText(self, size=10):
+    def generateText(self, size=10):
         '''(Markov, int) -> str
             generate some random text based on the most likely set of words 
         '''
@@ -122,6 +122,6 @@ class Markov(object):
 
 if __name__ == '__main__':
     m = Markov("scholastic")
-    print(m.generateMarkovText())
+    print(m.generateText())
     # print(m.generateMarkovText())
 
