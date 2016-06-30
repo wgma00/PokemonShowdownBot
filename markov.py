@@ -71,8 +71,16 @@ class Markov(object):
         if len(new_words) < 3:
             return
         else:
+            # we will map the beginning of an arbitrary sentence ('.', '.') to
+            # the start of an actual sentence 
+            yield ('.', '.', new_words[0])
+            yield ('.', new_words[0], new_words[1])
             for i in range(len(new_words)-2):
                 yield (new_words[i], new_words[i+1], new_words[i+2])
+            # we will map the end of a word to a end of sentence, then the end
+            # of a sentence to the start of an arbitrary sentence
+            yield ( new_words[-2], new_words[-1], '.')
+            yield ( new_words[-1], '.', '.')
 
     def updateDatabase(self, msg, new_msg=False):
         '''(Markov, str) -> None
@@ -87,31 +95,28 @@ class Markov(object):
         # Parse the message and add it into the database
         for w1, w2, w3 in self.getTrips(msg.strip().split(' ')):
             key = (w1, w2)
-            # print(w1,w2,w3)
             if key in self.cache:
                 self.cache[key].append(w3)
             else:
                 self.cache[key] = [w3]
 
-    def generateMarkovText(self, size=25):
+    def generateMarkovText(self, size=10):
         '''(Markov, int) -> str
             generate some random text based on the most likely set of words 
         '''
-     
-        seed = random.randint(0, len(self.words)-3)
-        seed_word, next_word = self.words[seed], self.words[seed+1]
+        # we will start the seed at with words listed under the arbitrary
+        # sentence
+        seed = random.randint(0, len(self.cache[('.','.')])-1)
+        seed_word, next_word = '.', self.cache[('.','.')][seed] 
         w1, w2 = seed_word, next_word
         gen_words = []
+        # we'll skip printing the beginning
         for i in range(size):
-            gen_words.append(w1)
-            # if we've hit a bad chain of words then we just terminate immediately
-            # i.e. our generated word is the end of one message mapped to the
-            # start of another message
-            if (w1, w2) in self.cache:
-                w1, w2 = w2, random.choice(self.cache[(w1, w2)])
+            if w1 != '.':
+                gen_words.append(w1)
+            w1, w2 = w2, random.choice(self.cache[(w1, w2)]) 
+            if w2 != '.':
                 gen_words.append(w2)
-            else:
-                break
         return ' '.join(gen_words)
 
 
