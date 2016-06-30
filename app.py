@@ -1,6 +1,27 @@
+# The MIT License (MIT)
+#
+# Copyright (c) 2015
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 # This is the entry point for the Pokemon Showdown Bot, and contain most of the
 # permission checks for chat returns.
-#
+
 # It's derived from the base class PokemonShowdownBot, and as such hide a lot of
 # it's core functions by simply calling functions from the base class.
 # For any function called here not defined in this file, look in robot.py.
@@ -40,11 +61,15 @@ class PSBot(PokemonShowdownBot):
                                     self.splitMessage)
 
     def splitMessage(self, ws, message):
+        '''(PSBot, websocket, [str]) -> None
+            determines what to do based on the websocket's return value
+        '''
         if not message: return
         if '\n' not in message: self.parseMessage(message, '')
 
         room = ''
         msg = message.split('\n')
+        # this is the name of the room of the room we're currently in
         if msg[0].startswith('>'):
             room = msg[0][1:]
         msg.pop(0)
@@ -180,6 +205,8 @@ class PSBot(PokemonShowdownBot):
                 else:
                     self.sendPm(user.id, 'Please pm the commands for a response.')
 
+            # this will be the entry for the markov chain
+
             if type(room.game) == Workshop:
                 room.game.logSession(room.title, user.rank + user.name, message[4])
 
@@ -236,17 +263,18 @@ class PSBot(PokemonShowdownBot):
                     room.tour.onUpdate(message[2:])
 
 
-psb = PSBot()
-restartCount = 0
-while restartCount < 100:
-    # This function has a loop that runs as long as the websocket is connected
-    psb.ws.run_forever()
-    # If we get here, the socket is closed and disconnected
-    # so we have to reconnect and restart (after waiting a bit of course, say half a minute)
-    time.sleep(30)
-    print('30 seconds since last disconnect. Retrying connection...')
-    psb.openWebsocket()
-    psb.addBattleHandler()
-    restartCount += 1
-    print('Restart Count:', restartCount)
+if __name__ == '__main__':
+    psb = PSBot()
+    restartCount = 0
+    while restartCount < 100:
+        # This function has a loop that runs as long as the websocket is connected
+        psb.ws.run_forever()
+        # If we get here, the socket is closed and disconnected
+        # so we have to reconnect and restart (after waiting a bit of course, say half a minute)
+        time.sleep(30)
+        print('30 seconds since last disconnect. Retrying connection...')
+        psb.openWebsocket()
+        psb.addBattleHandler()
+        restartCount += 1
+        print('Restart Count:', restartCount)
 

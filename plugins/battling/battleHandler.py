@@ -17,13 +17,17 @@ class BattleHandler:
 
     def send(self, msg):
         self.ws.send(msg)
+
     def lead(self, battle, poke, rqid):
         self.send('{room}|/team {mon}|{rqid}'.format(room = battle, mon = poke, rqid = rqid))
+
     def act(self, battle, action, move, rqid, mega = ''):
         print('{room}|/choose {act} {move}|{rqid}'.format(room = battle, act = action, move = str(move) + mega, rqid = rqid))
         self.send('{room}|/choose {act} {move}|{rqid}'.format(room = battle, act = action, move = str(move) + mega, rqid = rqid))
+
     def respond(self, battle, msg):
         self.send('{room}|{msg}'.format(room = battle, msg = msg))
+
     def handleOutcome(self, battle, won):
         if won:
             self.respond(battle, 'O-oh, I won? Sorry :(')

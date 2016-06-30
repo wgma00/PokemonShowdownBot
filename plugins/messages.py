@@ -16,6 +16,7 @@ class MessageDatabase:
     def __init__(self):
         self.messages = {}
         self.lastNotification = {}
+
     def pendingMessages(self, user):
         cnt = len(self.messages[user])
         return 'You have {nr} message{s} waiting for you.\nUse ~read [number] to get [number] of messages shown to you'.format(nr = cnt, s = 's' if cnt > 1 else '')
@@ -30,6 +31,7 @@ class MessageDatabase:
 
     def getMessage(self, user):
         return self.removeRandomMessage(user).replyFormat()
+
     def getMessages(self, user, amnt):
         ''' This removes amnt number of messages from the message service '''
 
