@@ -11,6 +11,8 @@ Standard commands
 - `source` : Prints a link to this github repository.
 - `latex` : Returns a link with latex formated equations, for example:
             ``latex $\int \sqrt{1+\cos x + \sin x} dx$``
+- `calc` : Returns the result after arithmetic is applied on the equation, only +,-,* operators supported
+- `markov`: Generates a string based on the conservations in the room
 - `pick a, b, c, d...` : Randomly selects one of the entered options.
 
 - `[tier]poke` : Randomly selects one Pokémon from the viable tier list from [tier]. Supported tiers are Uber, OU, UU, RU, NU, PU, and LC.
