@@ -22,31 +22,48 @@
 import os
 
 import pyimgur
-from pylatex import Document, Section, Subsection, Math
-from pylatex import Quantity, Command, NoEscape
+from pylatex import Document
+from pylatex import Section
+from pylatex import Subsection
+from pylatex import Math
+from pylatex import Quantity
+from pylatex import Command
+from pylatex import NoEscape
+import yaml
 
 
 class latex(object):
-    '''Handles LaTeX related queries.'''
+    """Handles LaTeX related commands.
+
+    This class will take in commands of the form ".latex $equation$". It will
+    generate the corresponding LaTeX and upload it to the imgur image hosting.
+
+    Attributes:
+       client: client object that interacts with the imgur host
+       details: map which holds values for sensitive variables i.e. api keys
+    """
 
     def __init__(self):
-        '''(latex) -> None
-           Initliazes imgur client requirements. More information can be found
-           on the public API.
-        '''
-        # you will need your own verification id from imgur
-        client_id = ''
-        self.client = pyimgur.Imgur(client_id)
+        """Initliazes imgur client requirements."""
+        with open("details.yaml", 'r') as yaml_file:
+            self.details = yaml.load(yaml_file)
+            client_id = self.details['imgur_apikey']
+            self.client = pyimgur.Imgur(client_id)
 
     def handleRequest(self, msg):
-        '''(latex, str) -> str
-           Uploads proper LaTeX formated equations to imgur and returns a
-           link to it.
-           >>> handle_request("$\int \sqrt{1+\cos x + \sin x} dx$")
-           http://i.imgur.com/0tEeuyH.png
-           >>> handle_request("$\int \sqrt{1 + \sin x} dx$")
-           http://i.imgur.com/aKSUTgJ.png
-        '''
+        """Uploads LaTeX formated equations to imgur and returns a URL.
+
+        Args:
+            msg: string that is to converte to LaTeX, requires that string is
+                 enclosed by $.
+            example:
+               handle_request("$\int \sqrt{1+\cos x + \sin x} dx$")
+        Returns:
+           A string that is the URL to the uploaded document.
+        Raises:
+           Imgur ERROR message: Invalid client_id.
+           pdflatex ERROR message: Invalid LaTeX expression passed .
+        """
         # create a barebones latex document with only the one line
         # specified from the user in the document.
         doc = Document(documentclass='minimal')
@@ -61,13 +78,21 @@ class latex(object):
         return uploaded_image.link
 
     def validateRequest(self, msg):
-        '''(latex, str) -> Bool
-           Basic check if user input is a valid math mode LaTeX command.
-           >>> validateRequest("$\int \sqrt{1+\cos x + \sin x} dx$")
-           True
-           >> validateRequest("\int \sqrt{1+\cos x + \sin x} dx")
-           False
-        '''
-        print(msg)
+        """ Does a very basic check if the expression given is valid.
+
+        Args:
+            msg: string to be validated.
+            example:
+            >>> validateRequest("$\int \sqrt{1+\cos x + \sin x} dx$")
+            True
+
+            >>> validateRequest("\int \sqrt{1+\cos x + \sin x} dx")
+            False
+
+        Returns:
+            True if message is valid, false otherwise.
+        Raises:
+            None.
+        """
         return msg.startswith('$') and msg.endswith('$') and len(msg) > 2
 
