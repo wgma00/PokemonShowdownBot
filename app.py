@@ -23,18 +23,18 @@
 
 # Extended notes:
 # user:
-#     user objects are objects containing some information about the user who 
-#     said anything. This information consists of user.id, user.rank, and 
-#     user.name. user.id is a format-removed id of the speaker with only a-z 
+#     user objects are objects containing some information about the user who
+#     said anything. This information consists of user.id, user.rank, and
+#     user.name. user.id is a format-removed id of the speaker with only a-z
 #     lowercase and 0-9 present.
 #
-#     user.rank contain the auth level of the user, as a single character 
-#     string of either ' ', +, %, @, &, #, or ~. To compare groups against each 
-#     other self.Groups have the information required when used like: 
+#     user.rank contain the auth level of the user, as a single character
+#     string of either ' ', +, %, @, &, #, or ~. To compare groups against each
+#     other self.Groups have the information required when used like:
 #     User.Groups[user.rank] for a numeric value.
 #
-#     Lastly, user.name is the unaltered name as seen in the chatrooms, and 
-#     can be used for things like replying, but shouldn't be used for 
+#     Lastly, user.name is the unaltered name as seen in the chatrooms, and
+#     can be used for things like replying, but shouldn't be used for
 #     comparisions.
 
 import json
@@ -52,27 +52,28 @@ from plugins import moderation
 from plugins.messages import MessageDatabase
 from plugins.workshop import Workshop
 
+
 class PSBot(PokemonShowdownBot):
     """This is the master class of the Pokemon Showdown Bot project.
 
-    This is the entry point for the Pokemon Showdown Bot, and contain most of 
+    This is the entry point for the Pokemon Showdown Bot, and contain most of
     the permission checks for chat returns.
 
-    It's derived from the base class PokemonShowdownBot, and as such hide a lot 
+    It's derived from the base class PokemonShowdownBot, and as such hide a lot
     of it's core functions by simply calling functions from the base class.
     For any function called here not defined in this file, look in robot.py.
-    
-    Changes to this file should be made with caution, as much of the extended 
+
+    Changes to this file should be made with caution, as much of the extended
     functions depend on this being structured in a specific way.
-    
+
     Attributes:
-        do: Command object which handles '.command' actions from the user    
-        usernotes: MessageDatabase object which handles all PMs sent from users 
+        do: Command object which handles '.command' actions from the user
+        usernotes: MessageDatabase object which handles all PMs sent from users
     """
     def __init__(self):
         """Initializes the PSBot class
-        
-        Setups up the commands, usernotes, and opens the websocket to the 
+
+        Setups up the commands, usernotes, and opens the websocket to the
         pokemonshowdown server
         """
         self.do = Command
@@ -84,7 +85,7 @@ class PSBot(PokemonShowdownBot):
 
     def splitMessage(self, ws, message):
         """ Splits the string received and delegates tasks to modules
-        
+
         This method is the modified splitMessage that is passed to the open
         websocket. This method splits the string given by the websocket and
         delegates the tasks to the corresponding modules.
@@ -97,8 +98,10 @@ class PSBot(PokemonShowdownBot):
         Raises:
             None.
         """
-        if not message: return
-        if "\n" not in message: self.parseMessage(message, "")
+        if not message:
+            return
+        if "\n" not in message:
+            self.parseMessage(message, "")
 
         room = ""
         msg = message.split("\n")
@@ -125,10 +128,10 @@ class PSBot(PokemonShowdownBot):
 
     def handleJoin(self, room, message):
         """Handles new users entering a room
-        
+
         Args:
-            room: Room object that we are inspecting 
-            message: string produced by each user on joining 
+            room: Room object that we are inspecting
+            message: string produced by each user on joining
         Returns:
             None.
         Raises:
@@ -151,27 +154,28 @@ class PSBot(PokemonShowdownBot):
 
     def parseMessage(self, msg, roomName):
         """Parses the message given by a user and delegates the tasks further
-        
+
         This is the meat and bones of the program. This handles all user
         related queries such as commands. It also logs information so that the
         markov chain model can learn from the users.
 
         Args:
             room: Room object that we are inspecting.
-            message: string produced by each user on joining. 
+            message: string produced by each user on joining.
                 example: "|c:|1467521329| wgma|we need more cowbell"
         Returns:
             None.
         Raises:
             None.
         """
-        if not msg.startswith("|"): return
+        if not msg.startswith("|"):
+            return
         message = msg.split("|")
         room = self.getRoom(roomName)
 
         # Logging in
         if message[1] == "challstr":
-            print("{name}: Attempting to login...".format(name = self.name))
+            print("{name}: Attempting to login...".format(name=self.name))
             self.login(message[3], message[2])
 
         elif message[1] == "updateuser":
@@ -183,7 +187,7 @@ class PSBot(PokemonShowdownBot):
             if challs["challengesFrom"]:
                 opp = list(challs["challengesFrom"].keys())[0]
                 if challs["challengesFrom"][opp] in supportedFormats:
-                    self.send("|/accept {name}".format(name = opp))
+                    self.send("|/accept {name}".format(name=opp))
                 else:
                     self.sendPm(opp, ("Sorry, I only accept challenges in "
                                       "Challenge Cup 1v1, Random Battles "
@@ -197,7 +201,8 @@ class PSBot(PokemonShowdownBot):
 
         # This is a safeguard for l and n in case that a moderation action
         # happen
-        elif "unlink" == message[1] or "uhtml" in message[1] or "html" == message[1]:
+        elif("unlink" == message[1] or "uhtml" in message[1]or
+             "html" == message[1]):
             return
 
         # As long as the room have a roomintro (which even groupchats do now)
@@ -237,17 +242,19 @@ class PSBot(PokemonShowdownBot):
             oldName = self.toId(message[3])
             room.renamedUser(oldName, User(message[2][1:], message[2][0]))
 
-
         # Chat messages
         elif "c" in message[1].lower():
-            if room.loading: return
+            if room.loading:
+                return
             user = room.getUser(self.toId(message[3]))
-            if not user: return
-            if self.userIsSelf(user.id): return
+            if not user:
+                return
+            if self.userIsSelf(user.id):
+                return
 
             # perform moderation on user content
             if room.moderate and self.canPunish(room):
-                anything = moderation.shouldAct(message[4], user, room, 
+                anything = moderation.shouldAct(message[4], user, room,
                                                 message[2])
                 if anything:
                     action, reason = moderation.getAction(self, room, user,
@@ -265,18 +272,19 @@ class PSBot(PokemonShowdownBot):
                     response = "This room does not support chatgames."
                 else:
                     parsed_msg = message[4][len(command)+1:].lstrip()
-                    if command != "markov": 
+                    if command != "markov":
                         response, samePlace = self.do(self, command, room,
-                                                      parsed_msg, user) 
+                                                      parsed_msg, user)
                     else:
-                        response, samePlace = self.do(self, command, room, 
-                                                      parsed_msg, user, 
-                                                      roomName, 
-                                                      self.rooms_markov) 
+                        response, samePlace = self.do(self, command, room,
+                                                      parsed_msg, user,
+                                                      roomName,
+                                                      self.rooms_markov)
                 # administer commands from commands
-                if response == "NoAnswer": return
+                if response == "NoAnswer":
+                    return
 
-                if(self.evalPermission(user) or 
+                if(self.evalPermission(user) or
                    command in IgnoreBroadcastPermission):
                     if command not in IgnoreEscaping:
                         response = self.escapeText(response)
@@ -292,15 +300,15 @@ class PSBot(PokemonShowdownBot):
                 # this will be the entry for the markov chain
                 self.rooms_markov[roomName].updateDatabase(message[4], True)
 
-
             if type(room.game) == Workshop:
                 room.game.logSession(room.title, user.rank+user.name,
                                      message[4])
 
         elif "pm" in message[1].lower():
-            user = User(message[2][1:], message[2][0], 
+            user = User(message[2][1:], message[2][0],
                         self.isOwner(self.toId(message[2])))
-            if self.userIsSelf(user.id): return
+            if self.userIsSelf(user.id):
+                return
 
             if message[4].startswith("/invite"):
                 if not message[4][8:] == "lobby":
@@ -309,10 +317,10 @@ class PSBot(PokemonShowdownBot):
                         self.log("Invite", message[4], user.id)
                     else:
                         self.sendPm(user.id, ("Only global voices (+) and up "
-                                             "can add me to rooms, sorry :("))
+                                              "can add me to rooms, sorry :("))
 
-            if(message[4].startswith(self.commandchar) and message[4][1:]
-               and message[4][1].isalpha()):
+            if(message[4].startswith(self.commandchar) and message[4][1:] and
+               message[4][1].isalpha()):
                 command = self.extractCommand(message[4])
                 self.log("Command", message[4], user.id)
                 # +1 to account for command character i.e. '.'
@@ -320,36 +328,39 @@ class PSBot(PokemonShowdownBot):
                 response = ""
                 if command in GameCommands:
                     if params.startswith("score"):
-                        response, where = self.do(self, command, Room("pm"), 
+                        response, where = self.do(self, command, Room("pm"),
                                                   params, user)
                     else:
                         response = "Don't try to play games in pm please"
                 if not response:
-                    response, where = self.do(self, command, Room("pm"), 
+                    response, where = self.do(self, command, Room("pm"),
                                               params, user)
 
                 self.sendPm(user.id, response)
 
         # Tournaments
         elif "tournament" == message[1]:
-            if room.loading: return
+            if room.loading:
+                return
             if "create" in message[2]:
                 if not room.tour:
                     room.createTour(self.ws, message[3])
                 # Tour was created, join it if in supported formats
-                if not self.details["joinTours"]: return
+                if not self.details["joinTours"]:
+                    return
                 if room.tour and room.tour.format in supportedFormats:
                     room.tour.joinTour()
             elif "end" == message[2]:
-                if not room.tour: return
+                if not room.tour:
+                    return
                 winner, tier = room.tour.getWinner(message[3])
                 if self.name in winner:
-                    self.say(room.title, 
-                            "I won the {form} tournament :o".format(form=tier))
+                    self.say(room.title,
+                             "I won the {form} tournament!".format(form=tier))
                 else:
-                    self.say(room.title, 
+                    self.say(room.title,
                              ("Congratulations to {name} for winning :)"
-                             "").format(name = ", ".join(winner)))
+                              "").format(name=", ".join(winner)))
                 room.endTour()
             elif "forceend" in message[2]:
                 room.endTour()
@@ -374,4 +385,3 @@ if __name__ == "__main__":
         psb.addBattleHandler()
         restartCount += 1
         print("Restart Count:", restartCount)
-
