@@ -11,26 +11,32 @@ The Showdown bot is built from three components:
 - The class PSBot is extended from the base class PokemonShowdownBot found in robot.py, and contain almost all basic functions that are required for the bot to function. Most of the more general functions like join, leave and say are defined here.
 - The third file this rely on is room.py, as every room joined creats a new room object that store important information for the bot, such as userlists and allowed uses.
 
+Style
+-------
+This project follows the PEP8 Standard and also the Google Python Standard. If
+you notice any discreptencies please let me (wgma00) know.
+
 Setting up
 ---------
 #### Python version:
 - Python 3.4.2 
 
-### LaTeX
+### LaTeX dependecies:
 - Requires the following to be installed, ``texlive-full`` and ``poppler-utils``   
 
 #### Guide:
 1. Clone the git repo to your desired location
 2. Use `pip install requirements.txt` to get relevant modules for the project
 3. Follow the instructions in `details-example.yaml` to configure it
-4. Run using `python app.py` (or `python3 app.py` if you have both versions installed)
+4. Run using `python3 app.py` 
 
 License
 -------
 
-This is distributed under the terms of the [MIT License][1].
+This is distributed under the terms of the [MIT License][1], and the [GNU License][2].
 
   [1]: https://github.com/QuiteQuiet/PokemonShowdownBot/blob/master/LICENCE
+  [2]: https://github.com/Alextrovert/Algorithm-Anthology/blob/master/LICENSE
 
 Credits
 -------

@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright (c) 2015
+# Copyright (c) 2016 William Granados
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,21 +20,35 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# credit to Shadba Raaj for sample code
+# credit to Shadba Raaj for sample code that this was adapted from
 # http://agiliq.com/blog/2009/06/generating-pseudo-random-text-with-markov-chains-u/
 
 import random
 
 class Markov(object):
-    '''This class will be used for determining what's the most probable message
-       a user would say in a specific room
-    '''
+    """ This will generate messages based on the messages in a room.
+   
+    Specifically it will use Markov Chains to generate the messages. In this 
+    case we will do it by every second word.
+
+    Atrributes:
+        room_name: string, name of the room we are in.
+        file_name: string, path to the file we are going to store the room's 
+                   messages in.
+        cache: map a pair of strings to a word, this will be the rule we use
+               to generate sentences.
+        msg_cache: list of str, this will hold all the messages that have been
+                   recorded thus far.
+        words: list of str, this will hold all the words recorded thus far.
+    """
     def __init__(self, room_name, file_name = None):
-        '''(Markov, str, str) -> None
-            Initliazes the markov chain 
-        '''
+        """Intializes the database and starts creating the rules for grammar"""
         self.room_name = room_name
-        self.file_name = file_name if file_name != None else "roomdata-"+room_name+".txt"  
+        self.file_name = ''
+        if file_name is None:
+            self.file_name = "roomdata-"+room_name+".txt"  
+        else:
+            self.file_name = file_name
         self.cache = {}
         self.msg_cache = list(self.getFromFile())
         self.words = [] 
@@ -47,9 +61,12 @@ class Markov(object):
 
 
     def getFromFile(self):
-        '''(Markov) -> [str]
-            Returns the messages that were recorded for this chatroom
-        '''
+        """Gets information from the database.
+        Yields:
+            list of str, a list of the sentences that were mentioned in chat.
+        Raises:
+            FileException: no file found.
+        """
         open_file = open(self.file_name, 'r') 
         for line in open_file:
             line = line.strip().split(' ')
@@ -57,17 +74,18 @@ class Markov(object):
         open_file.close()
 
     def putToFile(self, msg):
-        '''(Markov, str) -> None
-            Record information for future usage 
-        '''
+        """Writes information from the database to file."""
         open_file = open(self.file_name, 'a') 
         open_file.write(msg + '\n' if '\n' not in msg else '')
         open_file.close()
 
     def getTrips(self, new_words):
-        '''(Markov, [str]) -> [(str,str,str)]
-            Returns a list of triplets from the word database
-        '''
+        """Returns a list of triplets generated from the sentence.
+        Args:
+            new_words: string, sentence that tuples will be generated from.
+        Yields:
+            list of string tuples. 
+        """
         if len(new_words) < 3:
             return
         else:
@@ -83,9 +101,22 @@ class Markov(object):
             yield ( new_words[-1], '.', '.')
 
     def updateDatabase(self, msg, new_msg=False):
-        '''(Markov, str) -> None
-            Updates the database with this message
-        '''
+        """ Adds a word to the database and writes it to file.
+
+        This is the method where we update the database and set the rule for
+        the markov chain later on. Here the rule is that every two words will
+        map to another. For example: ('Hello', 'darkness') -> 'my'. Also note 
+        that since the database disjoint we attempt to unite them by adding a
+        period after every sentence. For example: 'Hello darkness my old 
+        friend' would be split to ('.', '.') -> 'Hello, ('.','Hello') ->
+        'darkness', ..., ('friend', '.') -> '.',
+
+        Args:
+            msg: string, sentence that will be added to the database.
+            new_msg: Bool, if this message should be written to file.
+        Returns:
+            None.
+        """
         # record the entries in our database 
         # if it isn't already
         if new_msg:
@@ -101,9 +132,14 @@ class Markov(object):
                 self.cache[key] = [w3]
 
     def generateText(self, size=10):
-        '''(Markov, int) -> str
-            generate some random text based on the most likely set of words 
-        '''
+        """Generates a sentence using the rules set we have defined 
+        Args:
+            size: int, the amount of words that we would like to generate
+        Return:
+            string, generated using Markov chains and the rules defined.
+        Raise:
+            None.
+        """
         # we will start the seed at with words listed under the arbitrary
         # sentence
         seed = random.randint(0, len(self.cache[('.','.')])-1)
@@ -123,5 +159,4 @@ class Markov(object):
 if __name__ == '__main__':
     m = Markov("scholastic")
     print(m.generateText())
-    # print(m.generateMarkovText())
 
