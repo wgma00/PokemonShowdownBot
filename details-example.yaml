@@ -28,6 +28,7 @@ joinTours: False
 
 # OPTIONAL: For workshops, set this to an api key given from Pastebin to automatically paste the workshop log
 apikey: '0'
-
+# OPTIONAL: If you would like the LaTeX command services simply get your own apikey from imgur
+imgur_apikey: ''
 # Do nothing with the one below, itshould be empty
 rooms: {}
