@@ -162,7 +162,7 @@ class PSBot(PokemonShowdownBot):
         Args:
             room: Room object that we are inspecting.
             message: string produced by each user on joining.
-                example: "|c:|1467521329| wgma|we need more cowbell"
+                example: "|c:|1467521329| wgma|we need more cowbell".
         Returns:
             None.
         Raises:
@@ -173,9 +173,11 @@ class PSBot(PokemonShowdownBot):
         message = msg.split("|")
         room = self.getRoom(roomName)
 
+        print(message)
         # Logging in
         if message[1] == "challstr":
             print("{name}: Attempting to login...".format(name=self.name))
+            print(message[3], message[2])
             self.login(message[3], message[2])
 
         elif message[1] == "updateuser":
