@@ -23,25 +23,30 @@ import re
 
 
 class User:
+    """Very basic class for a pokemon showdown user.
+    Attributes:
+        Groups: map, ranks presedence of user ranks by symbols.
+        name:string, username.
+        id:string, simplifid unique username.
+        rank:string, user rank.
+        owner:Bool, is this you.
+    """
     Groups = {' ': 0, '+': 1, '★': 1, '%': 2, '@': 3, '&': 4, '#': 5, '~': 6}
 
     def __init__(self, name, rank, owner=False):
-        '''(User, str, str, Bool) -> None
-           Initliases user.
-        '''
+        """Initializes user.
+        Args:
+            name:string, username.
+            rank:string, user rank.
+            owner:Bool, is this you.
+        """
         self.name = name
         self.id = re.sub(r'[^a-zA-z0-9]', '', name).lower()
         self.rank = rank
         self.owner = owner
 
     def hasRank(self, rank):
-        '''(User, str) -> Bool
-           Returns true if the user has a sufficiently high rank
-        '''
         return self.owner or User.Groups[self.rank] >= User.Groups[rank]
 
     def isOwner(self):
-        '''(User) -> Bool
-           Returns true if the user is the owner specified in the details.yaml
-        '''
         return self.owner

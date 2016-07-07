@@ -30,7 +30,22 @@ from plugins.tournaments import Tournament
 
 
 class Room:
+    """ Contains all important information of a pokemon showdown room. 
+    
+    Attributes:
+        users: map, 
+        loading:
+        title:
+        rank:
+        moderate:
+        allowGames:
+        tour:
+        game:
+        tourwhiteList:
+    """
     def __init__(self, room, data=None):
+        """ 
+        """
         '''(Room, str, str or {}) -> None
            Initliazes room object
         '''

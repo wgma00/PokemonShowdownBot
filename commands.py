@@ -24,11 +24,6 @@
 # The command file for every external command not specifically for running the
 # bot. Even more relevant commands like broadcast options are treated as such.
 #
-# True: Allows that the command in question can, if gotten from a room,
-#       be returned to the same room rather than a PM.
-# False: This will ALWAYS return the reply as a PM, no matter where it came
-#        from.
-#
 # Information passed from the chat-parser:
 #   self: The program object itself.
 #
@@ -55,14 +50,14 @@ from data.links import YoutubeLinks
 from data.pokedex import Pokedex
 from data.types import Types
 from data.replies import Lines
-import equation
+from plugins.math import equation
 from user import User
 from room import RoomCommands
 from plugins import PluginCommands
 from plugins import IgnoreEscaping
 from plugins import GameCommands
 from plugins import IgnoreBroadcastPermission
-from latex import latex
+from plugins.math.latex import latex
 
 ExternalCommands = RoomCommands.copy()
 ExternalCommands.update(PluginCommands)
@@ -78,7 +73,9 @@ def URL():
 
 
 def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
-    """ Handles commands given by the user; COMMANDS.md'
+    """ Handles commands given by the chat parser.
+    
+    Better documentation of the commands can be found in the COMMANDS.md file.
 
     Args:
         self: PSBot object of the main program.
@@ -90,12 +87,17 @@ def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
         markov_db: Connection to the Markov database for recording messages
                    to improve grammar of sentences formed.
     Returns:
-        Returns a pair indicating the result of the command and whether this
-        command was valid
+        Returns a pair indicating first,  the result of the command(output)
+        and the second a Boolean representing one of the following: 
+       
+        True: Allows that the command in question can, if gotten from a room,
+              be returned to the same room rather than a PM.
+        False: This will ALWAYS return the reply as a PM, no matter where it 
+               came from.
         example:
 
-        ("Credits can be found: {url}".format(url = URL()), True)
-        ("Source code can be found at: {url}".format(url = URL()), False)
+         ("Credits can be found: {url}".format(url = URL()), True)
+         ("Source code can be found at: {url}".format(url = URL()), False)
 
     Raises:
         Exception: there was likely improper input in the .calc command
@@ -125,7 +127,7 @@ def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
         try:
             return str(equation.evaluate(msg)), True
         except Exception:
-            return "stop trying to troll", False
+            return "Arithmetic error or unregognized symbols", False
 
     if cmd == "owner":
         return "Owned by: {owner}".format(owner=self.owner), True
