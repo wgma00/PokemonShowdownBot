@@ -35,11 +35,10 @@ class Markov(object):
         room_name: string, name of the room we are in.
         file_name: string, path to the file we are going to store the room's 
                    messages in.
-        cache: map a pair of strings to a word, this will be the rule we use
+        cache: map a pair of strings to a words occurences, this will be the rule we use
                to generate sentences.
         msg_cache: list of str, this will hold all the messages that have been
                    recorded thus far.
-        words: list of str, this will hold all the words recorded thus far.
     """
     def __init__(self, room_name, file_name = None):
         """Intializes the database and starts creating the rules for grammar"""
@@ -51,12 +50,10 @@ class Markov(object):
             self.file_name = file_name
         self.cache = {}
         self.msg_cache = list(self.getFromFile())
-        self.words = [] 
         for msg in self.msg_cache:
             orig_msg = ''
             for word in msg:
                 orig_msg += word + ' '
-                self.words.append(word)
             self.updateDatabase(orig_msg.strip())
 
 
@@ -69,7 +66,7 @@ class Markov(object):
         """
         open_file = open(self.file_name, 'r') 
         for line in open_file:
-            line = line.strip().split(' ')
+            line = line.strip().replace('.',' ').split(' ')
             yield line        
         open_file.close()
 
@@ -80,11 +77,11 @@ class Markov(object):
         open_file.close()
 
     def getQuads(self, new_words):
-        """Returns a list of triplets generated from the sentence.
+        """Returns a list of quadrupalets generated from the sentence.
         Args:
             new_words: string, sentence that tuples will be generated from.
         Yields:
-            list of string tuples. 
+            list of string quadrupalets. 
         """
         if len(new_words) < 4:
             return
@@ -123,8 +120,6 @@ class Markov(object):
         # if it isn't already
         if new_msg:
             self.putToFile(msg)
-            for word in msg.strip().split(' '):
-                self.words.append(word)
         # Parse the message and add it into the database
         for w1, w2, w3, w4 in self.getQuads(msg.strip().split(' ')):
             key = (w1, w2, w3)
@@ -135,6 +130,7 @@ class Markov(object):
 
     def generateText(self, size=20):
         """Generates a sentence using the rules set we have defined 
+
         Args:
             size: int, the amount of words that we would like to generate
         Return:
@@ -149,14 +145,16 @@ class Markov(object):
         w1, w2, w3 = seed_word, mid_word, next_word
         gen_words = []
         # we'll skip printing the beginning
-        for i in range(size):
+        sen_cnt = 2 
+        while sen_cnt >= 0: 
             if w1 != '.':
                 gen_words.append(w1)
             w1, w2, w3 = w2, w3, random.choice(self.cache[(w1, w2, w3)]) 
+            if (w1, w2, w3) == ('.','.','.'):
+                sen_cnt -= 1
         return ' '.join(gen_words)
 
 
 if __name__ == '__main__':
-    m = Markov("test")
+    m = Markov("joim")
     print(m.generateText())
-
