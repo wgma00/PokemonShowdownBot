@@ -35,8 +35,9 @@ class Markov(object):
         room_name: string, name of the room we are in.
         file_name: string, path to the file we are going to store the room's 
                    messages in.
-        cache: map a pair of strings to a words occurences, this will be the rule we use
-               to generate sentences.
+        cache: map a pair of strings to a words occurences, this will be 
+               the rule we use to generate sentences.
+        cache_len: maps a tuple to amount of words that come after this tuple.
         msg_cache: list of str, this will hold all the messages that have been
                    recorded thus far.
     """
@@ -49,6 +50,7 @@ class Markov(object):
         else:
             self.file_name = file_name
         self.cache = {}
+        self.cache_len = {}
         self.msg_cache = list(self.getFromFile())
         for msg in self.msg_cache:
             orig_msg = ''
@@ -66,6 +68,8 @@ class Markov(object):
         """
         open_file = open(self.file_name, 'r') 
         for line in open_file:
+            # we're removing periods to avoid a possible infinite loop in our
+            # rules
             line = line.strip().replace('.',' ').split(' ')
             yield line        
         open_file.close()
@@ -123,10 +127,35 @@ class Markov(object):
         # Parse the message and add it into the database
         for w1, w2, w3, w4 in self.getQuads(msg.strip().split(' ')):
             key = (w1, w2, w3)
-            if key in self.cache:
-                self.cache[key].append(w4)
+            if key in self.cache and w4 in self.cache[key]:
+                self.cache[key][w4] += 1
+                self.cache_len[key] += 1
+            elif key in self.cache and w4 not in self.cache[key]: 
+                self.cache[key][w4] = 1
+                self.cache_len[key] += 1
             else:
-                self.cache[key] = [w4]
+                self.cache[key] = {}
+                self.cache[key][w4] = 1
+                self.cache_len[key] = 1
+
+
+    def chooseWord(self, key):
+        """Chooses a word based from the cache list.
+
+        Chooses a word uniformly by taking into account the probability of each
+        word occuring.
+        
+        Args:
+            key: string tuple, the key word we want to chose a word from.
+        """
+        seed = random.randint(0, self.cache_len[key]-1)
+        tot = 0
+        for i in self.cache[key]:
+            tot += self.cache[key][i]
+            if tot >= seed:
+                return i
+        return "WGMADUNGOOFED"
+
 
     def generateText(self, size=20):
         """Generates a sentence using the rules set we have defined 
@@ -140,8 +169,7 @@ class Markov(object):
         """
         # we will start the seed at with words listed under the arbitrary
         # sentence
-        seed = random.randint(0, len(self.cache[('.','.','.')])-1)
-        seed_word, mid_word, next_word = '.', '.', self.cache[('.','.','.')][seed] 
+        seed_word, mid_word, next_word = '.', '.', self.chooseWord(('.','.','.'))
         w1, w2, w3 = seed_word, mid_word, next_word
         gen_words = []
         # we'll skip printing the beginning
@@ -149,7 +177,7 @@ class Markov(object):
         while sen_cnt >= 0: 
             if w1 != '.':
                 gen_words.append(w1)
-            w1, w2, w3 = w2, w3, random.choice(self.cache[(w1, w2, w3)]) 
+            w1, w2, w3 = w2, w3, self.chooseWord((w1, w2, w3)) 
             if (w1, w2, w3) == ('.','.','.'):
                 sen_cnt -= 1
         return ' '.join(gen_words)
