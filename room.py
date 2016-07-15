@@ -33,22 +33,19 @@ class Room:
     """ Contains all important information of a pokemon showdown room. 
     
     Attributes:
-        users: map, 
-        loading:
-        title:
-        rank:
-        moderate:
-        allowGames:
-        tour:
-        game:
-        tourwhiteList:
+        users: map, maps user ids to users. 
+        loading: Bool, if this room is still loading information.
+        title: string, name of the room.
+        rank: string, the rank of this bot in this room.
+        moderate: Bool, if this bot should moderate this room. 
+        allowGames: Bool, if this bot will allow games in this room.
+        tour: Bool, if this bot will allow tours in this room.
+        game: Workshop object, if this room is a workshop.  
+        tourwhiteList: list of str, users who are not moderators but who have
+                       permission to start a tour. 
     """
     def __init__(self, room, data=None):
-        """ 
-        """
-        '''(Room, str, str or {}) -> None
-           Initliazes room object
-        '''
+        """Intializes room with preliminary information."""
         if not data:
             # This is to support both strings and dicts as input
             data = {'moderate': False, 'allow games': False,
@@ -64,55 +61,61 @@ class Room:
         self.tourwhitelist = data['tourwhitelist']
 
     def doneLoading(self):
-        '''(Room) -> None'''
+        """Set loading status to False"""
         self.loading = False
 
     def addUser(self, user):
-        '''(Room, User) -> None'''
+        """Adds user to room."""
         if user.id not in self.users:
             self.users[user.id] = user
 
     def removeUser(self, userid):
-        '''(Room, str) -> None'''
+        """Removes user from this room."""
         if userid in self.users:
             return self.users.pop(userid)
 
     def renamedUser(self, old, new):
-        '''(Room, User, User) -> None'''
+        """updates user credentials."""
         self.removeUser(old)
         self.addUser(new)
 
     def getUser(self, name):
-        '''(Room, str) -> None or User)'''
+        """Returns true if this user is in this room."""
         if name in self.users:
             return self.users[name]
         else:
             return False
 
     def isWhitelisted(self, user):
-        '''(Room, Usr) -> Bool'''
+        """Returns true if this user is white listed for tours."""
         return user.hasRank('@') or user.id in self.tourwhitelist
 
     def addToWhitelist(self, user):
-        '''(Room, User) -> Bool'''
+        """Adds user to whitelist"""
         if user in self.tourwhitelist:
             return False
         self.tourwhitelist.append(user)
         return True
 
     def delFromWhitelist(self, target):
-        '''(Room, User) -> Bool'''
+        """Returns true if the operation was succesful."""
         if target not in self.tourwhitelist:
             return False
         self.tourwhitelist.remove(target)
         return True
 
     def createTour(self, ws, form):
-        '''(Room, websocket, ?) -> None'''
+        """Creates a tour with the specified format.
+        
+        Args:
+            ws: websocket.
+            form: string, type of format for this tournament.
+        """
+        '''(Room, websocket, str) -> None'''
         self.tour = Tournament(ws, self.title, form)
 
     def endTour(self):
-        '''(Room) -> None'''
+        """Ends tour."""
         self.tour = None
 
 

@@ -33,18 +33,23 @@ class Tournament:
 
     def sendTourCmd(self, cmd):
         self.ws.send('{room}|/tour {cmd}'.format(room = self.room, cmd = cmd))
+
     def joinTour(self):
         self.sendTourCmd('join')
+
     def leaveTour(self):
         self.sendTourCmd('leave')
+
     def getWinner(self, msg):
         things = json.loads(msg)
         return things['results'][0], things['format']
 
     def sendChallenge(self, opponent):
         self.sendTourCmd('challenge {opp}'.format(opp = opponent))
+
     def acceptChallenge(self):
         self.sendTourCmd('acceptchallenge')
+
     def onUpdate(self, msg):
         if 'updateEnd' in msg : return
         if 'update' in msg:
