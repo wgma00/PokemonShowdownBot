@@ -46,7 +46,7 @@ import re
 from room import Room
 from user import User
 from plugins.battling.battleHandler import BattleHandler
-from plugins.math import markov 
+from plugins.math.markov import Markov 
 
 class PokemonShowdownBot:
     """This class contains most of the functionality of the bot.
@@ -276,10 +276,11 @@ class PokemonShowdownBot:
 
     def escapeText(self, line):
         """Adjust message to avoid errors in the chat."""
-        if line[0] == '/':
-            return '/' + line
-        elif line[0] == '!':
-            return ' ' + line
+        if line:
+            if line[0] == '/':
+                return '/' + line
+            elif line[0] == '!':
+                return ' ' + line
         return line
 
     def removeSpaces(self, text):
