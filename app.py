@@ -176,7 +176,6 @@ class PSBot(PokemonShowdownBot):
         # Logging in
         if message[1] == "challstr":
             print("{name}: Attempting to login...".format(name=self.name))
-            print(message[3], message[2])
             self.login(message[3], message[2])
 
         elif message[1] == "updateuser":

@@ -154,7 +154,9 @@ class Markov(object):
             tot += self.cache[key][i]
             if tot >= seed:
                 return i
-        return "WGMADUNGOOFED"
+        # just return a random element in case I messed up
+        return next (iter (self.cache[key].values()))
+
 
 
     def generateText(self, size=20):
