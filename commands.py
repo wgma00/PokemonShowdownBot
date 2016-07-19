@@ -58,6 +58,7 @@ from plugins import IgnoreEscaping
 from plugins import GameCommands
 from plugins import IgnoreBroadcastPermission
 from plugins.math.latex import latex
+from plugins.math.clever import Clever
 
 ExternalCommands = RoomCommands.copy()
 ExternalCommands.update(PluginCommands)
@@ -116,7 +117,21 @@ def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
             url_upload = ltx.handleRequest(msg)
             return url_upload, True
 
-    if cmd == "markov":
+    if cmd == "test":
+        return "test", True
+
+    if cmd == "dune": 
+        dune = ["A secret report within the Guild.","Four planets have come to our attention … regarding a plot which could jeopardize spice production. Planet Arrakis, source of the spice.","Planet Caladan, home of House Atreides. Planet Giedi Prime, home of House Harkonnen. Planet Kaitain, home of the Emperor of the Known Universe.","Send a third stage Guild Navigator to Kaitain to demand details from the Emperor. The spice must flow…","https://www.youtube.com/watch?v=E_fzSc_i0Tc"]
+        return dune[int(msg)], True
+
+    if cmd == "clever":
+        return self.clever_bot.reply(), True
+
+    if cmd == "reset":
+        self.clever_bot = Clever()
+        return "reset", True
+
+    if cmd == "m":
         if (markov_db is not None and room_name is not None and
                 room_name in markov_db):
             return markov_db[room_name].generateText(), True
