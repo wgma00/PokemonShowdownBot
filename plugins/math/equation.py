@@ -16,6 +16,9 @@
 # along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
 from fractions import Fraction
+import math
+
+UNARY_OPS = ['+','-','sin','cos','tan','log','sqrt']
 
 def prec(op, unary):
     """ Determines the precidence of each operator.
@@ -32,7 +35,7 @@ def prec(op, unary):
         None.
     """
     if unary:
-        if op == '+' or op == '-':
+        if op in UNARY_OPS: 
             return 3
         return 0
     if op == '^':
@@ -50,6 +53,17 @@ def calc1(op, val):
         return val
     if op == '-':
         return -val
+    if op == 'sin':
+        return math.sin(val)
+    if op == 'cos':
+        return math.cos(val)
+    if op == 'tan':
+        return math.tan(val)
+    if op == 'log':
+        return math.log(val)
+    if op == 'sqrt':
+        return math.sqrt(val)
+
 
 
 def calc2(op, L, R):
@@ -84,7 +98,6 @@ def eval(E):
     E = ['('] + E + [')']
     ops = []
     vals = []
-    print(E)
     for i in range(len(E)):
 
         if is_operand(E[i]):
@@ -151,7 +164,17 @@ def split_expr(s, delim=' \n\t\v\f\r'):
             acc = ''
             if s[i] in delim:
                 continue
-            ret.append(s[i])
+            # here we will try to parse for sin,cos,tan,log
+            if s[i].isalpha():
+                if i+3 < len(s):
+                    if s[i:i+3] in UNARY_OPS:
+                        ret.append(s[i:i+3])
+                if i+4 < len(s):
+                    if s[i:i+4] in UNARY_OPS:
+                        ret.append(s[i:i+4])
+            else:
+                ret.append(s[i])
+
     if s[len(s)-1].isdigit() or s[len(s)-1] == '.':
         ret.append(Fraction(acc))
     return ret
@@ -164,10 +187,11 @@ def evaluate(s):
 if __name__ == "__main__":
     print(evaluate("1.234 + 2.0"))
     print(evaluate("1/10"))
-    # print(evaluate("1+1"))
-    # print(evaluate("1+(51 * -100)"))
-    # print(evaluate("(1/10) + (2/10)"))
+    print(evaluate("1+1"))
+    print(evaluate("1+(51 * -100)"))
+    print(evaluate("(1/10) + (2/10)"))
     print(evaluate("((1/10) + (2/10) - (3/10))*1000000000000000000"))
     print(evaluate("(1/10) + (2/10) - (3/10)"))
     print(evaluate("-(1/10)^2"))
+    print(evaluate("sin(cos(sqrt(1)))"))
 
