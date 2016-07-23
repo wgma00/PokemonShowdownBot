@@ -47,6 +47,7 @@ from room import Room
 from user import User
 from plugins.battling.battleHandler import BattleHandler
 from plugins.math.markov import Markov 
+from plugins.math.clever import Clever
 
 class PokemonShowdownBot:
     """This class contains most of the functionality of the bot.
@@ -81,6 +82,7 @@ class PokemonShowdownBot:
             #websocket.enableTrace(True)
             self.openWebsocket()
             self.addBattleHandler()
+            self.clever_bot = Clever()
 
     def onError(self, ws, error):
         """Error message to be printed on error with websocket."""
@@ -312,8 +314,8 @@ class PokemonShowdownBot:
     def isOwner(self, name):
         return self.owner == self.toId(name)
 
-    def evalPermission(self, user):
-        return User.Groups[self.details['broadcastrank']] <= User.Groups[user.rank] or self.isOwner(user.id)
+    def evalRoomPermission(self, user, room):
+        return User.Groups[room.broadcast_rank] <= User.Groups[user.rank] or self.isOwner(user.id)
 
     def userHasPermission(self, user, rank):
         return self.isOwner(user.id) or User.Groups[user.rank] >= User.Groups[rank]

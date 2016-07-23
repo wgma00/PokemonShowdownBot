@@ -70,7 +70,7 @@ class Markov(object):
         for line in open_file:
             # we're removing periods to avoid a possible infinite loop in our
             # rules
-            line = line.strip().replace('.',' ').split(' ')
+            line = line.strip().split(' ')
             yield line        
         open_file.close()
 
@@ -92,16 +92,16 @@ class Markov(object):
         else:
             # we will map the beginning of an arbitrary sentence ('.', '.') to
             # the start of an actual sentence 
-            yield ('.', '.', '.', new_words[0]) 
-            yield ('.', '.', new_words[0], new_words[1])
-            yield ('.', new_words[0], new_words[1], new_words[2])
+            yield (' ', ' ', ' ', new_words[0]) 
+            yield (' ', ' ', new_words[0], new_words[1])
+            yield (' ', new_words[0], new_words[1], new_words[2])
             for i in range(len(new_words)-3):
                 yield (new_words[i], new_words[i+1], new_words[i+2], new_words[i+3])
             # we will map the end of a word to a end of sentence, then the end
             # of a sentence to the start of an arbitrary sentence
-            yield (new_words[-3], new_words[-2], new_words[-1], '.')
-            yield (new_words[-2], new_words[-1], '.', '.')
-            yield (new_words[-1], '.', '.', '.')
+            yield (new_words[-3], new_words[-2], new_words[-1], ' ')
+            yield (new_words[-2], new_words[-1], ' ', ' ')
+            yield (new_words[-1], ' ', ' ', ' ')
 
     def updateDatabase(self, msg, new_msg=False):
         """ Adds a word to the database and writes it to file.
@@ -112,7 +112,9 @@ class Markov(object):
         that since the database disjoint we attempt to unite them by adding a
         period after every sentence. For example: 'Hello darkness my old 
         friend' would be split to ('.', '.') -> 'Hello, ('.','Hello') ->
-        'darkness', ..., ('friend', '.') -> '.',
+        'darkness', ..., ('friend', '.') -> '.'. Where '.' is a whitespace
+        character. This is done since PS doesn't allow more than one whitespace
+        to occur at the start of a sentence.
 
         Args:
             msg: string, sentence that will be added to the database.
@@ -171,16 +173,16 @@ class Markov(object):
         """
         # we will start the seed at with words listed under the arbitrary
         # sentence
-        seed_word, mid_word, next_word = '.', '.', self.chooseWord(('.','.','.'))
+        seed_word, mid_word, next_word = ' ', ' ', self.chooseWord((' ',' ',' '))
         w1, w2, w3 = seed_word, mid_word, next_word
         gen_words = []
         # we'll skip printing the beginning
         sen_cnt = 2 
         while sen_cnt >= 0: 
-            if w1 != '.':
+            if w1 != ' ':
                 gen_words.append(w1)
             w1, w2, w3 = w2, w3, self.chooseWord((w1, w2, w3)) 
-            if (w1, w2, w3) == ('.','.','.'):
+            if (w1, w2, w3) == (' ',' ',' '):
                 sen_cnt -= 1
         return ' '.join(gen_words)
 

@@ -244,6 +244,7 @@ class PSBot(PokemonShowdownBot):
 
         # Chat messages
         elif "c" in message[1].lower():
+            
             if room.loading:
                 return
             user = room.getUser(self.toId(message[3]))
@@ -261,6 +262,10 @@ class PSBot(PokemonShowdownBot):
                                                           anything, message[2])
                     self.takeAction(room.title, user, action, reason)
 
+            #update clever bot with last message
+            if not message[4].startswith(self.commandchar):
+                self.clever_bot.update(message[4].lower())
+
             # handle commands defined in our commands class
             if(message[4].startswith(self.commandchar) and message[4][1:] and
                message[4][1].isalpha()):
@@ -272,7 +277,7 @@ class PSBot(PokemonShowdownBot):
                     response = "This room does not support chatgames."
                 else:
                     parsed_msg = message[4][len(command)+1:].lstrip()
-                    if command != "markov":
+                    if command != "m":
                         response, samePlace = self.do(self, command, room,
                                                       parsed_msg, user)
                     else:
@@ -284,11 +289,18 @@ class PSBot(PokemonShowdownBot):
                 if response == "NoAnswer":
                     return
 
-                if(self.evalPermission(user) or
+                if(self.evalRoomPermission(user, room) or
                    command in IgnoreBroadcastPermission):
                     if command not in IgnoreEscaping:
                         response = self.escapeText(response)
-                    self.reply(room.title, user, response, samePlace)
+
+                    if self.details['debug'] or room.title != "joim" or user.isOwner():
+                        self.reply(room.title, user, response, samePlace)
+
+                elif not self.evalRoomPermission(user, room):
+                    self.sendPm(user.id, ("Only {rank} users and up may use"
+                                          " commands in this room."
+                                          "").format(rank=room.broadcast_rank))
 
                 elif command in CanPmReplyCommands:
                     self.sendPm(user.id, self.escapeText(response))

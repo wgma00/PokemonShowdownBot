@@ -49,10 +49,11 @@ class Room:
         if not data:
             # This is to support both strings and dicts as input
             data = {'moderate': False, 'allow games': False,
-                    'tourwhitelist': []}
+                    'tourwhitelist': [], 'broadcastrank':' '}
         self.users = {}
         self.loading = True
         self.title = room
+        self.broadcast_rank = data['broadcastrank'] 
         self.rank = ' '
         self.moderate = data['moderate']
         self.allowGames = data['allow games']
