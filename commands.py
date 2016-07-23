@@ -111,6 +111,7 @@ def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
 
     if cmd == "latex":
         ltx = latex()
+        print("test")
         if not ltx.validateRequest(msg):
             return "invalid latex expression", False
         else:
@@ -142,7 +143,7 @@ def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
         try:
             return str(equation.evaluate(msg)), True
         except Exception:
-            return "Arithmetic error or unregognized symbols", False
+            return "Arithmetic error or unrecognized symbols", False
 
     if cmd == "owner":
         return "Owned by: {owner}".format(owner=self.owner), True
@@ -152,14 +153,18 @@ def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
                 "COMMANDS.md").format(url=URL()), True
 
     if cmd == "explain":
-        return "Inspired from dubsbot, this bot is 2 times better", True
+        return "Inspired by dubsbot, this bot is twice as good", True
 
     if cmd == "leave":
         msg = self.removeSpaces(msg)
         if not msg:
             msg = room.title
-        if self.leaveRoom(msg):
+
+        if (user.isOwner() or user.hasRank("#")) and self.leaveRoom(msg):
             return "Leaving room {r} succeeded".format(r=msg), False
+        elif not (user.isOwner() or user.hasRank("#")):
+            return "You do not have adaquate permissions", False
+
         return "Could not leave room: {r}".format(r=msg), False
 
     if cmd == "get":
@@ -178,26 +183,30 @@ def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
         return ("You don't have permission to save settings."
                 " (Requires #)"), False
 
-    # Permissions
+
     if cmd == "broadcast":
-        return ("Rank required to broadcast: {rank}"
-                "").format(rank=self.details["broadcastrank"]), True
+        if room.title != "pm":
+            return ("Rank required to broadcast: {rank}"
+                    "").format(rank=room.broadcast_rank), True
+        else:
+            return "No broadcast ranks in Pms", False
 
     if cmd == "setbroadcast":
-        msg = self.removeSpaces(msg)
-        if msg in User.Groups or msg in ["off", "no", "false"]:
-            if user.hasRank("#"):
-                if msg in ["off", "no", "false"]:
-                    msg = " "
-                if self.details["broadcastrank"] == msg:
-                    return ("Broadcast rank is already {rank}"
-                            "").format(rank=msg), True
-                self.details["broadcastrank"] = msg
-                return ("Broadcast rank set to {rank}. (This is not saved on"
-                        " reboot)").format(rank=msg), True
-            return ("You are not allowed to set broadcast rank."
-                    " (Requires #)"), False
-        return "{rank} is not a valid rank".format(rank=msg), False
+        if room.title != "pm":
+            msg = self.removeSpaces(msg)
+            if msg in User.Groups or msg in ["off", "no", "false"]:
+                if user.hasRank("#"):
+                    if msg in ["off", "no", "false"]:
+                        msg = " "
+                    room.broadcast_rank = msg
+                    return ("Local broadcast rank set to {rank}. (This is not"
+                            " saved on reboot)").format(rank=msg), True
+                return ("You are not allowed to set broadcast rank."
+                        " (Requires #)"), False
+            return "{rank} is not a valid rank".format(rank=msg), False
+        else:
+            return "No broadcast ranks in Pms", False
+
 
     # External commands from plugins (and also room.py)
     if cmd in ExternalCommands.keys():

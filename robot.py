@@ -314,8 +314,8 @@ class PokemonShowdownBot:
     def isOwner(self, name):
         return self.owner == self.toId(name)
 
-    def evalPermission(self, user):
-        return User.Groups[self.details['broadcastrank']] <= User.Groups[user.rank] or self.isOwner(user.id)
+    def evalRoomPermission(self, user, room):
+        return User.Groups[room.broadcast_rank] <= User.Groups[user.rank] or self.isOwner(user.id)
 
     def userHasPermission(self, user, rank):
         return self.isOwner(user.id) or User.Groups[user.rank] >= User.Groups[rank]
