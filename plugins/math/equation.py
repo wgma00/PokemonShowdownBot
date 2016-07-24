@@ -61,10 +61,13 @@ def calc1(op, val):
         return math.cos(val)
     if op == 'tan':
         return math.tan(val)
+            
     if op == 'log':
         return math.log(val)
+
     if op == 'sqrt':
         return math.sqrt(val)
+
 
 
 
@@ -184,6 +187,7 @@ def split_expr(s, delim=' \n\t\v\f\r'):
                         i += 3
                     else:
                         return None
+
                 elif(i+3 <= len(s) and  s[i].isalpha() and s[i+1].isalpha() and
                    s[i+2].isalpha()): 
                     # print(s[i:i+3],3)
@@ -201,10 +205,10 @@ def split_expr(s, delim=' \n\t\v\f\r'):
                     # print(s[i:i+2],2)
                     if s[i:i+2] in UNARY_OPS:
                         ret.append(s[i:i+2])
-                        i += 2
+                        i += 1
                     elif s[i:i+2] in MATH_CONST:
                         ret.append(MATH_CONST[s[i:i+2]])
-                        i += 2
+                        i += 1
                     else:
                         return None
 
@@ -229,7 +233,6 @@ def evaluate(s):
     """Evaluates an expression in infix notation"""
     parsed=split_expr(s) 
     if parsed:
-        # print(parsed)
         return eval(parsed)
     else:
         return "Parsing error, unknown paramater or function"
@@ -244,5 +247,10 @@ if __name__ == "__main__":
     print(evaluate("(1+1/1000000)^1000000"))
     print(evaluate("sin(cos(sqrt((1))))"))
     print(evaluate("sin(cos(sqrt(e+pi)))"))
-    print(evaluate("10^10000000000000000000000000000"))
+    print(evaluate("pi/1000"))
+    print(evaluate("pi/1000"))
+    print(evaluate("sqrt(pi)"))
+    print(evaluate("sin(pi)"))
+    print(evaluate("cos(pi)"))
+    print(evaluate(".3^2 + .4^2 - .25"))
 
