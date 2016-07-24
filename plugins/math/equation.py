@@ -21,6 +21,51 @@ import math
 UNARY_OPS = ['+','-','sin','cos','tan','log','sqrt']
 MATH_CONST = {"pi":math.pi, "e":math.e}
 
+# [03:57:34] electride: yeah all the code does is break the exponent into an integer component and a fractional mantissa                          
+# [03:57:49] electride: does product of squares to handle the integer exponent  
+# [03:58:01] electride: and adds in the fractional component if any at the end  
+                                                                                
+def exp_break(x):                                                               
+    """Splits up a floating point number into an integer and it's mantissa"""
+    if x > 0:                                                                   
+        return int(x), x - int(x)                                               
+    else:                                                                       
+        return int(x)-1, 1+x-int(x)                                             
+                                                                                
+def exp(x,p):                                                                   
+    """ Calculates x^p
+    Args:
+        x: Fraction, base
+        p: Fraction, power
+    """
+    m = Fraction(1,1)                                                                       
+    a,b = exp_break(p)                                                          
+                                                                                
+    if a > 0:                                                                   
+        mul = x                                                                 
+        cnt = 0
+        for i in bin(a)[2:][::-1]:                                              
+            if i == '1':                                                        
+                m *= mul                                                        
+            # convert from fraction to floats to avoid ridicuoualy large
+            # numerators and denominators during calculation
+            if(type(m) == Fraction and m.numerator >= 10**5 and m.denominator >= 10**5):
+                m = float(m)
+            print(type(m), m)
+            cnt += 1
+            if cnt > 20:
+                break
+            mul *= mul                                                          
+                                                                                
+        return m*(x**b)                                                         
+    else:                                                                       
+        mul = 1./x                                                              
+        for i in bin(a)[3:][::-1]:                                              
+            if i == '1':                                                        
+                m *= mul                                                        
+            mul *= mul                                                          
+        return m*(x**b)                                                         
+                                                                                
 def prec(op, unary):
     """ Determines the precidence of each operator.
 
@@ -78,7 +123,7 @@ def calc2(op, L, R):
     if op == '/':
         return L/R
     if op == '^':
-        return L**R
+        return Fraction(exp(L, R))
 
 
 def is_operand(s):
@@ -157,7 +202,7 @@ def split_expr(s, delim=' \n\t\v\f\r'):
     i = 0
     while i < len(s): 
         # supports decimals and integers 
-        print(s[i])
+        # print(s[i])
         if s[i].isdigit() or s[i] == '.':
             acc += s[i]
         else:
@@ -183,7 +228,7 @@ def split_expr(s, delim=' \n\t\v\f\r'):
                         return None
                 elif(i+3 <= len(s) and  s[i].isalpha() and s[i+1].isalpha() and
                    s[i+2].isalpha()): 
-                    print(s[i:i+3],3)
+                    # print(s[i:i+3],3)
                     if s[i:i+3] in UNARY_OPS:
                         ret.append(s[i:i+3])
                         i += 2
@@ -192,10 +237,10 @@ def split_expr(s, delim=' \n\t\v\f\r'):
                         i += 2
                     else:
                         return None
-                    print(s[i])
+                    # print(s[i])
 
                 elif i+2 <= len(s) and s[i].isalpha() and s[i+1].isalpha():
-                    print(s[i:i+2],2)
+                    # print(s[i:i+2],2)
                     if s[i:i+2] in UNARY_OPS:
                         ret.append(s[i:i+2])
                         i += 2
@@ -206,14 +251,14 @@ def split_expr(s, delim=' \n\t\v\f\r'):
                         return None
 
                 elif i+1 <= len(s) and s[i].isalpha(): 
-                    print(s[i:i+1],1)
+                    # print(s[i:i+1],1)
                     if s[i:i+1] in UNARY_OPS:
                         ret.append(s[i:i+1])
                     elif s[i:i+1] in MATH_CONST:
                         ret.append(MATH_CONST[s[i:i+1]])
                     else:
                         return None
-                print(ret)
+                # print(ret)
             else:
                 ret.append(s[i])
         i += 1
@@ -226,7 +271,7 @@ def evaluate(s):
     """Evaluates an expression in infix notation"""
     parsed=split_expr(s) 
     if parsed:
-        print(parsed)
+        # print(parsed)
         return eval(parsed)
     else:
         return "Parsing error, unknown paramater or function"
@@ -239,7 +284,7 @@ if __name__ == "__main__":
     # print(evaluate("(1/10) + (2/10)"))
     # print(evaluate("((1/10) + (2/10) - (3/10))*1000000000000000000"))
     # print(evaluate("(1/10) + (2/10) - (3/10)"))
-    # print(evaluate("-(1/10)^2"))
+     print(evaluate("(1+1/1000000)^1000000"))
     # print(evaluate("sin(cos(sqrt((1))))"))
-    print(evaluate("arcsin(cos(sqrt(e)))"))
+    # print(evaluate("arcsin(cos(sqrt(e)))"))
 
