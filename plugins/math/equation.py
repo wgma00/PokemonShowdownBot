@@ -21,50 +21,6 @@ import math
 UNARY_OPS = ['+','-','sin','cos','tan','log','sqrt']
 MATH_CONST = {"pi":math.pi, "e":math.e}
 
-# [03:57:34] electride: yeah all the code does is break the exponent into an integer component and a fractional mantissa                          
-# [03:57:49] electride: does product of squares to handle the integer exponent  
-# [03:58:01] electride: and adds in the fractional component if any at the end  
-                                                                                
-def exp_break(x):                                                               
-    """Splits up a floating point number into an integer and it's mantissa"""
-    if x > 0:                                                                   
-        return int(x), x - int(x)                                               
-    else:                                                                       
-        return int(x)-1, 1+x-int(x)                                             
-                                                                                
-def exp(x,p):                                                                   
-    """ Calculates x^p
-    Args:
-        x: Fraction, base
-        p: Fraction, power
-    """
-    m = Fraction(1,1)                                                                       
-    a,b = exp_break(p)                                                          
-                                                                                
-    if a > 0:                                                                   
-        mul = x                                                                 
-        cnt = 0
-        for i in bin(a)[2:][::-1]:                                              
-            if i == '1':                                                        
-                m *= mul                                                        
-            # convert from fraction to floats to avoid ridicuoualy large
-            # numerators and denominators during calculation
-            if(type(m) == Fraction and m.numerator >= 10**5 and m.denominator >= 10**5):
-                m = float(m)
-            print(type(m), m)
-            cnt += 1
-            if cnt > 20:
-                break
-            mul *= mul                                                          
-                                                                                
-        return m*(x**b)                                                         
-    else:                                                                       
-        mul = 1./x                                                              
-        for i in bin(a)[3:][::-1]:                                              
-            if i == '1':                                                        
-                m *= mul                                                        
-            mul *= mul                                                          
-        return m*(x**b)                                                         
                                                                                 
 def prec(op, unary):
     """ Determines the precidence of each operator.
@@ -123,7 +79,9 @@ def calc2(op, L, R):
     if op == '/':
         return L/R
     if op == '^':
-        return Fraction(exp(L, R))
+        # convert to float to take advantage of python's fast floating point
+        # expontiation.
+        return Fraction(float(L)**float(R))
 
 
 def is_operand(s):
@@ -277,14 +235,14 @@ def evaluate(s):
         return "Parsing error, unknown paramater or function"
 
 if __name__ == "__main__":
-    # print(split_expr("1.234 + pi + tan(1)"))
-    # print(evaluate("1/10"))
-    # print(evaluate("1+1"))
-    # print(evaluate("1+(51 * -100)"))
-    # print(evaluate("(1/10) + (2/10)"))
-    # print(evaluate("((1/10) + (2/10) - (3/10))*1000000000000000000"))
-    # print(evaluate("(1/10) + (2/10) - (3/10)"))
-     print(evaluate("(1+1/1000000)^1000000"))
-    # print(evaluate("sin(cos(sqrt((1))))"))
-    # print(evaluate("arcsin(cos(sqrt(e)))"))
+    print(evaluate("1/10"))
+    print(evaluate("1+1"))
+    print(evaluate("1+(51 * -100)"))
+    print(evaluate("(1/10) + (2/10)"))
+    print(evaluate("((1/10) + (2/10) - (3/10))*1000000000000000000"))
+    print(evaluate("(1/10) + (2/10) - (3/10)"))
+    print(evaluate("(1+1/1000000)^1000000"))
+    print(evaluate("sin(cos(sqrt((1))))"))
+    print(evaluate("sin(cos(sqrt(e+pi)))"))
+    print(evaluate("10^10000000000000000000000000000"))
 
