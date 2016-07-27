@@ -24,16 +24,18 @@ import subprocess
 
 MATH_CONST = {"pi":"π"}
 
-def solve(user_input):
+def solve(user_input, x=""):
     """ Solves a mathematical expresion using the gnome calculator software."""
     for const in MATH_CONST:
         user_input = user_input.replace(const, MATH_CONST[const])
+        x = x.replace(const, MATH_CONST[const])
+    user_input = user_input.replace("x", x)
     out = subprocess.check_output("echo '{uinput}' | gcalccmd".format(uinput=user_input), shell=True)
     ret = out.decode("utf-8")
     return ret[ret.index(">")+1:ret[ret.index(">")+1:].index(">")].strip()                                          
 
 if __name__ == "__main__":
     print(solve("1+2"))
-    print(solve("|sin(-pi)|"))
+    print(solve("|sin(-x)|", "0"))
 
 

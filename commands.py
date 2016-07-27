@@ -140,10 +140,11 @@ def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
             return "sorry, there is no data for this room.", False
 
     if cmd == "calc":
-        try:
+        if "," in msg:
+            msg = msg.split(",")
+            return str(equation.solve(msg[0],msg[1])), True
+        else:
             return str(equation.solve(msg)), True
-        except Exception:
-            return "Arithmetic error or unrecognized symbols", False
 
     if cmd == "owner":
         return "Owned by: {owner}".format(owner=self.owner), True
