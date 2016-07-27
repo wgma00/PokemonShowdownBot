@@ -21,6 +21,7 @@ import math
 UNARY_OPS = ['+','-','sin','cos','tan','log','sqrt']
 MATH_CONST = {"pi":math.pi, "e":math.e}
 
+                                                                                
 def prec(op, unary):
     """ Determines the precidence of each operator.
 
@@ -60,10 +61,13 @@ def calc1(op, val):
         return math.cos(val)
     if op == 'tan':
         return math.tan(val)
+            
     if op == 'log':
         return math.log(val)
+
     if op == 'sqrt':
         return math.sqrt(val)
+
 
 
 
@@ -78,7 +82,9 @@ def calc2(op, L, R):
     if op == '/':
         return L/R
     if op == '^':
-        return L**R
+        # convert to float to take advantage of python's fast floating point
+        # expontiation.
+        return Fraction(float(L)**float(R))
 
 
 def is_operand(s):
@@ -157,7 +163,7 @@ def split_expr(s, delim=' \n\t\v\f\r'):
     i = 0
     while i < len(s): 
         # supports decimals and integers 
-        print(s[i])
+        # print(s[i])
         if s[i].isdigit() or s[i] == '.':
             acc += s[i]
         else:
@@ -181,9 +187,10 @@ def split_expr(s, delim=' \n\t\v\f\r'):
                         i += 3
                     else:
                         return None
+
                 elif(i+3 <= len(s) and  s[i].isalpha() and s[i+1].isalpha() and
                    s[i+2].isalpha()): 
-                    print(s[i:i+3],3)
+                    # print(s[i:i+3],3)
                     if s[i:i+3] in UNARY_OPS:
                         ret.append(s[i:i+3])
                         i += 2
@@ -192,28 +199,28 @@ def split_expr(s, delim=' \n\t\v\f\r'):
                         i += 2
                     else:
                         return None
-                    print(s[i])
+                    # print(s[i])
 
                 elif i+2 <= len(s) and s[i].isalpha() and s[i+1].isalpha():
-                    print(s[i:i+2],2)
+                    # print(s[i:i+2],2)
                     if s[i:i+2] in UNARY_OPS:
                         ret.append(s[i:i+2])
-                        i += 2
+                        i += 1
                     elif s[i:i+2] in MATH_CONST:
                         ret.append(MATH_CONST[s[i:i+2]])
-                        i += 2
+                        i += 1
                     else:
                         return None
 
                 elif i+1 <= len(s) and s[i].isalpha(): 
-                    print(s[i:i+1],1)
+                    # print(s[i:i+1],1)
                     if s[i:i+1] in UNARY_OPS:
                         ret.append(s[i:i+1])
                     elif s[i:i+1] in MATH_CONST:
                         ret.append(MATH_CONST[s[i:i+1]])
                     else:
                         return None
-                print(ret)
+                # print(ret)
             else:
                 ret.append(s[i])
         i += 1
@@ -226,20 +233,24 @@ def evaluate(s):
     """Evaluates an expression in infix notation"""
     parsed=split_expr(s) 
     if parsed:
-        print(parsed)
         return eval(parsed)
     else:
         return "Parsing error, unknown paramater or function"
 
 if __name__ == "__main__":
-    # print(split_expr("1.234 + pi + tan(1)"))
-    # print(evaluate("1/10"))
-    # print(evaluate("1+1"))
-    # print(evaluate("1+(51 * -100)"))
-    # print(evaluate("(1/10) + (2/10)"))
-    # print(evaluate("((1/10) + (2/10) - (3/10))*1000000000000000000"))
-    # print(evaluate("(1/10) + (2/10) - (3/10)"))
-    # print(evaluate("-(1/10)^2"))
-    # print(evaluate("sin(cos(sqrt((1))))"))
-    print(evaluate("arcsin(cos(sqrt(e)))"))
+    print(evaluate("1/10"))
+    print(evaluate("1+1"))
+    print(evaluate("1+(51 * -100)"))
+    print(evaluate("(1/10) + (2/10)"))
+    print(evaluate("((1/10) + (2/10) - (3/10))*1000000000000000000"))
+    print(evaluate("(1/10) + (2/10) - (3/10)"))
+    print(evaluate("(1+1/1000000)^1000000"))
+    print(evaluate("sin(cos(sqrt((1))))"))
+    print(evaluate("sin(cos(sqrt(e+pi)))"))
+    print(evaluate("pi/1000"))
+    print(evaluate("pi/1000"))
+    print(evaluate("sqrt(pi)"))
+    print(evaluate("sin(pi)"))
+    print(evaluate("cos(pi)"))
+    print(evaluate(".3^2 + .4^2 - .25"))
 
