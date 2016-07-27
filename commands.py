@@ -141,7 +141,7 @@ def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
 
     if cmd == "calc":
         try:
-            return str(equation.evaluate(msg)), True
+            return str(equation.solve(msg)), True
         except Exception:
             return "Arithmetic error or unrecognized symbols", False
 

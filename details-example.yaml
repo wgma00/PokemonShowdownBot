@@ -15,6 +15,9 @@ command: 'x'
 # OPTIONAL: The specific avatar the bot should use. Leave as 0 to pick the default one.
 avatar: 0
 
+#This will be used for debugging in the joim room 
+debug: False
+
 # The rooms that should be joined on login. Leave moderate as fale to not enforce punishments.
 # allow games: Specify if chatgames like hangman should be allowed in the room
 # tourwhitelist: If you want to make specific people able to start tournaments without being @, add them to this list
@@ -28,5 +31,5 @@ joinTours: False
 apikey: '0'
 # OPTIONAL: If you would like the LaTeX command services simply get your own apikey from imgur
 imgur_apikey: ''
-# Do nothing with the one below, itshould be empty
+# Do nothing with the one below, it should be empty
 rooms: {}
