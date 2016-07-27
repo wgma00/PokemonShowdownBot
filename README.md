@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/wgma00/PokemonShowdownBot.svg?branch=master)](https://travis-ci.org/wgma00/PokemonShowdownBot)
 Pokemon Showdown Bot made in Python 3.4
 
 Detailed information can be found in the respective files.
