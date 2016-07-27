@@ -21,8 +21,14 @@ Setting up
 #### Python version:
 - Python 3.4.2 
 
+### OS enviornment:
+-  Linux distribution like debian
+
 ### LaTeX dependecies:
 - Requires the following to be installed, ``texlive-full`` and ``poppler-utils``   
+
+### Calculator requirements:
+- Requires that ``gcalccmd`` is installed
 
 #### Guide:
 1. Clone the git repo to your desired location
@@ -33,10 +39,9 @@ Setting up
 License
 -------
 
-This is distributed under the terms of the [MIT License][1], and the [GNU License][2].
+This is distributed under the terms of the [MIT License][1]. 
 
-  [1]: https://github.com/QuiteQuiet/PokemonShowdownBot/blob/master/LICENCE
-  [2]: https://github.com/Alextrovert/Algorithm-Anthology/blob/master/LICENSE
+  [1]: https://github.com/wgma00/PokemonShowdownBot/blob/master/NOTICE
 
 Credits
 -------
