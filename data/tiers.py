@@ -1,3 +1,25 @@
+# The MIT License (MIT)
+#
+# Copyright (c) 2015 QuiteQuiet<https://github.com/QuiteQuiet>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+
 formats = {'uber','ou','uu','ru','nu','pu','lc','monotype','cap', 'cc'}
 tiers = {
 'uberpoke':{"Groudon-Primal","Salamence-Mega","Xerneas","Arceus-Normal","Ho-Oh","Darkrai","Gengar-Mega","Arceus-Water","Lugia","Latios","Klefki","Sableye-Mega","Deoxys-Speed","Arceus-Ground","Diancie-Mega","Arceus-Ghost","Giratina-Origin","Kyogre-Primal","Rayquaza","Deoxys-Attack","Mewtwo","Arceus-Rock","Latias","Arceus-Dragon","Tyranitar","Dialga","Excadrill","Yveltal","Skarmory","Shaymin-Sky","Kangaskhan-Mega","Mewtwo-Mega-Y","Bronzong","Jirachi","Ferrothorn","Zekrom","Mewtwo-Mega-X","Wobbuffet","Lucario-Mega","Aegislash","Blissey","Cloyster","Scolipede","Arceus-Dark","Slowbro-Mega","Arceus-Ice","Landorus-Therian","Tyranitar-Mega","Greninja","Blaziken","Alomomola","Clefable","Arceus-Fairy","Scizor-Mega","Forretress","Flygon","Tentacruel","Aerodactyl-Mega","Blaziken-Mega","Gothitelle","Groudon","Smeargle"},

@@ -1,24 +1,45 @@
-# The MIT License (MIT)
+# Copyright (C) 2016 William Granados<wiliam.granados@wgma00.me>
 #
-# Copyright (c) 2015 QuiteQuiet
+# This file is part of PokemonShowdownBot.
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# PokemonShowdownBot is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
+# PokemonShowdownBot is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# You should have received a copy of the GNU General Public License
+# along with PokemonShowdownBot.  If not, see <http://www.gnu.org/licenses/>.
+#
+# This file incorporates work covered by the following copyright and
+# permission notice:
+#
+#     The MIT License (MIT)
+#
+#     Copyright (c) 2015 QuiteQuiet<https://github.com/QuiteQuiet>
+#
+#     Permission is hereby granted, free of charge, to any person obtaining a
+#     copy of this software and associated documentation files (the "Software")
+#     , to deal in the Software without restriction, including without
+#     limitation the rights to use, copy, modify, merge, publish, distribute
+#     sublicense, and/or sell copies of the Software, and to permit persons to
+#     whom the Software is furnished to do so, subject to the following
+#     conditions:
+#
+#     The above copyright notice and this permission notice shall be included
+#     in all copies or substantial portions of the Software.
+#
+#     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+#     OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+#     MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+#     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+#     CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+#     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+#     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 # The command file for every external command not specifically for running the
@@ -75,7 +96,7 @@ def URL():
 
 def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
     """ Handles commands given by the chat parser.
-    
+
     Better documentation of the commands can be found in the COMMANDS.md file.
 
     Args:
@@ -89,11 +110,11 @@ def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
                    to improve grammar of sentences formed.
     Returns:
         Returns a pair indicating first,  the result of the command(output)
-        and the second a Boolean representing one of the following: 
-       
+        and the second a Boolean representing one of the following:
+
         True: Allows that the command in question can, if gotten from a room,
               be returned to the same room rather than a PM.
-        False: This will ALWAYS return the reply as a PM, no matter where it 
+        False: This will ALWAYS return the reply as a PM, no matter where it
                came from.
         example:
 
@@ -121,7 +142,7 @@ def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
     if cmd == "test":
         return "test", True
 
-    if cmd == "dune": 
+    if cmd == "dune":
         dune = ["A secret report within the Guild.","Four planets have come to our attention … regarding a plot which could jeopardize spice production. Planet Arrakis, source of the spice.","Planet Caladan, home of House Atreides. Planet Giedi Prime, home of House Harkonnen. Planet Kaitain, home of the Emperor of the Known Universe.","Send a third stage Guild Navigator to Kaitain to demand details from the Emperor. The spice must flow…","https://www.youtube.com/watch?v=E_fzSc_i0Tc"]
         return dune[int(msg)], True
 

@@ -1,8 +1,41 @@
-MIT License PokemonShowdownBot 
+All of this code used to be MIT-licensed by QuiteQuiet and William Granados.
+However after adding features and modules like the gnome-calculator, and
+pyimgur, this new project will now have to be sub-licensed under the GPLv3 to
+stay compliant with terms of the licences present in these modules.
+
+NB: Contributions that had been MIT-licensed by William Granados has now been
+    reliscenced under the GPLv3. Also, code that was left nearly untouched
+    from the original project has been properly accredited to QuiteQuiet. 
+
+MIT, PokemonShowdownBot
 Copyright 2015 and ongoing QuiteQuiet
 source: https://github.com/QuiteQuiet/PokemonShowdownBot
 
 
-MIT License PokemonShowdownBot 
+GPLv3, PokemonShowdownBot
 Copyright 2016 and ongoing William Granados
 source: https://github.com/wgma00/PokemonShowdownBot
+
+
+Imported/Interacting Modules
+===============================================================================
+MIT, PyYaml
+https://pypi.python.org/pypi/PyYAML
+
+Apache 2.0, Requests
+https://pypi.python.org/pypi/requests/
+
+MIT, simplejson
+https://pypi.python.org/pypi/simplejson/
+
+BSD-2-Clause, cleverbot
+https://pypi.python.org/pypi/cleverbot
+
+MIT, PyLaTeX
+https://pypi.python.org/pypi/PyLaTeX/
+
+GPLv3, PyImgur
+https://github.com/Damgaard/PyImgur
+
+GPLv3, Gnome Calculator
+https://git.gnome.org/browse/gnome-calculator/
