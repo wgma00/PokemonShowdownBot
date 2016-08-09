@@ -35,6 +35,7 @@ Setting up
 #### Guide:
 1. Clone the git repo to your desired location
 2. Use `pip install requirements.txt` to get relevant modules for the project
+3. Fix the ``pyimgur`` Python3 compatiblity [issue](https://github.com/wgma00/PokemonShowdownBot/issues/7)
 3. Follow the instructions in `details-example.yaml` to configure it
 4. Run using `python3 app.py`
 
