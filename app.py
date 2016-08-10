@@ -289,28 +289,24 @@ class PSBot(PokemonShowdownBot):
                 if response == "NoAnswer":
                     return
 
-                if(self.evalRoomPermission(user, room) or
-                   command in IgnoreBroadcastPermission):
-                    if command not in IgnoreEscaping:
-                        response = self.escapeText(response)
+                if self.details['debug'] or room.title != "joim" or user.isOwner():
+                    if(self.evalRoomPermission(user, room) or
+                       command in IgnoreBroadcastPermission):
+                        if command not in IgnoreEscaping:
+                            response = self.escapeText(response)
 
-                    if self.details['debug'] or room.title != "joim" or user.isOwner():
-                        self.reply(room.title, user, response, samePlace)
+                            self.reply(room.title, user, response, samePlace)
 
-                elif not self.evalRoomPermission(user, room):
-                    self.sendPm(user.id, ("Only {rank} users and up may use"
-                                          " commands in this room."
-                                          "").format(rank=room.broadcast_rank))
+                    elif not self.evalRoomPermission(user, room):
+                        self.sendPm(user.id, ("Only {rank} users and up may use"
+                                              " commands in this room."
+                                              "").format(rank=room.broadcast_rank))
 
-                elif command in CanPmReplyCommands:
-                    self.sendPm(user.id, self.escapeText(response))
-                else:
-                    self.sendPm(user.id, "Please pm the commands for"
+                    elif command in CanPmReplyCommands:
+                        self.sendPm(user.id, self.escapeText(response))
+                    else:
+                        self.sendPm(user.id, "Please pm the commands for"
                                 "a response.")
-            else:
-                # we really don't want this recording commands
-                # this will be the entry for the markov chain
-                self.rooms_markov[roomName].updateDatabase(message[4], True)
 
             if type(room.game) == Workshop:
                 room.game.logSession(room.title, user.rank+user.name,
