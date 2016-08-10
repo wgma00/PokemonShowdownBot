@@ -1,28 +1,49 @@
-# The MIT License (MIT)
+# Copyright (C) 2016 William Granados<wiliam.granados@wgma00.me>
 #
-# Copyright (c) 2015 QuiteQuiet
+# This file is part of PokemonShowdownBot.
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# PokemonShowdownBot is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
+# PokemonShowdownBot is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# You should have received a copy of the GNU General Public License
+# along with PokemonShowdownBot.  If not, see <http://www.gnu.org/licenses/>.
+#
+# This file incorporates work covered by the following copyright and
+# permission notice:
+#
+#     The MIT License (MIT)
+#
+#     Copyright (c) 2015 QuiteQuiet<https://github.com/QuiteQuiet>
+#
+#     Permission is hereby granted, free of charge, to any person obtaining a
+#     copy of this software and associated documentation files (the "Software")
+#     , to deal in the Software without restriction, including without
+#     limitation the rights to use, copy, modify, merge, publish, distribute
+#     sublicense, and/or sell copies of the Software, and to permit persons to
+#     whom the Software is furnished to do so, subject to the following
+#     conditions:
+#
+#     The above copyright notice and this permission notice shall be included
+#     in all copies or substantial portions of the Software.
+#
+#     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+#     OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+#     MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+#     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+#     CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+#     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+#     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 # This is the master class for the Python PS bot.
-# Every general-purpose command is included in this file, with the sole 
+# Every general-purpose command is included in this file, with the sole
 # exception being onMessage(), as derived applications may need to access
 # this function.
 #
@@ -46,25 +67,25 @@ import re
 from room import Room
 from user import User
 from plugins.battling.battleHandler import BattleHandler
-from plugins.math.markov import Markov 
+from plugins.math.markov import Markov
 from plugins.math.clever import Clever
 
 class PokemonShowdownBot:
     """This class contains most of the functionality of the bot.
-    
+
     This class handles connecting to the websocket and some basic commands
     functionalities like holding a message for a user.
-  
+
     Attributes:
         details: a map mapping serveral variables to sensitive information.
         owner: string, the user this bot responds too
         name: string, the name of the bot in chat
         id: string, a simplified string for identifying a user
         rooms: Room object, that keeps track of information in a given room.
-        rooms_markov: a map mapping room names to markov objects used to 
+        rooms_markov: a map mapping room names to markov objects used to
                       generate sentences for certain rooms.
         commandchar: string, string that is used to execute certain commands.
-        url: string, the url for pokemon showdown's open port that the 
+        url: string, the url for pokemon showdown's open port that the
              websocket will attempt connecting to.
     """
     def __init__(self, url, onMessage = None):
@@ -110,19 +131,21 @@ class PokemonShowdownBot:
 
     def intro(self):
         """Simple intro at startup"""
-        print('+~~~~~~~~~~~~~~~~~~~~~~~~+')
-        print('|  Pokemon Showdown Bot  |')
-        print('|      Created by:       |')
-        print('|      Quite Quiet       |')
-        print('|      Contributor:      |')
-        print('|      wgma00            |')
-        print('+~~~~~~~~~~~~~~~~~~~~~~~~+')
+        print("+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+")
+        print("|                        Pokemon Showdown Bot                                      |")
+        print("|Copyright (C) 2015, QuiteQuiet<https://github.com/QuiteQuiet>                     |")
+        print("|Copyright (C) 2016, William Granados<william.granados@wgma00.me>                  |")
+        print("|This program comes with ABSOLUTELY NO WARRANTY; for details check the LICENSE file|")
+        print("|and the NOTICE file. This is free software, and you are welcome to redistribute it|")
+        print("|under the certain conditions outlined in the aforementioned files.                |")
+        print("+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+")
+
 
     def log(self, sort, msg, user):
         """Log commands made by users in chat.
         Args:
-            sort: string, type of command made by a user (think '.git'). 
-            msg: string, substring after the first command character. 
+            sort: string, type of command made by a user (think '.git').
+            msg: string, substring after the first command character.
             user: string, name of the user
         """
         print("""{sort}: {cmd} (user: {user})
@@ -165,8 +188,8 @@ class PokemonShowdownBot:
         """Updates the bots credentials on pokemon showdown.
 
         Args:
-            name: string, name of the bot 
-            result: string, result code of the websocket after websocket is 
+            name: string, name of the bot
+            result: string, result code of the websocket after websocket is
                     opened.
         """
         if self.name not in name: return
@@ -199,7 +222,7 @@ class PokemonShowdownBot:
 
     def leaveRoom(self, room):
         ''' Attempts to leave a PS room
-        
+
         Returns:
             True if succesful, False otherwise.
         '''
@@ -214,7 +237,7 @@ class PokemonShowdownBot:
 
     def getRoom(self, roomName):
         """Returns a the room object associated with this room.
-        
+
         Args:
             roomName: string, name of the room object we want.
                 example:
@@ -245,7 +268,7 @@ class PokemonShowdownBot:
 
     def sendPm(self, user, msg):
         """Sends the specified user a private message.
-        
+
         Args:
             user:string, name of user.
             msg:string, message to be sent.
@@ -258,7 +281,7 @@ class PokemonShowdownBot:
 
     def reply(self, room, user, response, samePlace):
         """Replies with a response to the specified area.
-        
+
         Args:
             room: string, the room we are in.
             user: user object, the user who executed this command.
@@ -321,8 +344,8 @@ class PokemonShowdownBot:
         return self.isOwner(user.id) or User.Groups[user.rank] >= User.Groups[rank]
 
     def saveDetails(self):
-        """Saves the current details to the details.yaml.""" 
-        details = {k:v for k,v in self.details.items() if not k == 'rooms' and 
+        """Saves the current details to the details.yaml."""
+        details = {k:v for k,v in self.details.items() if not k == 'rooms' and
                    not k == 'joinRooms'}
         details['joinRooms'] = []
         for e in self.rooms:
@@ -336,10 +359,10 @@ class PokemonShowdownBot:
             yaml.dump(details, yf, default_flow_style = False)
 
     # Default onMessage if none is given (This only support logging in,
-    # nothing else). To get any actual use from the bot, create a custom 
+    # nothing else). To get any actual use from the bot, create a custom
     # onMessage function.
     def onMessage(self, ws, message):
-        """Only attempts logging in the bot. 
+        """Only attempts logging in the bot.
 
         Args:
             ws: websocket that is using this method.

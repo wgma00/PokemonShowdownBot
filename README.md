@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/wgma00/PokemonShowdownBot.svg?branch=master)](https://travis-ci.org/wgma00/PokemonShowdownBot)
 
-Pokemon Showdown Bot made in Python 3. 
+Pokemon Showdown Bot made in Python 3.
 
 More detailed information can be found in the respective files.
 
@@ -21,13 +21,13 @@ you notice any discreptencies please let me (wgma00) know.
 Setting up
 ---------
 #### Python version:
-- Python 3.4.2 
+- Python 3.4.2
 
 ### OS enviornment:
 -  Linux distribution like debian
 
 ### LaTeX dependecies:
-- Requires the following to be installed, ``texlive-full`` and ``poppler-utils``   
+- Requires the following to be installed, ``texlive-full`` and ``poppler-utils``
 
 ### Calculator requirements:
 - Requires that ``gcalccmd`` is installed
@@ -35,13 +35,14 @@ Setting up
 #### Guide:
 1. Clone the git repo to your desired location
 2. Use `pip install requirements.txt` to get relevant modules for the project
+3. Fix the ``pyimgur`` Python3 compatiblity [issue](https://github.com/wgma00/PokemonShowdownBot/issues/7)
 3. Follow the instructions in `details-example.yaml` to configure it
-4. Run using `python3 app.py` 
+4. Run using `python3 app.py`
 
 License
 -------
 
-This is distributed under the terms of the [MIT License][1]. 
+This project is distributed under the terms of the [GPLv3 and MIT License][1].
 
   [1]: https://github.com/wgma00/PokemonShowdownBot/blob/master/NOTICE
 
