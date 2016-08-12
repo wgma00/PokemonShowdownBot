@@ -132,7 +132,6 @@ def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
 
     if cmd == "latex":
         ltx = latex()
-        print("test")
         if not ltx.validateRequest(msg):
             return "invalid latex expression", False
         else:
@@ -142,9 +141,15 @@ def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
     if cmd == "test":
         return "test", True
 
+    if cmd == "dingram":
+        return "sucks",True
+
     if cmd == "dune":
         dune = ["A secret report within the Guild.","Four planets have come to our attention … regarding a plot which could jeopardize spice production. Planet Arrakis, source of the spice.","Planet Caladan, home of House Atreides. Planet Giedi Prime, home of House Harkonnen. Planet Kaitain, home of the Emperor of the Known Universe.","Send a third stage Guild Navigator to Kaitain to demand details from the Emperor. The spice must flow…","https://www.youtube.com/watch?v=E_fzSc_i0Tc"]
-        return dune[int(msg)], True
+        if msg.isdigit() and int(msg) < len(dune):
+            return dune[int(msg)], True
+        else:
+            return "Invalid", True
 
     if cmd == "clever":
         return self.clever_bot.reply(), True
