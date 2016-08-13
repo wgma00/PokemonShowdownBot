@@ -1,3 +1,7 @@
+import queue
+import requests
+import yaml
+
 ELEM = {'h':1, 'he':2, 'li':3, 'be':4, 'b':5, 'c':6, 'n':7, 'o':8, 'f':9,
         'ne':10, 'na':11, 'mg':12, 'al':13, 'si':14, 'p':15, 's':16, 'cl':17,
         'ar':18, 'k':19, 'ca':20, 'sc':21, 'ti':22, 'v':23, 'cr':24, 'mn':25,
@@ -38,18 +42,48 @@ def _parse_text(txt):
                 return ELEM[txt[i:i+3]]
     return None
 
+def _parse_text_bfs(txt):
+    visited, q = set(), queue.Queue()
+    q.put((txt,[]))
+    while not q.empty():
+        val = q.get()
+        if val[0] == '':
+            return val
+        for key in ELEM:
+            if val[0].startswith(key) and val[0][len(key):] not in visited:
+                visited.add(val[0][len(key):])
+                q.put((val[0][len(key):],val[1]+[key])) 
+    return None
+
+        
+
 def parse_text(txt):
     txt = txt.replace(' ', '')
     txt = txt.lower()
-    return _parse_text(txt)
+    return _parse_text_bfs(txt)
 
-def generate(arr):
-    print(arr)
-    tmp = arr
-    out = ''
+def generate():
+    word_site = ("http://svnweb.freebsd.org/csrg/share/dict/words?view=co&"
+                 "content-type=text/plain")
+    response = requests.get(word_site)
+    WORDS = response.content.splitlines()
+    with open("word_dict.yaml", 'r') as yaml_file:
+        details = yaml.load(yaml_file)
+        details['prec'] = {}
+        for word in WORDS:
+            word = word.decode('utf-8')
+            ans = parse_text(word)
+            if ans != None:
+                details['prec'][word] = (len(ans[1]), ans[1])
+            else:
+                details['prec'][word] = None
+
+    with open('word_dict.yaml', 'w') as outfile:
+        outfile.write( yaml.dump(details, default_flow_style=False))
+
 
 if __name__ == '__main__':
-   # print(generate(parse_text('fuk')))
-   print(parse_text('ccu'))
+    generate()
+    # print(parse_text('Nonrepresentationalisms')[1])
 
 
