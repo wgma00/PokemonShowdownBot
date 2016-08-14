@@ -57,6 +57,8 @@ def generate():
     with open('word_dict.yaml', 'w') as outfile:
         outfile.write( yaml.dump(details, default_flow_style=False))
 
+def check_word(txt):
+    txt = txt.replace(  
 
 if __name__ == '__main__':
     generate()
