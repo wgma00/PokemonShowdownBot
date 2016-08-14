@@ -35,11 +35,12 @@ def solve(user_input, x=""):
     """ Solves a mathematical expresion using the gnome calculator software."""
     # sanatize input to avoid security errors
     user_input = sanatize_input(user_input)
-    x = sanatize_input(user_input)
+    x = sanatize_input(x)
     for const in MATH_CONST:
         user_input = user_input.replace(const, MATH_CONST[const])
         x = x.replace(const, MATH_CONST[const])
     user_input = user_input.replace("x", x)
+    print(user_input)
     out = subprocess.check_output("echo '{uinput}' | gcalccmd".format(uinput=user_input), shell=True)
     ret = out.decode("utf-8")
     print(ret)
