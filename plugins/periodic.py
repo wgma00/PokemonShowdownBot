@@ -1,3 +1,20 @@
+# Copyright (C) 2016 William Granados<wiliam.granados@wgma00.me>
+# 
+# This file is part of PokemonShowdownBot.
+# 
+# PokemonShowdownBot is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# PokemonShowdownBot is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with PokemonShowdownBot.  If not, see <http://www.gnu.org/licenses/>.
+
 import queue
 import requests
 import yaml
@@ -137,7 +154,33 @@ class Periodic(GenericGame):
                 return False
         return True
 
+def _parse_text_bfs(txt):
+    visited, q = set(), queue.Queue()
+    q.put((txt,[]))
+    while not q.empty():
+        val = q.get()
+        if val[0] == '':
+            return val[1]
+        for key in ELEM:
+            if val[0].startswith(key) and val[0][len(key):] not in visited:
+                visited.add(val[0][len(key):])
+                q.put((val[0][len(key):],val[1]+[key])) 
+    return None
+
+def parse_text(txt):
+    words = []
+    for i in txt:
+        if i.isalpha():
+            words.append(i)
+    txt = ''.join(words)
+    txt = txt.lower()
+    return _parse_text_bfs(txt)
+
 def start(bot, cmd, room, msg, user):
+    
+    if (msg.startswith("'") and msg.endswith("'")
+        or (msg.startswith('"') and msg.endswith('"'))):
+        return str(parse_text(msg)), True
 
     if msg == 'new':
         if not user.hasRank('%'):                                               
