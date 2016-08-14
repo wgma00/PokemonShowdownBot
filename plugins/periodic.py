@@ -1,0 +1,185 @@
+import queue
+import requests
+import yaml
+import random
+
+if __name__ == '__main__':
+    from games import GenericGame
+else:
+    from plugins.games import GenericGame
+
+ELEM = {'h':1,'d':1, 't':1, 'he':2, 'li':3, 'be':4, 'b':5, 'c':6, 'n':7, 'o':8,
+        'f':9, 'ne':10, 'na':11, 'mg':12, 'al':13, 'si':14, 'p':15, 's':16,
+        'cl':17, 'ar':18, 'k':19, 'ca':20, 'sc':21, 'ti':22, 'v':23, 'cr':24,
+        'mn':25, 'fe':26, 'co':27, 'ni':28, 'cu':29, 'zn':30, 'ga':31, 'ge':32,
+        'as':33, 'se':34, 'br':35, 'kr':36, 'rb':37, 'sr':38, 'y':39, 'zr':40,
+        'nb':41, 'mo':42, 'tc':43, 'ru':44, 'rh':45, 'pd':46, 'ag':47, 'cd':48,
+        'in':49, 'sn':50, 'sb':51, 'te':52, 'i':53, 'xe':54, 'cs':55, 'ba':56, 
+        'la':57, 'ce':58, 'pr':59, 'nd':60, 'pm':61, 'sm':62, 'eu':63, 'gd':64,
+        'tb':65, 'dy':66, 'ho':67, 'er':68, 'tm':69, 'yb':70, 'lu':71, 'hf':72,
+        'ta':73, 'w':74, 're':75, 'os':76, 'ir':77, 'pt':78, 'au':79, 'hg':80, 
+        'tl':81, 'pb':82, 'bi':83, 'po':84, 'at':85, 'rn':86, 'fr':87, 'ra':88,
+        'ac':89, 'th':90, 'pa':91, 'u':92, 'np':93, 'pu':94, 'am':95, 'cm':96,
+        'bk':97, 'cf':98, 'es':99, 'fm':100, 'md':101, 'no':102, 'lr':103,
+        'rf':104, 'db':105, 'sg':106, 'bh':107, 'hs':108, 'mt':109, 'ds':110,
+        'rg':111, 'cn':112, 'uut':113, 'uuq':114, 'uup':115, 'uuh':116,
+        'nh':117, 'og':118} 
+
+WORDS = [] 
+WORDS_ANS = {}
+
+class Periodic(GenericGame):
+    def __init__(self):
+        global WORDS
+        global WORDS_ANS
+        if __name__ != '__main__':
+            with open("plugins/word_dict.yaml", 'r') as yaml_file:
+                self.details = yaml.load(yaml_file)
+                if(('WORDS' in self.details and len(self.details['WORDS']) != 0) 
+                    and ('WORDS_ANS' in self.details and len(self.details['WORDS_ANS']) != 0)):
+                    WORDS = self.details['WORDS']
+                    WORDS_ANS = self.details['WORDS_ANS']
+                else:
+                    self.generate()
+        else:
+            with open("word_dict.yaml", 'r') as yaml_file:
+                self.details = yaml.load(yaml_file)
+                if(('WORDS' in self.details and len(self.details['WORDS']) != 0) 
+                    and ('WORDS_ANS' in self.details and len(self.details['WORDS_ANS']) != 0)):
+                    WORDS = self.details['WORDS']
+                    WORDS_ANS = self.details['WORDS_ANS']
+                else:
+                    self.generate()
+        self.hints = []
+        self.word, self.solution = self.new_game()
+
+
+
+    def upload_words(self):
+        global WORDS
+        word_site = ("http://svnweb.freebsd.org/csrg/share/dict/words?view=co&"
+                     "content-type=text/plain")
+        response = requests.get(word_site)
+        WORDS = [i.decode('utf-8') for i in response.content.splitlines()]
+        self.details['WORDS'] = WORDS
+
+    def generate(self):
+        global WORDS
+        global WORDS_ANS
+        self.details['WORDS'] = []
+        self.details['WORDS_ANS'] = {}
+        self.upload_words()
+
+        temp_words = []
+        for word in WORDS:
+            ans = self.parse_text(word)
+            if ans != None:
+                self.details['WORDS_ANS'][word] = ans 
+                WORDS_ANS[word] = ans 
+                temp_words.append(word)
+        WORDS = temp_words
+        self.details['WORDS'] = WORDS
+
+        if __name__ == '__main__':
+            with open('word_dict.yaml', 'w') as outfile:
+                outfile.write( yaml.dump(self.details, default_flow_style=False))
+        else:
+            with open('plugins/word_dict.yaml', 'w') as outfile:
+                outfile.write( yaml.dump(self.details, default_flow_style=False))
+
+    def new_game(self):
+        global WORDS
+        global WORDS_ANS
+        word = random.choice(WORDS)
+        solution = self.parse_text(word)
+        self.hints = ["The correct answer has {elem} element(s)".format(elem=len(WORDS_ANS[word])),
+                      "The first element used is: " + WORDS_ANS[word][0],
+                      "The last element used is: " + WORDS_ANS[word][-1]]
+        return word, solution
+
+    def _parse_text_bfs(self, txt):
+        visited, q = set(), queue.Queue()
+        q.put((txt,[]))
+        while not q.empty():
+            val = q.get()
+            if val[0] == '':
+                return val[1]
+            for key in ELEM:
+                if val[0].startswith(key) and val[0][len(key):] not in visited:
+                    visited.add(val[0][len(key):])
+                    q.put((val[0][len(key):],val[1]+[key])) 
+        return None
+
+    def parse_text(self, txt):
+        txt = txt.replace(' ', '')
+        txt = txt.lower()
+        return self._parse_text_bfs(txt)
+
+    def get_word(self):
+        return self.word
+
+    def get_solution(self):
+        return self.solution 
+
+    def get_hint(self):
+        if self.hints:
+            hint = random.choice(self.hints)
+            self.hints.remove(hint)
+            return hint 
+        else:
+            return "no more hints"
+
+    def check_ans(self, ans):
+        global WORDS_ANS
+        lt = WORDS_ANS[self.word]
+        for i in range(len(lt)):
+            if lt[i] != ans[i]:
+                return False
+        return True
+
+def start(bot, cmd, room, msg, user):
+
+    if msg == 'new':
+        if not user.hasRank('%'):                                               
+            return 'You do not have permission to start a game in this room. (Requires %)', False
+        if room.game:                                                           
+            return 'A game is already running somewhere', False                 
+        room.game = Periodic()                                                   
+        return 'A new periodic parsed word has been created (guess with .pa):\n' + room.game.get_word(), True
+
+    elif room.game and msg == 'hint':
+        return room.game.get_hint(), True
+
+    elif room.game and msg == 'end':
+        if not user.hasRank('%'):                                               
+            return 'You do not have permission to end the anagram. (Requires %)', True
+
+        solved = room.game.get_solution()                                      
+        room.game = None
+        return ('The anagram was forcefully ended by {baduser}.'
+                 ' (Killjoy)\nThe solution was: **{solved}**'
+                 '').format(baduser=user.name,solved=solved), True
+
+    else:                                                                                                                                         
+           if msg: return '{param} is not a valid parameter for ~anagram. Make guesses with ~a'.format(param = msg), False
+           if room.game:                         
+               return 'Current periodic word: {word}'.format(word = room.game.get_word()), True
+           return 'There is no active anagram right now', False          
+
+def answer(bot, cmd, room, msg, user):
+    ans = list(msg.lower().split(' '))
+    if room.game:
+        if(room.game.check_ans(ans)):
+            sln = room.game.get_solution()
+            room.game = None
+            return 'Congratulations! The solution was: {solution}'.format(name=user.name, solution=sln), True     
+        else:
+            return '{test} is wrong!'.format(test=msg.lstrip()), True 
+    else:
+        return 'wtf did you do', True
+
+if __name__ == '__main__':
+    p = Periodic()
+    # print(parse_text('Nonrepresentationalisms')[1])
+
+

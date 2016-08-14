@@ -41,6 +41,7 @@ class Anagram(GenericGame):
         self.hints = []
         self.word, self.solution = self.newWord()
         self.startTime = datetime.datetime.now()
+
     def newWord(self):
         pokemon = list(Pokedex)
         moves = list(Moves)
@@ -57,17 +58,22 @@ class Anagram(GenericGame):
         anagram = list(pick)
         random.shuffle(anagram)
         return ''.join(anagram), pick
+
     def getHint(self):
         if not self.hints: return 'No more hints avaliable'
         hint = random.choice(self.hints)
         self.hints.remove(hint)
         return hint
+
     def getWord(self):
         return self.word
+
     def getSolvedWord(self):
         return self.solution
+
     def isCorrect(self, guess):
         return guess == self.solution
+
     def getSolveTimeStr(self):
         totalTime = datetime.datetime.now() - self.startTime
         if totalTime.seconds < 60:
@@ -80,17 +86,23 @@ class Anagram(GenericGame):
 
 def start(bot, cmd, room, msg, user):
     if msg == 'new':
-        if not user.hasRank('%'): return 'You do not have permission to start a game in this room. (Requires %)', False
-        if room.game: return 'A game is already running somewhere', False
+        if not user.hasRank('%'):
+            return 'You do not have permission to start a game in this room. (Requires %)', False
+        if room.game:
+            return 'A game is already running somewhere', False
         room.game = Anagram()
         return 'A new anagram has been created (guess with ~a):\n' + room.game.getWord(), True
 
     elif msg == 'hint':
-        if room.game: return 'The hint is: ' + room.game.getHint(), True
-        return 'There is no active anagram right now', False
+        if room.game:
+            return 'The hint is: ' + room.game.getHint(), True
+
+
     elif msg == 'end':
-        if not user.hasRank('%'): return 'You do not have permission to end the anagram. (Requires %)', True
-        if not (room.game and room.game.isThisGame(Anagram)): return 'There is no active anagram or a different game is active.', False
+        if not user.hasRank('%'):
+            return 'You do not have permission to end the anagram. (Requires %)', True
+        if not (room.game and room.game.isThisGame(Anagram)): 
+            return 'There is no active anagram or a different game is active.', False
         solved = room.game.getSolvedWord()
         room.game = None
         return 'The anagram was forcefully ended by {baduser}. (Killjoy)\nThe solution was: **{solved}**'.format(baduser = user.name, solved = solved), True
