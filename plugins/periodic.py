@@ -68,7 +68,9 @@ class Periodic(GenericGame):
                 else:
                     self.generate()
         self.hints = []
-        self.word, self.solution = self.new_game()
+        self.word = ''
+        self.solution = ''
+        self.new_game()
 
 
 
@@ -104,15 +106,20 @@ class Periodic(GenericGame):
             with open('plugins/word_dict.yaml', 'w') as outfile:
                 outfile.write( yaml.dump(self.details, default_flow_style=False))
 
-    def new_game(self):
+    def new_game(self, user_input=''):
         global WORDS
         global WORDS_ANS
-        word = random.choice(WORDS)
+        word = user_input if user_input else random.choice(WORDS)
         solution = self.parse_text(word)
+        #invalid user input
+        if(solution == None):
+            word = random.choice(WORDS)
+            solution = self.parse_text(word)
         self.hints = ["The correct answer has {elem} element(s)".format(elem=len(WORDS_ANS[word])),
                       "The first element used is: " + WORDS_ANS[word][0],
                       "The last element used is: " + WORDS_ANS[word][-1]]
-        return word, solution
+        self.word, self.solution = word, solution
+        print('new game:', self.word, self.solution)
 
     def _parse_text_bfs(self, txt):
         visited, q = set(), queue.Queue()
@@ -149,10 +156,24 @@ class Periodic(GenericGame):
     def check_ans(self, ans):
         global WORDS_ANS
         lt = WORDS_ANS[self.word]
+        print('checking:', lt, ans)
+        # we don't have to bother with these
+        if(len(ans) < len(lt) or len(ans) > len(lt)):
+            return False
+        # check if it's the same pretdetermined solution
+        first_test = True
         for i in range(len(lt)):
             if lt[i] != ans[i]:
-                return False
-        return True
+                first_test = False
+        # check if it's a valid solution of the same length
+        tmp = self.word
+        second_test = True
+        for i in range(len(ans)):
+            if tmp.startswith(ans[i]):
+                tmp = tmp[len(ans[i]):]
+            else:
+                second_test = False
+        return first_test or second_test
 
 def _parse_text_bfs(txt):
     visited, q = set(), queue.Queue()
@@ -176,18 +197,28 @@ def parse_text(txt):
     txt = txt.lower()
     return _parse_text_bfs(txt)
 
+WHITELIST = ['cryolite']
+PERIODIC_OBJ = Periodic()
+
 def start(bot, cmd, room, msg, user):
     
     if (msg.startswith("'") and msg.endswith("'")
         or (msg.startswith('"') and msg.endswith('"'))):
         return str(parse_text(msg)), True
-
-    if msg == 'new':
-        if not user.hasRank('%'):                                               
+    start_word = ''
+    if len(msg.split(' ')) > 1:
+        start_word = msg.split(' ')
+        
+    if msg == 'new' or (start_word and start_word[0] == 'new'):
+        global WHITELIST
+        global PERIODIC_OBJ
+        if not user.hasRank('%') and (not user.name.strip() in WHITELIST):                                               
             return 'You do not have permission to start a game in this room. (Requires %)', False
         if room.game:                                                           
             return 'A game is already running somewhere', False                 
-        room.game = Periodic()                                                   
+        room.game = PERIODIC_OBJ 
+        print(start_word)
+        room.game.new_game(start_word[1])
         return 'A new periodic parsed word has been created (guess with .pa):\n' + room.game.get_word(), True
 
     elif room.game and msg == 'hint':
@@ -204,7 +235,7 @@ def start(bot, cmd, room, msg, user):
                  '').format(baduser=user.name,solved=solved), True
 
     else:                                                                                                                                         
-           if msg: return '{param} is not a valid parameter for ~anagram. Make guesses with ~a'.format(param = msg), False
+           if msg: return '{param} is not a valid parameter for .periodic. Make guesses with .pa'.format(param = msg), False
            if room.game:                         
                return 'Current periodic word: {word}'.format(word = room.game.get_word()), True
            return 'There is no active anagram right now', False          
@@ -219,10 +250,10 @@ def answer(bot, cmd, room, msg, user):
         else:
             return '{test} is wrong!'.format(test=msg.lstrip()), True 
     else:
-        return 'wtf did you do', True
+        return 'There is no game running currently', True
 
 if __name__ == '__main__':
-    p = Periodic()
+    print(PERIODIC_OBJ.word, PERIODIC_OBJ.solution)
     # print(parse_text('Nonrepresentationalisms')[1])
 
 
