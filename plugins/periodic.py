@@ -91,6 +91,7 @@ class Periodic(GenericGame):
 
         temp_words = []
         for word in WORDS:
+            word = word.lower()
             ans = self.parse_text(word)
             if ans != None:
                 self.details['WORDS_ANS'][word] = ans 
@@ -155,8 +156,9 @@ class Periodic(GenericGame):
 
     def check_ans(self, ans):
         global WORDS_ANS
+        global ELEM
         lt = WORDS_ANS[self.word]
-        print('checking:', lt, ans)
+        print('checking: ',len(lt), lt, len(ans), ans)
         # we don't have to bother with these
         if(len(ans) < len(lt) or len(ans) > len(lt)):
             return False
@@ -169,11 +171,16 @@ class Periodic(GenericGame):
         tmp = self.word
         second_test = True
         for i in range(len(ans)):
-            if tmp.startswith(ans[i]):
+            if tmp.startswith(ans[i]) and ans[i] in ELEM:
                 tmp = tmp[len(ans[i]):]
             else:
                 second_test = False
         return first_test or second_test
+
+    def make_game(self, txt):
+        global WORDS_ANS 
+        self.word = txt
+        self.solution = self.parse_text(self.word)
 
 def _parse_text_bfs(txt):
     visited, q = set(), queue.Queue()
@@ -205,20 +212,16 @@ def start(bot, cmd, room, msg, user):
     if (msg.startswith("'") and msg.endswith("'")
         or (msg.startswith('"') and msg.endswith('"'))):
         return str(parse_text(msg)), True
-    start_word = ''
-    if len(msg.split(' ')) > 1:
-        start_word = msg.split(' ')
         
-    if msg == 'new' or (start_word and start_word[0] == 'new'):
+    if msg == 'new': 
         global WHITELIST
         global PERIODIC_OBJ
-        if not user.hasRank('%') and (not user.name.strip() in WHITELIST):                                               
+        if not user.hasRank('+') and (not user.name.strip() in WHITELIST):
             return 'You do not have permission to start a game in this room. (Requires %)', False
         if room.game:                                                           
             return 'A game is already running somewhere', False                 
         room.game = PERIODIC_OBJ 
-        print(start_word)
-        room.game.new_game(start_word[1])
+        room.game.new_game()
         return 'A new periodic parsed word has been created (guess with .pa):\n' + room.game.get_word(), True
 
     elif room.game and msg == 'hint':
@@ -254,6 +257,9 @@ def answer(bot, cmd, room, msg, user):
 
 if __name__ == '__main__':
     print(PERIODIC_OBJ.word, PERIODIC_OBJ.solution)
+    PERIODIC_OBJ.make_game('puccini')
+    print(PERIODIC_OBJ.check_ans('pu c c i ni'.split(' ')))
+    print(PERIODIC_OBJ.check_ans('pu c c i ni'.split(' ')))
     # print(parse_text('Nonrepresentationalisms')[1])
 
 

@@ -84,10 +84,16 @@ class Anagram(GenericGame):
         else:
             return '!'
 
+
+
+WHITELIST = ['cryolite']
+
 def start(bot, cmd, room, msg, user):
-    if msg == 'new':
-        if not user.hasRank('%'):
-            return 'You do not have permission to start a game in this room. (Requires %)', False
+    global WHITELIST
+    print(user.name.strip(), WHITELIST[0])
+    if msg == 'new': 
+        if not user.hasRank('+') and (not user.name.strip() in WHITELIST):
+            return 'You do not have permission to start a game in this room. (Requires +)', False
         if room.game:
             return 'A game is already running somewhere', False
         room.game = Anagram()
