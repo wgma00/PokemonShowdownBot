@@ -43,35 +43,28 @@ ELEM = {'h':1,'d':1, 't':1, 'he':2, 'li':3, 'be':4, 'b':5, 'c':6, 'n':7, 'o':8,
         'nh':117, 'og':118} 
 
 WORDS = [] 
-WORDS_ANS = {}
 
 class Periodic(GenericGame):
     def __init__(self):
         global WORDS
-        global WORDS_ANS
         if __name__ != '__main__':
             with open("plugins/word_dict.yaml", 'r') as yaml_file:
                 self.details = yaml.load(yaml_file)
-                if(('WORDS' in self.details and len(self.details['WORDS']) != 0) 
-                    and ('WORDS_ANS' in self.details and len(self.details['WORDS_ANS']) != 0)):
+                if('WORDS' in self.details and len(self.details['WORDS']) != 0): 
                     WORDS = self.details['WORDS']
-                    WORDS_ANS = self.details['WORDS_ANS']
                 else:
                     self.generate()
         else:
             with open("word_dict.yaml", 'r') as yaml_file:
                 self.details = yaml.load(yaml_file)
-                if(('WORDS' in self.details and len(self.details['WORDS']) != 0) 
-                    and ('WORDS_ANS' in self.details and len(self.details['WORDS_ANS']) != 0)):
+                if('WORDS' in self.details and len(self.details['WORDS']) != 0):
                     WORDS = self.details['WORDS']
-                    WORDS_ANS = self.details['WORDS_ANS']
                 else:
                     self.generate()
         self.hints = []
         self.word = ''
         self.solution = ''
         self.new_game()
-
 
 
     def upload_words(self):
@@ -84,43 +77,36 @@ class Periodic(GenericGame):
 
     def generate(self):
         global WORDS
-        global WORDS_ANS
         self.details['WORDS'] = []
-        self.details['WORDS_ANS'] = {}
         self.upload_words()
-
         temp_words = []
         for word in WORDS:
             word = word.lower()
             ans = self.parse_text(word)
             if ans != None:
-                self.details['WORDS_ANS'][word] = ans 
-                WORDS_ANS[word] = ans 
                 temp_words.append(word)
         WORDS = temp_words
         self.details['WORDS'] = WORDS
 
         if __name__ == '__main__':
             with open('word_dict.yaml', 'w') as outfile:
-                outfile.write( yaml.dump(self.details, default_flow_style=False))
+                outfile.write(yaml.dump(self.details, default_flow_style=False))
         else:
             with open('plugins/word_dict.yaml', 'w') as outfile:
-                outfile.write( yaml.dump(self.details, default_flow_style=False))
+                outfile.write(yaml.dump(self.details, default_flow_style=False))
 
     def new_game(self, user_input=''):
         global WORDS
-        global WORDS_ANS
         word = user_input if user_input else random.choice(WORDS)
         solution = self.parse_text(word)
         #invalid user input
         if(solution == None):
             word = random.choice(WORDS)
             solution = self.parse_text(word)
-        self.hints = ["The correct answer has {elem} element(s)".format(elem=len(WORDS_ANS[word])),
-                      "The first element used is: " + WORDS_ANS[word][0],
-                      "The last element used is: " + WORDS_ANS[word][-1]]
+        self.hints = ["The correct answer has {elem} element(s)".format(elem=len(solution)),
+                      "The first element used is: " + solution[0],
+                      "The last element used is: " + solution[-1]]
         self.word, self.solution = word, solution
-        print('new game:', self.word, self.solution)
 
     def _parse_text_bfs(self, txt):
         visited, q = set(), queue.Queue()
@@ -155,17 +141,15 @@ class Periodic(GenericGame):
             return "no more hints"
 
     def check_ans(self, ans):
-        global WORDS_ANS
         global ELEM
-        lt = WORDS_ANS[self.word]
-        print('checking: ',len(lt), lt, len(ans), ans)
+        print('checking: ',len(self.solution), self.solution, len(ans), ans)
         # we don't have to bother with these
-        if(len(ans) < len(lt) or len(ans) > len(lt)):
+        if(len(ans) < len(self.solution) or len(ans) > len(self.solution)):
             return False
         # check if it's the same pretdetermined solution
         first_test = True
-        for i in range(len(lt)):
-            if lt[i] != ans[i]:
+        for i in range(len(self.solution)):
+            if self.solution[i] != ans[i]:
                 first_test = False
         # check if it's a valid solution of the same length
         tmp = self.word
@@ -178,7 +162,6 @@ class Periodic(GenericGame):
         return first_test or second_test
 
     def make_game(self, txt):
-        global WORDS_ANS 
         self.word = txt
         self.solution = self.parse_text(self.word)
 
@@ -256,7 +239,6 @@ def answer(bot, cmd, room, msg, user):
         return 'There is no game running currently', True
 
 if __name__ == '__main__':
-    print(PERIODIC_OBJ.word, PERIODIC_OBJ.solution)
     PERIODIC_OBJ.make_game('puccini')
     print(PERIODIC_OBJ.check_ans('pu c c i ni'.split(' ')))
     print(PERIODIC_OBJ.check_ans('pu c c i ni'.split(' ')))
