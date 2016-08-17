@@ -200,7 +200,7 @@ def start(bot, cmd, room, msg, user):
         global WHITELIST
         global PERIODIC_OBJ
         if not user.hasRank('+') and (not user.name.strip() in WHITELIST):
-            return 'You do not have permission to start a game in this room. (Requires %)', False
+            return 'You do not have permission to start a game in this room. (Requires +)', False
         if room.game:                                                           
             return 'A game is already running somewhere', False                 
         room.game = PERIODIC_OBJ 
@@ -211,8 +211,8 @@ def start(bot, cmd, room, msg, user):
         return room.game.get_hint(), True
 
     elif room.game and msg == 'end':
-        if not user.hasRank('%'):                                               
-            return 'You do not have permission to end the anagram. (Requires %)', True
+        if not user.hasRank('+'):                                               
+            return 'You do not have permission to end the anagram. (Requires +)', True
 
         solved = room.game.get_solution()                                      
         room.game = None
