@@ -403,16 +403,23 @@ class PSBot(PokemonShowdownBot):
 if __name__ == "__main__":
     psb = PSBot()
     restartCount = 0
-    while restartCount < 100:
-        # This function has a loop that runs as long as the websocket
-        # is connected
-        psb.ws.run_forever()
-        # If we get here, the socket is closed and disconnected
-        # so we have to reconnect and restart (after waiting a bit of course,
-        # say half a minute)
-        time.sleep(30)
-        print("30 seconds since last disconnect. Retrying connection...")
-        psb.openWebsocket()
-        psb.addBattleHandler()
-        restartCount += 1
-        print("Restart Count:", restartCount)
+    try:
+        while restartCount < 100:
+            # This function has a loop that runs as long as the websocket
+            # is connected
+            psb.ws.run_forever()
+            # If we get here, the socket is closed and disconnected
+            # so we have to reconnect and restart (after waiting a bit 
+            # of course say half a minute)
+            time.sleep(30)
+            print("30 seconds since last disconnect. Retrying connection...")
+            psb.openWebsocket()
+            psb.addBattleHandler()
+            restartCount += 1
+            print("Restart Count:", restartCount)
+    except KeyboardInterrupt:
+        print("bot closed by KeyboardInterrupt")
+        exit()
+    except SystemExit:
+        print("bot closed by SystemExit")
+        exit()
