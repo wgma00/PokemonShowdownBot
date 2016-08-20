@@ -84,14 +84,20 @@ class Anagram(GenericGame):
         else:
             return '!'
 
+
+
+WHITELIST = ['cryolite']
+
 def start(bot, cmd, room, msg, user):
-    if msg == 'new':
-        if not user.hasRank('%'):
-            return 'You do not have permission to start a game in this room. (Requires %)', False
+    global WHITELIST
+    print(user.name.strip(), WHITELIST[0])
+    if msg == 'new': 
+        if not user.hasRank('+') and (not user.name.strip() in WHITELIST):
+            return 'You do not have permission to start a game in this room. (Requires +)', False
         if room.game:
             return 'A game is already running somewhere', False
         room.game = Anagram()
-        return 'A new anagram has been created (guess with ~a):\n' + room.game.getWord(), True
+        return 'A new anagram has been created (guess with .a):\n' + room.game.getWord(), True
 
     elif msg == 'hint':
         if room.game:
@@ -99,8 +105,8 @@ def start(bot, cmd, room, msg, user):
 
 
     elif msg == 'end':
-        if not user.hasRank('%'):
-            return 'You do not have permission to end the anagram. (Requires %)', True
+        if not user.hasRank('+'):
+            return 'You do not have permission to end the anagram. (Requires +)', True
         if not (room.game and room.game.isThisGame(Anagram)): 
             return 'There is no active anagram or a different game is active.', False
         solved = room.game.getSolvedWord()
@@ -113,7 +119,7 @@ def start(bot, cmd, room, msg, user):
         if name not in Scoreboard: return "This user never won any anagrams", True
         return 'This user has won {number} anagram{plural}'.format(number = Scoreboard[name], plural = '' if not type(Scoreboard[name]) == str and Scoreboard[name] < 2  else 's'), True
     else:
-        if msg: return '{param} is not a valid parameter for ~anagram. Make guesses with ~a'.format(param = msg), False
+        if msg: return '{param} is not a valid parameter for .anagram. Make guesses with .a'.format(param = msg), False
         if room.game and room.game.isThisGame(Anagram):
             return 'Current anagram: {word}'.format(word = room.game.getWord()), True
         return 'There is no active anagram right now', False
