@@ -12,7 +12,7 @@ Standard commands
 - `latex` : Returns a link with latex formated equations, for example:
             ``latex $\int \sqrt{1+\cos x + \sin x} dx$``
 - `calc` : Returns the result after arithmetic is applied on the equation, only +,-,* operators supported
-- `markov`: Generates a string based on the conservations in the room
+- `m`: Generates a string based on the convertation in the room
 - `pick a, b, c, d...` : Randomly selects one of the entered options.
 
 - `[tier]poke` : Randomly selects one Pokémon from the viable tier list from [tier]. Supported tiers are Uber, OU, UU, RU, NU, PU, and LC.
@@ -36,8 +36,20 @@ These commands are only allowed after relevant part enbling them through the all
 - `anagram new` : Generates a new anagram from a Pokémon or a move.
 - `anagram hint` : Display the hint for the current anagram
 - `anagram end` : Forcefully ends the current game, revealing the solution
-- Doing `~anagram` without any parameter prints out the current anagram if one exists.
+- Doing `.anagram` without any parameter prints out the current anagram if one exists.
+
+
+### Periodic Parser ###
+Periodic Parser is a game where you attempt to string together the least amount  elements from the periodic table that spell out
+the generated word. Do note, that some isotopes for certain elements are also included to for more fun. Examples of this are the
+isotopes for the element 'H' hydrogen being: 'd' for deuterium, 't' for tritium. Also note, that all element names may not be up
+to date with current IUPAC standards.
+- `periodic new`: generates a new periodic
+- `periodic hint`: Display a hint for the current word
+- `periodic end`: forcefully ends the current game, revealing the solution
+- Doing `.periodic` without any parameter prints out the current anagram if one exists.
 - `a` : Guess the solution. Everything after a is treated as the guess.
+
 
 #### Trivia ####
 Trivia is played in a 30 second guessing period and a 5 second wait between every question. Answers are only accepted during the answering period
