@@ -58,8 +58,7 @@
 #
 #   user: A user object like the one described in the app.py file
 
-from random import randint
-from random import sample
+import random
 import re
 import os
 import math
@@ -80,6 +79,7 @@ from plugins import GameCommands
 from plugins import IgnoreBroadcastPermission
 from plugins.math.latex import latex
 from plugins.math.clever import Clever
+from plugins.math.putnam import Putnam
 
 ExternalCommands = RoomCommands.copy()
 ExternalCommands.update(PluginCommands)
@@ -142,10 +142,22 @@ def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
         return "test", True
 
     if cmd == "dingram":
-        return "sucks",True
+        output = ["sucks", "chupa","succhia"]
+        return random.choice(output),True
+
+    if comd 
 
     if cmd == "dune":
-        dune = ["A secret report within the Guild.\n","Four planets have come to our attention … regarding a plot which could jeopardize spice production. Planet Arrakis, source of the spice.\n","Planet Caladan, home of House Atreides. Planet Giedi Prime, home of House Harkonnen. Planet Kaitain, home of the Emperor of the Known Universe.\n","Send a third stage Guild Navigator to Kaitain to demand details from the Emperor. The spice must flow…\n","https://www.youtube.com/watch?v=E_fzSc_i0Tc\n"]
+        dune = ["A secret report within the Guild.\n",
+                ("Four planets have come to our attention … regarding a plot"
+                 " which could jeopardize spice production. Planet Arrakis,"
+                 " source of the spice.\n"),
+                ("Planet Caladan, home of House Atreides. Planet Giedi Prime,"
+                 " home of House Harkonnen. Planet Kaitain, home of the "
+                 "Emperor of the Known Universe.\n"),
+                ("Send a third stage Guild Navigator to Kaitain to demand "
+                 "details from the Emperor. The spice must flow…\n"),
+                 "https://www.youtube.com/watch?v=E_fzSc_i0Tc\n"]
         return dune[0]+dune[1]+dune[2]+dune[3]+dune[4], True
     if cmd == "clever":
         return self.clever_bot.reply(), True
