@@ -80,6 +80,7 @@ from plugins import IgnoreBroadcastPermission
 from plugins.math.latex import latex
 from plugins.math.clever import Clever
 from plugins.math.putnam import Putnam
+from plugins.math.putnam import LatexParsingException 
 
 ExternalCommands = RoomCommands.copy()
 ExternalCommands.update(PluginCommands)
@@ -145,7 +146,13 @@ def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
         output = ["sucks", "chupa","succhia"]
         return random.choice(output),True
 
-    if comd 
+    if cmd == "putnam":
+        try:
+            p = Putnam()
+        except(LatexParsingException):
+            return "I dun goofed", True
+        else:
+            return p.upload_random_problem(), True
 
     if cmd == "dune":
         dune = ["A secret report within the Guild.\n",
