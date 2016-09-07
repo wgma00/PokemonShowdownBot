@@ -62,6 +62,8 @@ import random
 import re
 import os
 import math
+import time
+import requests
 
 from data.tiers import tiers
 from data.tiers import formats
@@ -104,7 +106,7 @@ def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
         self: PSBot object of the main program.
         cmd: string represnting the command the user wants to be done.
         room: Room object that this command was posted in.
-        msg: the remaning message after this command.
+        msg: the remaining message after this command.
         user: User object that initiated this command.
         room_name: Name of the room that this command was initiated in.
         markov_db: Connection to the Markov database for recording messages
@@ -138,6 +140,14 @@ def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
         else:
             url_upload = ltx.handleRequest(msg)
             return url_upload, True
+
+    if cmd == "dilbert":
+        return 'http://dilbert.com/strip/'+time.strftime("%Y-%m-%d"), True
+
+    if cmd == "xkcd":
+        r = requests.get('http://xkcd.com/info.0.json')
+        data = r.json()
+        return 'http://xkcd.com/'+str(data['num']), True
 
     if cmd == "test":
         return "test", True

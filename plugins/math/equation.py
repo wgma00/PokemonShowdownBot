@@ -16,6 +16,8 @@
 # along with PokemonShowdownBot.  If not, see <http://www.gnu.org/licenses/>.
 
 import subprocess
+import threading
+import queue
 
 MATH_CONST = {"pi":"π"}
 
@@ -40,10 +42,8 @@ def solve(user_input, x=""):
         user_input = user_input.replace(const, MATH_CONST[const])
         x = x.replace(const, MATH_CONST[const])
     user_input = user_input.replace("x", x)
-    print(user_input)
     out = subprocess.check_output("echo '{uinput}' | gcalccmd".format(uinput=user_input), shell=True)
     ret = out.decode("utf-8")
-    print(ret)
     if(ret == None or ret.count('>') != 2):
         return "invalid"
     if(ret.count('>') == 2 and ret[ret.index(">")+1:ret[ret.index(">")+1:].index(">")].strip().replace(' ','') == ''):
@@ -54,5 +54,16 @@ def solve(user_input, x=""):
 if __name__ == "__main__":
     print(solve("1+2"))
     print(solve("|sin(-x)|", "0"))
+    print(solve("0.5!"))
+    q = queue.Queue()
+    test_cases = ["1+2", "|sin(-0)|", "0.5!","1!"]
+    threading.TIMEOUT_MAX = 5
+    for test in test_cases:
+        t = threading.Thread(target=solve, args=(test,))
+        t.daemon = True
+        t.start()
+    while(not q.empty()):
+        s = q.pop()
+        print(s)
 
 

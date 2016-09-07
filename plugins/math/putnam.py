@@ -182,7 +182,7 @@ class Putnam(object):
         try:
             doc.generate_pdf('default')
         except:
-            raise LatexParsingException(docs.dumps())
+            raise LatexParsingException(doc.dumps())
         # These are normal Linux commands that are used to convert the pdf
         # file created by pylatex into a snippet
         os.system("pdfcrop default.pdf")

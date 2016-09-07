@@ -293,8 +293,6 @@ class PSBot(PokemonShowdownBot):
             if(message[4] == "♞"):
                 response = "♞"
                 self.reply(room.title, user, response, True)
-            else:
-                print(message[4])
 
             if(message[4].startswith(self.commandchar) and message[4][1:] and
                message[4][1].isalpha()):
