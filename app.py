@@ -310,7 +310,6 @@ class PSBot(PokemonShowdownBot):
                     else:
                         response, samePlace = self.do(self, command, room,
                                                       parsed_msg, user,
-                                                      roomName,
                                                       self.rooms_markov)
                 # administer commands from commands
                 if response == "NoAnswer":

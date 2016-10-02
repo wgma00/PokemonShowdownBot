@@ -97,18 +97,17 @@ def URL():
     return "https://github.com/wgma00/PokemonShowdownBot/"
 
 
-def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
+def Command(self, cmd, room, msg, user, markov_db=None):
     """ Handles commands given by the chat parser.
 
     Better documentation of the commands can be found in the COMMANDS.md file.
 
     Args:
         self: PSBot object of the main program.
-        cmd: string represnting the command the user wants to be done.
+        cmd: string representing the command the user wants to be done.
         room: Room object that this command was posted in.
         msg: the remaining message after this command.
         user: User object that initiated this command.
-        room_name: Name of the room that this command was initiated in.
         markov_db: Connection to the Markov database for recording messages
                    to improve grammar of sentences formed.
     Returns:
@@ -176,6 +175,7 @@ def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
                  "details from the Emperor. The spice must flow…\n"),
                  "https://www.youtube.com/watch?v=E_fzSc_i0Tc\n"]
         return dune[0]+dune[1]+dune[2]+dune[3]+dune[4], True
+
     if cmd == "clever":
         return self.clever_bot.reply(), True
 
@@ -184,9 +184,9 @@ def Command(self, cmd, room, msg, user, room_name=None, markov_db=None):
         return "reset", True
 
     if cmd == "m":
-        if (markov_db is not None and room_name is not None and
-                room_name in markov_db):
-            return markov_db[room_name].generateText(), True
+        if (markov_db is not None and room.title is not 'pm' and
+                room.title in markov_db):
+            return markov_db[room.title].generateText(), True
         else:
             return "sorry, there is no data for this room.", False
 
