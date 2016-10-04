@@ -67,7 +67,7 @@ with open('plugins/bans.yaml', 'a+') as yf:
         yf.seek(0, 0)
         bans = yaml.load(yf)
         if not bans:
-            bans = {'user':[],'phrase':[]}
+            bans = {} # {'user': [], 'phrase': []}
         banned = bans
 
 # Constants
@@ -78,32 +78,34 @@ def MIN_MESSAGE_TIME(): return timedelta(milliseconds = 300) * MESSAGES_FOR_SPAM
 def SPAM_INTERVAL(): return timedelta(seconds = 6)
 
 def addBan(t, room, ban):
-    if room not in banned[t]:
-        banned[t][room] = []
+    if room not in banned:
+        banned[room] = {'user': [], 'phrase': []}
     if t == 'user':
         ban = re.sub(r'[^a-zA-z0-9]', '', ban).lower()
-        if ban in banned['user'][room]:
+        if ban in banned[room]['user']:
             return 'User already banned in this room'
-    elif t == 'phrase' and ban in banned['phrase'][room]:
+    elif t == 'phrase' and ban in banned[room]['phrase']:
             return 'Phrase already banned'
-    banned[t][room].append(ban)
+    banned[room][t].append(ban)
     with open('plugins/bans.yaml', 'w') as yf:
         yaml.dump(banned, yf)
 
 def removeBan(t, room, ban):
+    if room not in banned: return
     ban = re.sub(r'[^a-zA-z0-9]', '', ban).lower()
-    if t == 'user' and ban not in banned['user'][room]:
+    if t == 'user' and ban not in banned[room]['user']:
             return 'User not banned'
-    elif t == 'phrase' and ban not in banned['phrase'][room]:
+    elif t == 'phrase' and ban not in banned[room]['phrase']:
             return 'Phrase not banned'
-    banned[t][room].remove(ban)
+    banned[room][t].remove(ban)
     with open('plugins/bans.yaml', 'w') as yf:
         yaml.dump(banned, yf)
 
 def shouldBan(bot, user, room):
     return room.moderate and isBanned(user.id, room.title) and bot.canBan(room)
+
 def isBanned(user, room):
-    return user in banned['user'][room]
+    return user in banned[room]['user']
 
 class PunishedUser:
     def __init__(self, name, score, now):
@@ -140,13 +142,14 @@ def badLink(link):
             pass
         return True
     return False
+
 def recentlyPunished(user, now):
     if user.id not in punishedUsers:
         return False
     timeDiff = now - punishedUsers[user.id].lastPunished
     return timeDiff < timedelta(seconds = 3)
 def isBanword(msg, room):
-    for ban in banned['phrase'][room]:
+    for ban in banned[room]['phrase']:
         if ban.lower() in msg:
             return True
     return False
@@ -155,23 +158,19 @@ def isSpam(msg, user, room, now):
         spamTracker[room] = {}
     if user.id not in spamTracker[room]:
         spamTracker[room][user.id] = deque('', 50)
-        # The first time this user have talked, so there's no way it's spam now
-        return False
     spamTracker[room][user.id].append(now)
     times = spamTracker[room][user.id]
     timesLen = len(times)
     if timesLen < MESSAGES_FOR_SPAM():
          return False
-    timeDiff = now - times[timesLen - MESSAGES_FOR_SPAM()]
-    if (
-      timeDiff < SPAM_INTERVAL() and
-      timeDiff > MIN_MESSAGE_TIME()
-    ):
+    timeDiff = now - times[timesLen - (MESSAGES_FOR_SPAM() + 1)]
+    if timeDiff < SPAM_INTERVAL() and timeDiff > MIN_MESSAGE_TIME():
     # For it to be spam, the following conditions has to be met:
     # 1: At least 5 messages in the last 6 seconds
     # 2: At least 300ms between every message
         return True
     return False
+
 def isStretching(msg, users):
     for user in users:
         # If a username trigger the stretching, remove the username from the message
@@ -184,6 +183,7 @@ def isStretching(msg, users):
     if re.search(STRETCH_REGEX, msg):
         return True
     return False
+
 def isCaps(msg, users):
     # To make sure no username triggers this, replace them with empty strings before
     # doing the actual check
@@ -241,6 +241,9 @@ nextReset = datetime.now().date() + timedelta(days = 2)
 def shouldAct(msg, user, room, unixTime):
     global nextReset
 
+    # If the room isn't present in bans.yaml we need to add it at least temporary
+    if room.title not in banned: banned[room.title] = {'user': [], 'phrase': []}
+
     now = datetime.utcfromtimestamp(int(unixTime))
     # Clear the punishment scores every two days
     if now.date() == nextReset:
@@ -255,8 +258,8 @@ def shouldAct(msg, user, room, unixTime):
         return 'banword'
     if recentlyPunished(user, now):
         return False
-    if probablyHarmful(msg, room.users):
-        return 'harmful'
+    # if probablyHarmful(msg, room.users):
+    #     return 'harmful'
 # Disabled any moderating that isn't directly harmful to the rooms.
 # If moderating for stretching or caps is desired, uncomment the relevant
 # section of code. The recently punished test can stay to avoid forgetting
@@ -274,7 +277,6 @@ def shouldAct(msg, user, room, unixTime):
 #        if badLink(url):
 #            return 'badlink'
     return False
-
 
 # Commands
 def moderate(bot, cmd, room, msg, user):
@@ -296,12 +298,16 @@ def banthing(bot, cmd, room, msg, user):
     if not user.hasRank('#'): return 'You do not have permission to do this. (Requires #)', False
     error = addBan(cmd[3:], room.title, msg)
     if not error:
-        return 'Added {thing} to the banlist for room {room}'.format(thing = msg, room = room.title), True
+        modnote = '/modnote {user} added {thing} to the blacklist'.format(thing = msg, user = user.name)
+        ban = ''
+        if msg in room.userlist:
+            ban = '\n/roomban {user}, Was added to blacklist'.format(user = msg)
+        return 'Added {thing} to the banlist\n{note}{act}'.format(thing = msg, user = user.name, note = modnote, act = ban), True
     return error, True
 
 def unbanthing(bot, cmd, room, msg, user):
     if not user.hasRank('#'): return 'You do not have permission to do this. (Requires #)', False
     error = removeBan(cmd[5:], room.title, msg)
     if not error:
-        return 'Removed {thing} from the banlist for room {room}'.format(thing = msg, room = room.title), True
+        return 'Removed {thing} from the banlist {room}\n/modnote {user} removed {thing} from the blacklist'.format(thing = msg, room = room.title, user = user.name), True
     return error, True
