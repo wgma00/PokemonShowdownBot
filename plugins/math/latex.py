@@ -25,6 +25,7 @@ from pylatex import Math
 from pylatex import Quantity
 from pylatex import Command
 from pylatex import NoEscape
+from pylatex import Package
 import yaml
 
 
@@ -63,6 +64,7 @@ class latex(object):
         # create a barebones latex document with only the one line
         # specified from the user in the document.
         doc = Document(documentclass='minimal')
+        doc.packages = [Package(i) for i in 'amsmath,amsthm,amssymb,amsfonts'.split(',')]
         doc.append(NoEscape(msg))
         doc.generate_pdf('default')
         # These are normal Linux commands that are used to convert the pdf
