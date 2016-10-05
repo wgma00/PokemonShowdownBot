@@ -145,7 +145,9 @@ class PSBot(PokemonShowdownBot):
 
     def testRoombaned(self, room, user):
         if moderation.shouldBan(self, user, room):
-            self.takeAction(room.title, user, 'roomban', "You are blacklisted from this room, so please don't come here.")
+            self.takeAction(room.title, user, 'roomban', 
+                            ("You are blacklisted from this room, so please"
+                            " don't come here."))
             return True
         return False
 
@@ -262,7 +264,8 @@ class PSBot(PokemonShowdownBot):
             # to update the userlist
             if self.userIsSelf(message[2][1:]):
                 room.rank = message[2][0]
-            newUser = User(message[2][1:], message[2][0], self.isOwner(message[2]))
+            newUser = User(message[2][1:], message[2][0],
+                           self.isOwner(message[2]))
             room.renamedUser(self.toId(message[3]), newUser)
             self.testRoombaned(room, newUser)
 
@@ -295,7 +298,8 @@ class PSBot(PokemonShowdownBot):
                 response = "♞"
                 self.reply(room.title, user, response, True)
 
-            if(room.title not in self.rooms_markov and not message[4].startswith(self.commandchar)):
+            if(room.title not in self.rooms_markov 
+               and not message[4].startswith(self.commandchar)):
                 self.rooms_markov[room.title] = Markov(room.title)
                 markov_msg = message[4]
                 self.rooms_markov[room.title].updateDatabase(markov_msg, True)
@@ -309,11 +313,14 @@ class PSBot(PokemonShowdownBot):
                 command = self.extractCommand(message[4])
                 self.log("Command", message[4], user.id)
 
-                res = self.do(self, command, room, message[4][len(command) + 1:].lstrip(), user, self.rooms_markov)
+                res = self.do(self, command, room,
+                              message[4][len(command)+1:].lstrip(),
+                              user, self.rooms_markov)
                 if not res.text or res.text == 'NoAnswer': 
                     return
 
-                if self.evalRoomPermission(user, room) or res.ignoreBroadcastPermission:
+                if(self.evalRoomPermission(user, room)
+                   or res.ignoreBroadcastPermission):
                     if not res.ignoreEscaping:
                         res.text = self.escapeText(res.text)
                     self.reply(room.title, user, res.text, res.samePlace)
@@ -321,10 +328,12 @@ class PSBot(PokemonShowdownBot):
                 elif res.canPmReply:
                     self.sendPm(user.id, self.escapeText(res.text))
                 else:
-                    self.sendPm(user.id, 'Please pm the command for a response.')
+                    self.sendPm(user.id, ('Please pm the command for'
+                                          'a response.'))
 
             if type(room.activity) == Workshop:
-                room.activity.logSession(room.title, user.rank + user.name, message[4])
+                room.activity.logSession(room.title, user.rank+user.name, 
+                                         message[4])
 
         elif 'pm' in message[1].lower():
             user = User(message[2][1:], message[2][0], self.isOwner(message[2]))
@@ -342,7 +351,8 @@ class PSBot(PokemonShowdownBot):
                message[4][1].isalpha()):
                 command = self.extractCommand(message[4])
                 self.log('Command', message[4], user.id)
-                params = message[4][len(command) + len(self.commandchar):].lstrip()
+                params = message[4][len(command)+len(self.commandchar):]
+                params = params.lstrip()
                 response = self.do(self, command, Room('pm'), params, user)
                 if not response.text or response.text == 'NoAnswer': return
                 self.sendPm(user.id, response.text)
@@ -353,7 +363,8 @@ class PSBot(PokemonShowdownBot):
             if 'create' in message[2]:
                 room.createTour(self.ws, message[3])
                 # Tour was created, join it if in supported formats
-                if self.details['joinTours'] and room.tour.format in supportedFormats:
+                if(self.details['joinTours']
+                   and room.tour.format in supportedFormats):
                     room.tour.joinTour()
             elif 'end' == message[2]:
                 winner, tier = room.getTourWinner(message[3])

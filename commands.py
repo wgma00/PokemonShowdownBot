@@ -105,8 +105,8 @@ def Command(self, cmd, room, msg, user, markov_db=None):
         markov_db: Connection to the Markov database for recording messages
                    to improve grammar of sentences formed.
     Returns:
-        Returns a Reply object a differing reply object depending on the nature
-        of the command.
+        Returns a Reply object a differing reply object depending on the
+        nature of the command.
     Raises:
         Exception: There was likely improper input in the .calc command or
                    something I entirely missed lol.
@@ -115,10 +115,12 @@ def Command(self, cmd, room, msg, user, markov_db=None):
         return ReplyObject("test", True)
 
     if cmd in ["source", "git"]:
-        return ReplyObject("Source code can be found at: {url}".format(url=URL()))
+        return ReplyObject(("Source code can be found at:"
+                            " {url}").format(url=URL()))
 
     if cmd == "credits":
-        return ReplyObject("Credits can be found: {url}".format(url=URL()), True)
+        return ReplyObject(("Credits can be found:"
+                            " {url}").format(url=URL()), True)
 
     if cmd == "latex":
         ltx = latex()
@@ -129,7 +131,8 @@ def Command(self, cmd, room, msg, user, markov_db=None):
             return ReplyObject(url_upload, True)
 
     if cmd == "dilbert":
-        return ReplyObject('http://dilbert.com/strip/'+time.strftime("%Y-%m-%d"), True)
+        return ReplyObject(('http://dilbert.com/'
+                           'strip/')+time.strftime("%Y-%m-%d"), True)
 
     if cmd == "xkcd":
         r = requests.get('http://xkcd.com/info.0.json')
@@ -190,7 +193,8 @@ def Command(self, cmd, room, msg, user, markov_db=None):
                             "COMMANDS.md").format(url=URL()), True)
 
     if cmd == "explain":
-        return ReplyObject("Inspired by dubsbot, this bot is twice as good", True)
+        return ReplyObject(('Inspired by dubsbot, this bot is twice'
+                            'as good'), True)
 
     if cmd == 'leave':
         msg = self.removeSpaces(msg)
@@ -202,32 +206,38 @@ def Command(self, cmd, room, msg, user, markov_db=None):
         if user.isOwner():
             res = str(eval(msg))
             return ReplyObject(res if not res == None else '', True)
-        return ReplyObject('You do not have permisson to use this command. (Only for owner)')
+        return ReplyObject('You do not have permisson to use this '
+                           'command. (Only for owner)')
     if cmd == 'forcerestart':
         if user.hasRank('#'):
             # Figure out how to do this
             self.closeConnection()
             return ReplyObject('')
-        return ReplyObject('You do not have permisson to use this command. (Only for owner)')
+        return ReplyObject('You do not have permisson to use this command.'
+                           ' (Only for owner)')
     # Save current self.details to details.yaml (moves rooms to joinRooms)
-    # Please note that this command will remove every comment from details.yaml, if those exist.
+    # Please note that this command will remove every comment from
+    # details.yaml, if those exist.
     if cmd == 'savedetails':
         if user.hasRank('#'):
             self.saveDetails()
             return ReplyObject('Details saved.', True)
-        return ReplyObject("You don't have permission to save settings. (Requires #)")
+        return ReplyObject("You don't have permission to save settings."
+                           "(Requires #)")
 
     if cmd == 'newautojoin':
         if user.hasRank('#'):
             # Join the room before adding it to list of autojoined rooms
             self.joinRoom(msg)
             self.saveDetails(True)
-            return ReplyObject("New autojoin ({room}) added.".format(room = msg))
-        return ReplyObject("You don't have permission to save settings. (Requires #)")
+            return ReplyObject("New autojoin ({room}) added.".format(room=msg))
+        return ReplyObject("You don't have permission to save settings."
+                           " (Requires #)")
     # Permissions
     if cmd == 'broadcast':
         if room.title != "pm":
-            return ReplyObject(("Rank required to broadcast: {rank}""").format(rank=room.broadcast_rank), True)
+            return ReplyObject(("Rank required to broadcast: {rank}"
+                                "").format(rank=room.broadcast_rank), True)
         else:
             return ReplyObject("No broadcast ranks in PMs")
 
@@ -235,14 +245,14 @@ def Command(self, cmd, room, msg, user, markov_db=None):
         if room.title != "pm":
             msg = self.removeSpaces(msg)
             if msg in User.Groups or msg in ["off", "no", "false"]:
-                print(user.rank, user.hasRank("#"))
                 if user.hasRank("#"):
                     if msg in ["off", "no", "false"]: msg = " "
                     room.broadcast_rank = msg
-                    return ReplyObject(("Local broadcast rank set to {rank}. (This is not"
-                            " saved on reboot)").format(rank=msg), True)
-                return ReplyObject(("You are not allowed to set broadcast rank."
-                        " (Requires #)"))
+                    return ReplyObject(("Local broadcast rank set to {rank}."
+                                        " (This is not saved on reboot)"
+                                        ).format(rank=msg), True)
+                return ReplyObject(("You're not allowed to set broadcast rank."
+                                    " (Requires #)"))
             return ReplyObject("{rank} is not a valid rank".format(rank=msg))
         else:
             return ReplyObject("No broadcast ranks in Pms")
@@ -256,7 +266,8 @@ def Command(self, cmd, room, msg, user, markov_db=None):
         msg = msg.lower()
         if msg in Links[cmd]:
             return ReplyObject(Links[cmd][msg], True)
-        return ReplyObject('{tier} is not a supported format for {command}'.format(tier = msg, command = cmd), True)
+        return ReplyObject(('{tier} is not a supported format for {command}'
+                            '').format(tier = msg, command = cmd), True)
     if cmd == 'usage':
         return ReplyObject(usageLink, True, False, False, False, True)
     # Fun stuff
@@ -266,7 +277,8 @@ def Command(self, cmd, room, msg, user, markov_db=None):
     if cmd == 'ask':
         return ReplyObject(Lines[randint(0, len(Lines) - 1)], True)
     if cmd == 'seen':
-        return ReplyObject("This is not a command because I value other users' privacy.", True)
+        return ReplyObject(("This is not a command because I value other"
+                            " users' privacy."), True)
     if cmd == 'squid':
         return ReplyObject('\u304f\u30b3\u003a\u5f61', True)
     if cmd in YoutubeLinks:
@@ -274,13 +286,16 @@ def Command(self, cmd, room, msg, user, markov_db=None):
     if cmd in tiers:
         pick = list(tiers[cmd])[randint(0,len(tiers[cmd])-1)]
         pNoForm = re.sub('-(?:Mega(?:-(X|Y))?|Primal)','', pick).lower()
-        return ReplyObject('{poke} was chosen: http://www.smogon.com/dex/xy/pokemon/{mon}/'.format(poke = pick, mon = pNoForm), True)
+        return ReplyObject(('{poke} was chosen: http://www.smogon.com/dex/xy/'
+                            'pokemon/{mon}/').format(poke=pick, mon=pNoForm),
+                            True)
     if cmd in [t.replace('poke','team') for t in tiers]:
         team = set()
         hasMega = False
         attempts = 0
         while len(team) < 6 or not acceptableWeakness(team):
-            poke = list(tiers[cmd.replace('team','poke')])[randint(0, len(tiers[cmd.replace('team','poke')]) - 1)]
+            poke = list(tiers[cmd.replace('team','poke')])
+            poke = poke[randint(0, len(tiers[cmd.replace('team','poke')])-1)]
             # Test if share dex number with anything in the team
             if [p for p in team if Pokedex[poke]['dex'] == Pokedex[p]['dex']]:
                 continue
@@ -295,20 +310,31 @@ def Command(self, cmd, room, msg, user, markov_db=None):
                 break
             attempts += 1
             if attempts >= 100:
-                # Prevents locking up if a pokemon turns the team to an impossible genration
-                # Since the team is probably bad anyway, just finish it and exit
+                # Prevents locking up if a pokemon turns the team to an
+                # impossible genration. Since the team is probably bad anyway,
+                # just finish it and exit
                 while len(team) < 6:
-                   team |= {list(tiers[cmd.replace('team','poke')])[randint(0,len(tiers[cmd.replace('team','poke')]) - 1)]}
+                    teams = list(tiers[cmd.replace('team','poke')])
+                    seed = len(tiers[cmd.replace('team','poke')])-1
+                    rand_team = [randint(0, seed)]
+                    team |= {rand_team}
                 break
         return ReplyObject(' / '.join(list(team)), True)
     if cmd in formats:
-        return ReplyObject('Format: http://www.smogon.com/dex/xy/formats/{tier}/'.format(tier = cmd), True)
+        return ReplyObject(('Format: http://www.smogon.com/dex/xy/formats/'
+                            '{tier}/').format(tier = cmd), True)
     # This command is here because it's an awful condition, so try it last :/
-    if [p for p in Pokedex if re.sub('-(?:mega(?:-(x|y))?|primal|xl|l)','', cmd, flags=re.I) in p.replace(' ','').lower()]:
+    new_list = filter(lambda p: re.sub('-(?:mega(?:-(x|y))?|primal|xl|l)','',
+                      cmd, flags=re.I) in p.replace(' ','').lower(),
+                      [p for p in Pokedex])
+    if new_list: 
         cmd = re.sub('-(?:mega(?:-(x|y))?|primal)','', cmd)
-        substitutes = {'gourgeist-s':'gourgeist-small',  # This doesn't break Arceus-Steel like adding |S to the regex would
-                       'gourgeist-l':'gourgeist-large',  # and gourgeist-s /pumpkaboo-s still get found, because it matches the
-                       'gourgeist-xl':'gourgeist-super', # entry for gougeist/pumpkaboo-super
+        # This doesn't break Arceus-Steel like adding |S to the regex would
+        # and gourgeist-s /pumpkaboo-s still get found, because it matches the
+        # entry for gougeist/pumpkaboo-super
+        substitutes = {'gourgeist-s':'gourgeist-small',  
+                       'gourgeist-l':'gourgeist-large',  
+                       'gourgeist-xl':'gourgeist-super',
                        'pumpkaboo-s':'pumpkaboo-small',
                        'pumpkaboo-l':'pumpkaboo-large',
                        'pumpkaboo-xl':'pumpkaboo-super',
@@ -316,14 +342,19 @@ def Command(self, cmd, room, msg, user, markov_db=None):
                        'mr.mime':'mr_mime',
                        'mimejr.':'mime_jr'}
         if cmd.lower() not in (self.removeSpaces(p).lower() for p in Pokedex):
-            return ReplyObject('{cmd} is not a valid command'.format(cmd = cmd), True)
+            return ReplyObject('{cmd} is not a valid command'.format(cmd=cmd),
+                               True)
         if cmd in substitutes:
             cmd = substitutes[cmd]
         if User.compareRanks(room.rank, '*'):
-            return ReplyObject('/addhtmlbox <a href="http://www.smogon.com/dex/xy/pokemon/{mon}/">{capital} analysis</a>'.format(mon = cmd, capital = cmd.title()), True, True)
-        return ReplyObject('Analysis: http://www.smogon.com/dex/xy/pokemon/{mon}/'.format(mon = cmd), True)
+            return ReplyObject(('/addhtmlbox <a href="http://www.smogon.com/'
+                                'dex/xy/pokemon/{mon}/">{capital} analysis</a>'
+                                ).format(mon=cmd, capital=cmd.title()), True,
+                                True)
+        return ReplyObject(('Analysis: http://www.smogon.com/dex/xy/pokemon'
+                            '/{mon}/').format(mon = cmd), True)
 
-    return ReplyObject('{command} is not a valid command.'.format(command = cmd))
+    return ReplyObject('{command} is not a valid command.'.format(command=cmd))
 
 def acceptableWeakness(team):
     """ Determines a threshold for a teams weakness to all possible types
