@@ -19,6 +19,7 @@
 # http://agiliq.com/blog/2009/06/generating-pseudo-random-text-with-markov-chains-u/
 
 import random
+import os
 
 class Markov(object):
     """ This will generate messages based on the messages in a room.
@@ -61,13 +62,13 @@ class Markov(object):
         Raises:
             FileException: no file found.
         """
-        open_file = open(self.file_name, 'r') 
-        for line in open_file:
-            # we're removing periods to avoid a possible infinite loop in our
-            # rules
-            line = line.strip().split(' ')
-            yield line        
-        open_file.close()
+        with open(self.file_name, 'a+') as open_file: 
+            open_file.seek(0, 0)
+            for line in open_file:
+                # we're removing periods to avoid a possible infinite 
+                # loop in our rules
+                line = line.strip().split(' ')
+                yield line        
 
     def putToFile(self, msg):
         """Writes information from the database to file."""

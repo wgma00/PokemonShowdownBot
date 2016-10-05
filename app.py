@@ -291,18 +291,27 @@ class PSBot(PokemonShowdownBot):
             if not message[4].startswith(self.commandchar):
                 self.clever_bot.update(message[4].lower())
 
-            # handle commands defined in our commands class
             if(message[4] == "♞"):
                 response = "♞"
                 self.reply(room.title, user, response, True)
 
+            if(room.title not in self.rooms_markov and not message[4].startswith(self.commandchar)):
+                self.rooms_markov[room.title] = Markov(room.title)
+                markov_msg = message[4]
+                self.rooms_markov[room.title].updateDatabase(markov_msg, True)
+            elif not message[4].startswith(self.commandchar):
+                markov_msg = message[4].lower()
+                self.rooms_markov[room.title].updateDatabase(markov_msg, True)
+
+            # handle commands defined in our commands class
             if(message[4].startswith(self.commandchar) and message[4][1:] and
                message[4][1].isalpha()):
                 command = self.extractCommand(message[4])
                 self.log("Command", message[4], user.id)
 
                 res = self.do(self, command, room, message[4][len(command) + 1:].lstrip(), user, self.rooms_markov)
-                if not res.text or res.text == 'NoAnswer': return
+                if not res.text or res.text == 'NoAnswer': 
+                    return
 
                 if self.evalRoomPermission(user, room) or res.ignoreBroadcastPermission:
                     if not res.ignoreEscaping:

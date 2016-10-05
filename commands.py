@@ -171,7 +171,7 @@ def Command(self, cmd, room, msg, user, markov_db=None):
     if cmd == "m":
         if (markov_db is not None and room.title is not 'pm' and
                 room.title in markov_db):
-            return ReplyObject(markov_db[room.title].generateText(), True)
+            return ReplyObject(markov_db[room.title].generateText(10), True)
         else:
             return ReplyObject("sorry, there is no data for this room.")
 
