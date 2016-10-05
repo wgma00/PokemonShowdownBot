@@ -43,6 +43,15 @@
 import re
 
 
+class UnSpecifiedUserRankException(Exception):
+    """This error is thrown in the case that there is a new user added by the
+    admins of PokemonShowdown, i.e. when they added the new bot user rank.
+    """
+    def __init__(self,user_class):
+        self.user_class = user_class
+    def __str__(self):
+        return 'Unsupported user class:' + self.user_class
+
 class User:
     """Very basic class for a pokemon showdown user.
     Attributes:
@@ -52,9 +61,9 @@ class User:
         rank:string, user rank.
         owner:Bool, is this you.
     """
-    Groups = {' ': 0, '+': 1, '★': 1, '%': 2, '@': 3, '&': 4, '#': 5, '~': 6}
+    Groups = {' ':0,'+':1,'★':1,'%':2,'@':3,'*':3.1,'&':4,'#':5,'~':6}
 
-    def __init__(self, name, rank, owner=False):
+    def __init__(self, name, rank, owner = False):
         """Initializes user.
         Args:
             name:string, username.
@@ -66,8 +75,35 @@ class User:
         self.rank = rank
         self.owner = owner
 
-    def hasRank(self, rank):
-        return self.owner or User.Groups[self.rank] >= User.Groups[rank]
+    @staticmethod
+    def compareRanks(rank1, rank2):
+        """Compares two user ranks.
+        Args:
+            rank1: char, user rank of first person
+            rank2: char, user rank of second person
+        Returns:
+            True if user rank 1 is greater than user rank 2
+        Exception:
+            UnSpecifiedUserClassException 
+        """
+        try:
+            return User.Groups[rank1] >= User.Groups[rank2]
+        except:
+            if not rank1 in User.Groups:
+                raise UnSpecifiedUserClassException
+            if not rank2 in User.Groups:
+                raise UnSpecifiedUserClassException
+            return False
 
     def isOwner(self):
+        """Checks if the current user object is the master(hence you)"""
         return self.owner
+
+    def hasRank(self, rank):
+        """Determines if a user has sufficient staff rights""" 
+        return self.owner or User.compareRanks(self.rank, rank)
+
+
+if __name__ == '__main__':
+    u = User("bot","*", False)
+    print(u.hasRank("@"))

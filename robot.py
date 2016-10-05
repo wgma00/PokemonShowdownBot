@@ -100,10 +100,10 @@ class PokemonShowdownBot:
             self.intro()
             self.splitMessage = onMessage if onMessage else self.onMessage
             self.url = url
-            #websocket.enableTrace(True)
-            self.openWebsocket()
-            self.addBattleHandler()
+            # websocket.enableTrace(True)
+            # self.addBattleHandler()
             self.clever_bot = Clever()
+            self.openConnection()
 
     def onError(self, ws, error):
         """Error message to be printed on error with websocket."""
@@ -111,23 +111,25 @@ class PokemonShowdownBot:
 
     def onClose(self, message):
         """Error message to be printed on closing the websocket."""
+        self.rooms = {}
         print('Websocket closed')
 
     def onOpen(self, message):
         """Error message to be printed on opening the websocket."""
         print('Websocket opened')
 
-    def openWebsocket(self):
-        """Open the websocket connection and setup prelimanary works."""
+    def openConnection(self):
+        """Open the websocket connection and setups pokemon battle handler."""
         self.ws = websocket.WebSocketApp(self.url,
                                          on_message = self.splitMessage,
                                          on_error = self.onError,
                                          on_close = self.onClose)
         self.ws.on_open = self.onOpen
-
-    def addBattleHandler(self):
-        """Add pokemon battle functionality"""
         self.bh = BattleHandler(self.ws, self.name)
+
+    def closeConnection(self):
+        self.ws.close()
+        self.ws = None
 
     def intro(self):
         """Simple intro at startup"""
@@ -192,7 +194,8 @@ class PokemonShowdownBot:
             result: string, result code of the websocket after websocket is
                     opened.
         """
-        if self.name not in name: return
+        if self.name not in name:
+            return
         if not result == '1':
             print('login failed, still guest')
             print('crashing now; have a nice day :)')
@@ -205,7 +208,7 @@ class PokemonShowdownBot:
             name = [n for n in rooms][0] # joinRoom entry is a list of dicts
             self.joinRoom(name, rooms[name])
 
-    def joinRoom(self, room, data=None):
+    def joinRoom(self, room, data = None):
         """ Joins a room in pokemon showdown.
 
         Args:
@@ -216,6 +219,8 @@ class PokemonShowdownBot:
                     data = {'moderate': False, 'allow games': False,
                             'tourwhitelist': []}
         """
+        if room in self.rooms:
+            return
         self.send('|/join ' + room)
         self.rooms_markov[room] = Markov(room)
         self.rooms[room] = Room(room, data)
@@ -248,9 +253,11 @@ class PokemonShowdownBot:
         """
         if roomName not in self.rooms:
             return Room('Empty')
-        alias = {'nu':'neverused', 'tsb':'thestable'}
+        alias = {'nu':'neverused'}
         if roomName in alias:
             roomName = alias[roomName]
+        if roomName not in self.rooms:
+            self.rooms[roomName] = Room(roomName)
         return self.rooms[roomName]
 
     def say(self, room, msg):
@@ -275,9 +282,9 @@ class PokemonShowdownBot:
         """
         if '\n' in msg:
             for m in msg.split('\n'):
-                self.send('|/pm {usr}, {text}'.format(usr = user, text = m))
+                self.send('|/pm {usr}, {text}'.format(usr=user, text=m))
         else:
-            self.send('|/pm {usr}, {text}'.format(usr = user, text = msg))
+            self.send('|/pm {usr}, {text}'.format(usr=user, text=msg))
 
     def reply(self, room, user, response, samePlace):
         """Replies with a response to the specified area.
@@ -286,8 +293,8 @@ class PokemonShowdownBot:
             room: string, the room we are in.
             user: user object, the user who executed this command.
             response: string, reponse after command
-            samePlace: boolean, whether this message should be sent to the room
-                       or the user.
+            samePlace: boolean, whether this message should be sent to the
+                       room or the user.
         """
         if samePlace:
             self.say(room, response)
@@ -325,38 +332,39 @@ class PokemonShowdownBot:
 
     # Rank checks
     def canPunish(self, room):
-        return User.Groups[room.rank] >= User.Groups['%']
+        return User.compareRanks(room.rank, '%')
 
     def canBan(self, room):
-        return User.Groups[room.rank] >= User.Groups['@']
+        return User.compareRanks(room.rank, '@')
 
     def canStartTour(self, room):
-        return User.Groups[room.rank] >= User.Groups['@']
+        return User.compareRanks(room.rank, '@')
 
     # Generic permissions test for users
     def isOwner(self, name):
         return self.owner == self.toId(name)
 
+
     def evalRoomPermission(self, user, room):
-        return User.Groups[room.broadcast_rank] <= User.Groups[user.rank] or self.isOwner(user.id)
+        return user.hasRank(room.broadcast_rank) 
 
-    def userHasPermission(self, user, rank):
-        return self.isOwner(user.id) or User.Groups[user.rank] >= User.Groups[rank]
-
-    def saveDetails(self):
+    def saveDetails(self, newAutojoin = False):
         """Saves the current details to the details.yaml."""
-        details = {k:v for k,v in self.details.items() if not k == 'rooms' and
+        details = {k:v for k,v in self.details.items() if not k == 'rooms' and 
                    not k == 'joinRooms'}
-        details['joinRooms'] = []
+        details['joinRooms'] = {}
         for e in self.rooms:
+            # no need to save details for group chats as they expire
+            if e.startswith('groupchat'):
+                continue
+            if not newAutojoin and e not in self.details['joinRooms']:
+                continue
             room = self.getRoom(e)
-            details['joinRooms'].append({e:{'moderate':room.moderate,
-                                            'allow games':room.allowGames,
-                                            'tourwhitelist':room.tourwhitelist}
-                                        })
-        details['rooms'] = {}
+            details['joinRooms'][e] = {'moderate': room.moderate,
+                                       'allow games':room.allowGames,
+                                       'tourwhitelist': room.tourwhitelist}
         with open('details.yaml', 'w') as yf:
-            yaml.dump(details, yf, default_flow_style = False)
+            yaml.dump(details, yf, default_flow_style = False, explicit_start = True)
 
     # Default onMessage if none is given (This only support logging in,
     # nothing else). To get any actual use from the bot, create a custom
@@ -380,3 +388,29 @@ class PokemonShowdownBot:
         elif parts[1] == 'updateuser':
             self.updateUser(parts[2], parts[3])
 
+class ReplyObject:
+    """Reply object containing important information about how to handle an
+    event to a user.
+
+    Attributes:
+        text: str, text to be said to the user
+        samePlace: bool, whether this message should be said in the same place
+                   the event was intiated. i.e. should a command be replied to
+                   in public chat or in PMs.
+        ignoreEscaping: bool, ignore escape characteres like '\n'
+        ignoreBroadcastPermission: bool, ignore room broadcast permissions.
+        gameCommand: bool, this is a gameCommand and requires special
+                     attention.
+        canPmReply: bool, send this message to PMs.
+    """
+    def __init__(self, res = '', reply = False, escape = False,
+                 broadcast = False, game = False, pmreply = False):
+        self.text = res
+        self.samePlace = reply
+        self.ignoreEscaping = escape
+        self.ignoreBroadcastPermission = broadcast
+        self.gameCommand = game
+        self.canPmReply = pmreply
+    def response(self, text):
+        self.text = text
+        return self

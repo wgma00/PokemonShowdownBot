@@ -52,9 +52,9 @@ class BattleHandler:
 
     def handleOutcome(self, battle, won):
         if won:
-            self.respond(battle, 'O-oh, I won? Sorry :(')
+            self.respond(battle, 'O-oh, I won?')
         else:
-            self.respond(battle, "It's okay, I didn't think I'd win anyway :>")
+            self.respond(battle, 'I guess that was expected...')
         print('Battle: {outcome}'.format(outcome = 'win' if won else 'loss'))
 
     def getSpecies(self, details):
@@ -65,12 +65,16 @@ class BattleHandler:
     def parse(self, battle, message):
         if not message: return
         if battle in self.activeBattles and 'init' in message: return
+
         msg = message.split('|')
-        btl = self.activeBattles[battle] if battle in self.activeBattles else None
+
         if 'init' == msg[1] and 'battle' == msg[2]:
             self.activeBattles[battle] = Battle(battle)
             self.respond(battle, '/timer')
-        elif 'request' == msg[1]:
+
+        btl = self.activeBattles[battle] if battle in self.activeBattles else None
+        if not btl or btl.spectating: return
+        if 'request' == msg[1]:
             # This is where all the battle picking happen
             request = json.loads(msg[2])
             if 'rqid' in request:
@@ -111,8 +115,11 @@ class BattleHandler:
             else:
                 btl.setOther(msg[3], msg[2])
         elif 'teampreview' == msg[1]:
-            poke = getLead(btl.me.team, btl.other.team)
-            self.lead(battle, poke, btl.rqid)
+            if not btl.me.id:
+                btl.spectating = True
+            else:
+                poke = getLead(btl.me.team, btl.other.team)
+                self.lead(battle, poke, btl.rqid)
         elif 'turn' == msg[1]:
             action, actionType = getAction(btl, battle.split('-')[1])
             self.act(battle, actionType, action, btl.rqid)

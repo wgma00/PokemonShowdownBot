@@ -15,10 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with PokemonShowdownBot.  If not, see <http://www.gnu.org/licenses/>.
 
+from data.pokedex import Pokedex
+from data.moves import Moves
+from data.abilities import Abilities
+from plugins.games import GenericGame
+import robot as r
 import queue
 import requests
 import yaml
 import random
+import re
+import datetime
 
 if __name__ == '__main__':
     from games import GenericGame
@@ -43,6 +50,12 @@ ELEM = {'h':1,'d':1, 't':1, 'he':2, 'li':3, 'be':4, 'b':5, 'c':6, 'n':7, 'o':8,
         'nh':117, 'og':118} 
 
 WORDS = [] 
+Scoreboard = {}
+with open('plugins/periodic_scoreboard.yaml', 'a+') as yf:
+    yf.seek(0, 0)
+    Scoreboard = yaml.load(yf)
+    if not Scoreboard: # Empty yaml file set Scoreboard to None, but a dict is expected
+        Scoreboard = {}
 
 class Periodic(GenericGame):
     def __init__(self):
@@ -64,6 +77,7 @@ class Periodic(GenericGame):
         self.hints = []
         self.word = ''
         self.solution = ''
+        self.startTime = 0
         self.new_game()
 
 
@@ -106,6 +120,7 @@ class Periodic(GenericGame):
         self.hints = ["The correct answer has {elem} element(s)".format(elem=len(solution)),
                       "The first element used is: " + solution[0],
                       "The last element used is: " + solution[-1]]
+        self.startTime = datetime.datetime.now()
         self.word, self.solution = word, solution
 
     def _parse_text_bfs(self, txt):
@@ -165,6 +180,16 @@ class Periodic(GenericGame):
         self.word = txt
         self.solution = self.parse_text(self.word)
 
+    def getSolveTimeStr(self):
+        totalTime = datetime.datetime.now() - self.startTime
+        if totalTime.seconds < 60:
+            return ' in {time} seconds!'.format(time = totalTime.seconds)
+        elif totalTime.seconds < 60 * 60: # Under 1 hour
+            minutes = totalTime.seconds // 60
+            return ' in {mins} minutes and {sec} seconds!'.format(mins = minutes, sec = totalTime.seconds-(minutes * 60))
+        else:
+            return '!'
+
 def _parse_text_bfs(txt):
     visited, q = set(), queue.Queue()
     q.put((txt,[]))
@@ -190,53 +215,61 @@ def parse_text(txt):
 WHITELIST = ['cryolite']
 PERIODIC_OBJ = Periodic()
 
+
 def start(bot, cmd, room, msg, user):
-    
+    global WHITELIST
+    reply = r.ReplyObject('', True, False, False, True, True)
     if (msg.startswith("'") and msg.endswith("'")
         or (msg.startswith('"') and msg.endswith('"'))):
-        return str(parse_text(msg)), True
-        
-    if msg == 'new': 
-        global WHITELIST
-        global PERIODIC_OBJ
-        if not user.hasRank('+') and (not user.name.strip() in WHITELIST):
-            return 'You do not have permission to start a game in this room. (Requires +)', False
-        if room.game:                                                           
-            return 'A game is already running somewhere', False                 
-        room.game = PERIODIC_OBJ 
-        room.game.new_game()
-        return 'A new periodic parsed word has been created (guess with .pa):\n' + room.game.get_word(), True
+        return str(parse_text(msg))
+    if room.title == 'pm' and not cmd.startswith('score'): return reply.response("Don't try to play games in pm please")
+    if msg == 'new':
+        if not user.hasRank('%') and (not user.name.strip() in WHITELIST): return reply.response('You do not have permission to start a game in this room. (Requires %)')
+        if room.activity: return reply.response('A game is already running somewhere')
+        if not room.allowGames: return reply.response('This room does not support chatgames.')
+        room.activity = PERIODIC_OBJ
+        room.activity.new_game()
+        return reply.response('A new periodic game has been created (guess with ~a):\n' + room.activity.get_word())
 
-    elif room.game and msg == 'hint':
-        return room.game.get_hint(), True
+    elif msg == 'hint':
+        if room.activity: return reply.response('The hint is: ' + room.activity.get_hint())
+        return reply.response('There is no active periodic game right now')
+    elif msg == 'end':
+        if not user.hasRank('%'):
+            return reply.response('You do not have permission to end the periodic game. (Requires %)')
+        if not (room.activity and room.activity.isThisGame(Periodic)):
+            return reply.response('There is no active periodic game or a different game is active.')
+        solved = room.activity.get_solution()
+        room.activity = None
+        return reply.response('The periodic game was forcefully ended by {baduser}. (Killjoy)\nThe solution was: **{solved}**'.format(baduser = user.name, solved = solved))
 
-    elif room.game and msg == 'end':
-        if not user.hasRank('+'):                                               
-            return 'You do not have permission to end the anagram. (Requires +)', True
-
-        solved = room.game.get_solution()                                      
-        room.game = None
-        return ('The anagram was forcefully ended by {baduser}.'
-                 ' (Killjoy)\nThe solution was: **{solved}**'
-                 '').format(baduser=user.name,solved=solved), True
-
-    else:                                                                                                                                         
-           if msg: return '{param} is not a valid parameter for .periodic. Make guesses with .pa'.format(param = msg), False
-           if room.game:                         
-               return 'Current periodic word: {word}'.format(word = room.game.get_word()), True
-           return 'There is no active anagram right now', False          
+    elif msg.lower().startswith('score'):
+        if msg.strip() == 'score': msg += ' {user}'.format(user = user.id)
+        name = bot.toId(msg[len('score '):])
+        if name not in Scoreboard: return reply.response("This user never won any periodic games")
+        return reply.response('This user has won {number} periodic game{plural}'.format(number = Scoreboard[name], plural = '' if not type(Scoreboard[name]) == str and Scoreboard[name] < 2  else 's'))
+    else:
+        if msg: return reply.response('{param} is not a valid parameter for ~anagram. Make guesses with ~a'.format(param = msg))
+        if room.activity and room.activity.isThisGame(Anagram):
+            return reply.response('Current anagram: {word}'.format(word = room.activity.getWord()))
+        return reply.response('There is no active anagram right now')
 
 def answer(bot, cmd, room, msg, user):
+    reply = r.ReplyObject('', True, False, False, True, True)
     ans = list(msg.lower().split(' '))
-    if room.game:
-        if(room.game.check_ans(ans)):
-            sln = room.game.get_solution()
-            room.game = None
-            return 'Congratulations! The solution was: {solution}'.format(name=user.name, solution=sln), True     
-        else:
-            return '{test} is wrong!'.format(test=msg.lstrip()), True 
-    else:
-        return 'There is no game running currently', True
+    if not (room.activity and room.activity.isThisGame(Periodic)):
+        return reply.response('There is no periodic game active right now')
+    if room.activity.check_ans(ans):
+        solved = room.activity.get_solution()
+        timeTaken = room.activity.getSolveTimeStr()
+        room.activity = None
+        # Save score
+        Scoreboard[user.id] = 1 if user.id not in Scoreboard else Scoreboard[user.id] + 1
+        with open('plugins/periodic_scoreboard.yaml', 'w') as ym:
+            yaml.dump(Scoreboard, ym)
+        return reply.response('Congratulations, {name} got it{time}\nThe solution was: {solution}'.format(name=user.name, time=timeTaken, solution=solved))
+    return reply.response('{test} is wrong!'.format(test=msg.lstrip()))
+
 
 if __name__ == '__main__':
     PERIODIC_OBJ.make_game('puccini')

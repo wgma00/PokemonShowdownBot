@@ -59,6 +59,8 @@ class Player:
         for poke in self.team:
             if self.team[poke].species == species:
                 return self.team[poke]
+        print('Tried getting:', species)
+        print('from team:', self.team)
     def removeBaseForm(self, pokemon, mega):
         self.team[mega] = self.team.pop(pokemon, None)
         self.team[mega].species = mega
@@ -70,6 +72,7 @@ class Battle:
         self.me = Player()
         self.other = Player()
         self.field = {}
+        self.spectating = False
 
     def setMe(self, me, pId):
         self.me.name = me

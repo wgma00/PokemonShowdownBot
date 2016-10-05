@@ -46,8 +46,10 @@
 # Objects control settings on a room-per-room basis, meaning every room can
 # be treated differently.
 
-
+import json
+from collections import deque
 from plugins.tournaments import Tournament
+import robot as r
 
 
 class Room:
@@ -61,7 +63,7 @@ class Room:
         moderate: Bool, if this bot should moderate this room.
         allowGames: Bool, if this bot will allow games in this room.
         tour: Bool, if this bot will allow tours in this room.
-        game: Workshop object, if this room is a workshop.
+        activity: Workshop object, if this room is a workshop.
         tourwhiteList: list of str, users who are not moderators but who have
                        permission to start a tour.
     """
@@ -79,8 +81,9 @@ class Room:
         self.moderate = data['moderate']
         self.allowGames = data['allow games']
         self.tour = None
-        self.game = None
+        self.activity = None
         self.tourwhitelist = data['tourwhitelist']
+        self.chatlog = deque({'': -1}, 20) # we will log the past 20 messages
 
     def doneLoading(self):
         """Set loading status to False"""
@@ -105,8 +108,10 @@ class Room:
         """Returns true if this user is in this room."""
         if name in self.users:
             return self.users[name]
-        else:
-            return False
+
+    def logChat(self, user, message):
+        """Logs the message unto our message queue"""
+        self.chatlog.append({user.id: len(message)})
 
     def isWhitelisted(self, user):
         """Returns true if this user is white listed for tours."""
@@ -133,79 +138,121 @@ class Room:
             ws: websocket.
             form: string, type of format for this tournament.
         """
-        '''(Room, websocket, str) -> None'''
         self.tour = Tournament(ws, self.title, form)
 
+    def getTourWinner(self, msg):
+        """Returns the winner of the current game.
+        Args:
+            msg:str, winning message from the tour.
+        Returns:
+            tuple (str,str) , represeting the user and the format won.
+        """
+        things = json.loads(msg)
+        return things['results'][0], things['format']
+
     def endTour(self):
-        """Ends tour."""
+        """Ends the current tournament."""
         self.tour = None
 
 
 # Commands
 def allowgames(bot, cmd, room, msg, user):
-    '''(PSBot, str, Room, str, User) -> (str, Bool)'''
+    """Determines if a user is allowed to commence a chat game of any sort.
+    Args:
+        bot: Robot, connection between this funciton and the main program.
+        cmd: str, the command the user is executing.
+        msg: str, any message found after the command.
+        user: user object.
+    Returns:
+        Reply object denoting the mesage to be returned and whether or not it
+        the message should be sent in PMs or public chat.
+    """
+    reply = r.ReplyObject()
     if not user.hasRank('#'):
-        return 'You do not have permission to change this. (Requires #)', False
+        return reply.response(('You do not have permission to change this.'
+                               ' (Requires #)'))
+    if room.title == 'pm':
+        return reply.response("You can't use this command in a pm.")
     msg = bot.removeSpaces(msg)
-    things = msg.split(',')
-    if not len(things) == 2:
-        return """Too few/many parameters. Command is ~allowgames [room],
-               True/False""", False
+    if msg in ['true','yes','y','True']:
+        if room.allowGames:
+            return reply.response(('Chatgames are already allowed'
+                                   'in this room.'))
+        room.allowGames = True
+        return reply.response('Chatgames are now allowed in this room.')
 
-    if things[0] not in bot.rooms:
-        return 'Cannot allow chatgames without being in the room', True
-
-    if things[1] in ['true', 'yes', 'y', 'True']:
-        if bot.getRoom(things[0]).allowGames:
-            return """Chatgames are already allowed
-                      in {room}""".format(room=things[0]), True
-        bot.getRoom(things[0]).allowGames = True
-        return """Chatgames are now allowed
-                  in {room}""".format(room=things[0]), True
-
-    elif things[1] in ['false', 'no', 'n', ' False']:
-        bot.getRoom(things[0]).allowGames = False
-        return """Chatgames are no longer allowed
-                  in {room}""".format(room=things[0]), True
-    return """{param} is not a supported
-              parameter""".format(param=things[1]), True
-
+    elif msg in ['false', 'no', 'n',' False']:
+        room.allowGames = False
+        return reply.response('Chatgames are no longer allowed in this room.')
+    return reply.response(('{param} is not a supported parameter')
+                          .format(param=msg))
 
 def tour(bot, cmd, room, msg, user):
-    '''(PSBot, str, Room, str, User) -> (str, Bool)'''
+    """Determines if a user is allowed to commence a tour of any sort.
+    Args:
+        bot: Robot, connection between this funciton and the main program.
+        cmd: str, the command the user is executing.
+        msg: str, any message found after the command.
+        user: user object.
+    Returns:
+        Reply object denoting the mesage to be returned and whether or not it
+        the message should be sent in PMs or public chat.
+    """
+    reply = r.ReplyObject('', True, True, True)
     if room.title == 'pm':
-        return "You can't use this command in a pm.", False
+        return reply.response("You can't use this command in a pm.")
     if not room.isWhitelisted(user):
-        return """You are not allowed to use this command.
-                  (Requires whitelisting by a Room Owner)""", True
+        return reply.response(("You are not allowed to use this command. "
+                               "(Requires whitelisting by a Room Owner)"))
     if not bot.canStartTour(room):
-        return "I don't have the rank required to start a tour :(", True
-    return '/tour {rest}'.format(rest=msg), True
-
+        return reply.response("I don't have the rank required to start a tour")
+    return reply.response(("/tour {rest}\n"
+                           "/modnote From {user}")
+                           .format(rest=msg, user=user.name))
 
 def tourwl(bot, cmd, room, msg, user):
-    '''(PSBot, str, Room, str, User) -> (str, Bool)'''
+    """Adds a user to the whitelist of people who can start a tour.
+    Args:
+        bot: Robot, connection between this funciton and the main program.
+        cmd: str, the command the user is executing.
+        msg: str, any message found after the command.
+        user: user object.
+    Returns:
+        Reply object denoting the mesage to be returned and whether or not it
+        the message should be sent in PMs or public chat.
+    """
+    reply = r.ReplyObject('', True)
     if not user.hasRank('#'):
-        return 'You do not have permission to change this. (Requires #)', False
+        return reply.response(("You do not have permission to change this."
+                              " (Requires #)"))
     target = bot.toId(msg)
     if not room.addToWhitelist(target):
-        return 'This user is already whitelisted in that room.', False
+        return reply.response('This user is already whitelisted in that room.')
     bot.saveDetails()
-    return """{name} added to the whitelist in this
-              room.""".format(name=msg), True
-
+    return reply.response(("{name} added to the whitelist in this room.")
+                           .format(name = msg))
 
 def untourwl(bot, cmd, room, msg, user):
-    '''(PSBot, str, Room, str, User) -> (str, Bool)'''
+    """Attempts to remove a user from the whistlist of people who start tours.
+    Args:
+        bot: Robot, connection between this funciton and the main program.
+        cmd: str, the command the user is executing.
+        msg: str, any message found after the command.
+        user: user object.
+    Returns:
+        Reply object denoting the mesage to be returned and whether or not it
+        the message should be sent in PMs or public chat.
+    """
+    reply = r.ReplyObject('', True)
     if not user.hasRank('#'):
-        return 'You do not have permission to change this. (Requires #)', False
+        return reply.response(("You do not have permission to change this."
+                              " (Requires #)"))
     target = bot.toId(msg)
     if not room.delFromWhitelist(target):
-        return 'This user is not whitelisted in that room.', False
+        return reply.response('This user is not whitelisted in that room.')
     bot.saveDetails()
-    return """{name} removed from the whitelist
-              in this room.""".format(name=msg), True
-
+    return reply.response(("{name} removed from the whitelist in this room.")
+                           .format(name = msg))
 
 RoomCommands = {
     'allowgames': allowgames,
