@@ -76,7 +76,7 @@ from plugins.math import equation
 from plugins.math.latex import latex
 from plugins.math.clever import Clever
 from plugins.math.putnam import Putnam
-from plugins.math.putnam import LatexParsingException 
+from plugins.math.putnam import LatexParsingException
 from robot import ReplyObject
 from user import User
 from room import RoomCommands
@@ -327,13 +327,13 @@ def Command(self, cmd, room, msg, user, markov_db=None):
     new_list = filter(lambda p: re.sub('-(?:mega(?:-(x|y))?|primal|xl|l)','',
                       cmd, flags=re.I) in p.replace(' ','').lower(),
                       [p for p in Pokedex])
-    if new_list: 
+    if new_list:
         cmd = re.sub('-(?:mega(?:-(x|y))?|primal)','', cmd)
         # This doesn't break Arceus-Steel like adding |S to the regex would
         # and gourgeist-s /pumpkaboo-s still get found, because it matches the
         # entry for gougeist/pumpkaboo-super
-        substitutes = {'gourgeist-s':'gourgeist-small',  
-                       'gourgeist-l':'gourgeist-large',  
+        substitutes = {'gourgeist-s':'gourgeist-small',
+                       'gourgeist-l':'gourgeist-large',
                        'gourgeist-xl':'gourgeist-super',
                        'pumpkaboo-s':'pumpkaboo-small',
                        'pumpkaboo-l':'pumpkaboo-large',

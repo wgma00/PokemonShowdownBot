@@ -1,17 +1,17 @@
 # Copyright (C) 2016 William Granados<wiliam.granados@wgma00.me>
-# 
+#
 # This file is part of PokemonShowdownBot.
-# 
+#
 # PokemonShowdownBot is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # PokemonShowdownBot is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with PokemonShowdownBot.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -38,18 +38,18 @@ ELEM = set(['h','d', 't', 'he', 'li', 'be', 'b', 'c', 'n', 'o',
             'mn', 'fe', 'co', 'ni', 'cu', 'zn', 'ga', 'ge',
             'as', 'se', 'br', 'kr', 'rb', 'sr', 'y', 'zr',
             'nb', 'mo', 'tc', 'ru', 'rh', 'pd', 'ag', 'cd',
-            'in', 'sn', 'sb', 'te', 'i', 'xe', 'cs', 'ba', 
+            'in', 'sn', 'sb', 'te', 'i', 'xe', 'cs', 'ba',
             'la', 'ce', 'pr', 'nd', 'pm', 'sm', 'eu', 'gd',
             'tb', 'dy', 'ho', 'er', 'tm', 'yb', 'lu', 'hf',
-            'ta', 'w', 're', 'os', 'ir', 'pt', 'au', 'hg', 
+            'ta', 'w', 're', 'os', 'ir', 'pt', 'au', 'hg',
             'tl', 'pb', 'bi', 'po', 'at', 'rn', 'fr', 'ra',
             'ac', 'th', 'pa', 'u', 'np', 'pu', 'am', 'cm',
             'bk', 'cf', 'es', 'fm', 'md', 'no', 'lr',
             'rf', 'db', 'sg', 'bh', 'hs', 'mt', 'ds',
             'rg', 'cn', 'uut', 'uuq', 'uup', 'uuh',
-            'nh', 'og']) 
+            'nh', 'og'])
 
-WORDS = [] 
+WORDS = []
 Scoreboard = {}
 with open('plugins/periodic_scoreboard.yaml', 'a+') as yf:
     yf.seek(0, 0)
@@ -64,8 +64,8 @@ class Periodic(GenericGame):
         if __name__ != '__main__':
             with open("plugins/word_dict.yaml", 'r') as yaml_file:
                 self.details = yaml.load(yaml_file)
-                if('WORDS' in self.details 
-                    and len(self.details['WORDS']) != 0): 
+                if('WORDS' in self.details
+                    and len(self.details['WORDS']) != 0):
                     WORDS = self.details['WORDS']
                 else:
                     self.generate()
@@ -139,7 +139,7 @@ class Periodic(GenericGame):
             for key in ELEM:
                 if val[0].startswith(key) and val[0][len(key):] not in visited:
                     visited.add(val[0][len(key):])
-                    q.put((val[0][len(key):],val[1]+[key])) 
+                    q.put((val[0][len(key):],val[1]+[key]))
         return None
 
     def parse_text(self, txt):
@@ -151,13 +151,13 @@ class Periodic(GenericGame):
         return self.word
 
     def get_solution(self):
-        return self.solution 
+        return self.solution
 
     def get_hint(self):
         if self.hints:
             hint = random.choice(self.hints)
             self.hints.remove(hint)
-            return hint 
+            return hint
         else:
             return "no more hints"
 
@@ -208,7 +208,7 @@ def _parse_text_bfs(txt):
         for key in ELEM:
             if val[0].startswith(key) and val[0][len(key):] not in visited:
                 visited.add(val[0][len(key):])
-                q.put((val[0][len(key):],val[1]+[key])) 
+                q.put((val[0][len(key):],val[1]+[key]))
     return None
 
 def parse_text(txt):
@@ -296,7 +296,7 @@ def answer(bot, cmd, room, msg, user):
         room.activity = None
         # lambda expression to determine the user's score
         start_score = lambda u,s: 1 if(u in s) else s[u]+1
-        Scoreboard[user.id] = start_score(user.id, Scoreboard) 
+        Scoreboard[user.id] = start_score(user.id, Scoreboard)
         with open('plugins/periodic_scoreboard.yaml', 'w') as ym:
             yaml.dump(Scoreboard, ym)
         return reply.response(('Congratulations, {name} got it{time}\n'

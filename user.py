@@ -84,7 +84,7 @@ class User:
         Returns:
             True if user rank 1 is greater than user rank 2
         Exception:
-            UnSpecifiedUserClassException 
+            UnSpecifiedUserClassException
         """
         try:
             return User.Groups[rank1] >= User.Groups[rank2]
@@ -100,7 +100,7 @@ class User:
         return self.owner
 
     def hasRank(self, rank):
-        """Determines if a user has sufficient staff rights""" 
+        """Determines if a user has sufficient staff rights"""
         return self.owner or User.compareRanks(self.rank, rank)
 
 

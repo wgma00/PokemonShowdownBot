@@ -346,11 +346,11 @@ class PokemonShowdownBot:
 
 
     def evalRoomPermission(self, user, room):
-        return user.hasRank(room.broadcast_rank) 
+        return user.hasRank(room.broadcast_rank)
 
     def saveDetails(self, newAutojoin = False):
         """Saves the current details to the details.yaml."""
-        details = {k:v for k,v in self.details.items() if not k == 'rooms' and 
+        details = {k:v for k,v in self.details.items() if not k == 'rooms' and
                    not k == 'joinRooms'}
         details['joinRooms'] = {}
         for e in self.rooms:

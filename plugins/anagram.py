@@ -137,10 +137,10 @@ def start(bot, cmd, room, msg, user):
         if msg.strip() == 'score':
             msg += ' {user}'.format(user = user.id)
         name = bot.toId(msg[len('score '):])
-        if name not in Scoreboard: 
+        if name not in Scoreboard:
             return reply.response("This user never won any anagrams")
         return reply.response(('This user has won {number} anagram(s)'
-                              ).format(number=Scoreboard[name])) 
+                              ).format(number=Scoreboard[name]))
     else:
         if msg:
             return reply.response(('{param} is not a valid parameter for '
@@ -161,7 +161,7 @@ def answer(bot, cmd, room, msg, user):
         room.activity = None
         # lambda expression to determine the user's score
         start_score = lambda u,s: 1 if(u in s) else s[u]+1
-        Scoreboard[user.id] = start_score(user.id, Scoreboard) 
+        Scoreboard[user.id] = start_score(user.id, Scoreboard)
         # write the score to file
         with open('plugins/anagram_scoreboard.yaml', 'w') as ym:
             yaml.dump(Scoreboard, ym)

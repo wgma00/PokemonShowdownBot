@@ -71,7 +71,7 @@ class Workshop(GenericGame):
             if 'Bad API request' in r.text:
                 return 'Something went wrong ({error})'.format(error=r.text)
             return r.text
- 
+
     def hasHostingRights(self, user):
         return self.host == user.id or user.hasRank('@')
 

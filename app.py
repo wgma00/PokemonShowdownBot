@@ -145,7 +145,7 @@ class PSBot(PokemonShowdownBot):
 
     def testRoombaned(self, room, user):
         if moderation.shouldBan(self, user, room):
-            self.takeAction(room.title, user, 'roomban', 
+            self.takeAction(room.title, user, 'roomban',
                             ("You are blacklisted from this room, so please"
                             " don't come here."))
             return True
@@ -298,7 +298,7 @@ class PSBot(PokemonShowdownBot):
                 response = "♞"
                 self.reply(room.title, user, response, True)
 
-            if(room.title not in self.rooms_markov 
+            if(room.title not in self.rooms_markov
                and not message[4].startswith(self.commandchar)):
                 self.rooms_markov[room.title] = Markov(room.title)
                 markov_msg = message[4]
@@ -316,7 +316,7 @@ class PSBot(PokemonShowdownBot):
                 res = self.do(self, command, room,
                               message[4][len(command)+1:].lstrip(),
                               user, self.rooms_markov)
-                if not res.text or res.text == 'NoAnswer': 
+                if not res.text or res.text == 'NoAnswer':
                     return
 
                 if(self.evalRoomPermission(user, room)
@@ -332,7 +332,7 @@ class PSBot(PokemonShowdownBot):
                                           'a response.'))
 
             if type(room.activity) == Workshop:
-                room.activity.logSession(room.title, user.rank+user.name, 
+                room.activity.logSession(room.title, user.rank+user.name,
                                          message[4])
 
         elif 'pm' in message[1].lower():
@@ -393,7 +393,7 @@ if __name__ == "__main__":
             # is connected
             psb.ws.run_forever()
             # If we get here, the socket is closed and disconnected
-            # so we have to reconnect and restart (after waiting a bit 
+            # so we have to reconnect and restart (after waiting a bit
             # of course say half a minute)
             time.sleep(30)
             print("30 seconds since last disconnect. Retrying connection...")
