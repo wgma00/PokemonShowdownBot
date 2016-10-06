@@ -33,7 +33,7 @@ class Tournament:
 
 
     def sendTourCmd(self, cmd):
-        self.ws.send('{room}|/tour {cmd}'.format(room = self.room, cmd = cmd))
+        self.ws.send('{room}|/tour {cmd}'.format(room=self.room, cmd=cmd))
 
     def joinTour(self):
         self.sendTourCmd('join')
@@ -60,10 +60,19 @@ class Tournament:
 
 def oldgentour(bot, cmd, room, msg, user):
     reply = r.ReplyObject('', True, True)
-    if not room.tour: return reply.response('No tour is currently active, so this command is disabled.')
-    if not room.tour.format.startswith('gen'): return reply.response("The current tour isn't a previous generation, so this command is disabled.")
+    if not room.tour:
+        return reply.response('No tour is currently active, so this command '
+                              'is disabled.')
+    if not room.tour.format.startswith('gen'):
+        return reply.response("The current tour isn't a previous generation, "
+                              "so this command is disabled.")
     pastGens = {'gen1': 'RBY', 'gen2':'GSC', 'gen3':'RSE',  'gen4':'DPP'}
     warning = ''
-    if room.tour.format[0:4] in pastGens: warning = "/wall Please note that bringing Pokemon that aren't **{gen} NU** will disqualify you\n".format(gen = pastGens[room.tour.format[0:4]])
-    return reply.response(warning + "/wall Sample teams here: http://www.smogon.com/forums/threads/3562659/")
+    if room.tour.format[0:4] in pastGens:
+        warning = ("/wall Please note that bringing Pokemon that aren't "
+                  "**{gen} NU** will disqualify you\n"
+                  "").format(gen=pastGens[room.tour.format[0:4]])
+    return reply.response(warning+("/wall Sample teams here: "
+                                   "http://www.smogon.com/forums/threads/"
+                                   "3562659/"))
 
