@@ -7,6 +7,7 @@ before_install:
     - sudo apt-get install texlive
     - sudo apt-get install poppler-utils 
     - sudo apt-get install gcalctool 
-install: "pip install -r requirements.txt"
+    - sudo apt-get install pylint
+install: "pip install -r requirements.txt && pip install nose pylint"
 # command to run tests
-script: nosetests
+script: "nosetests && pylint app.py"
