@@ -264,7 +264,7 @@ def start(bot, cmd, room, msg, user):
         solved = room.activity.get_solution()
         room.activity = None
         return reply.response(('The periodic game was forcefully ended by'
-                               '{baduser}. (Killjoy)\nThe solution was: '
+                               ' {baduser}. (Killjoy)\nThe solution was: '
                                '**{solved}**').format(baduser=user.name,
                                                       solved=solved))
 
