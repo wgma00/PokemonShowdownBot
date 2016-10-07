@@ -132,12 +132,14 @@ actionReplies = {
     'roomban': "You are banned from this room."
 }
 banned = {}
-with open('plugins/bans.yaml', 'a+') as yf:
-        yf.seek(0, 0)
-        bans = yaml.load(yf)
-        if not bans:
-            bans = {} # {'user': [], 'phrase': []}
-        banned = bans
+def init():
+    with open('plugins/bans.yaml', 'a+') as yf:
+            yf.seek(0, 0)
+            bans = yaml.load(yf)
+            if not bans:
+                bans = {'user': [], 'phrase': []}
+            banned = bans
+init()
 
 # Constants
 def MIN_CAPS_LENGTH(): return 12
@@ -171,6 +173,9 @@ def removeBan(t, room, ban):
         yaml.dump(banned, yf)
 
 def shouldBan(bot, user, room):
+    if room.title not in banned:
+        init()
+        banned[room.title] = {'user': [], 'phrase': []}
     return room.moderate and isBanned(user.id, room.title) and bot.canBan(room)
 
 def isBanned(user, room):
@@ -318,6 +323,7 @@ def shouldAct(msg, user, room, unixTime):
     # If the room isn't present in bans.yaml we need to add it at
     # least temporary
     if room.title not in banned:
+        init()
         banned[room.title] = {'user': [], 'phrase': []}
 
     now = datetime.utcfromtimestamp(int(unixTime))
@@ -325,7 +331,6 @@ def shouldAct(msg, user, room, unixTime):
     if now.date() == nextReset:
         punishedUsers.clear()
         nextReset = now.date() + timedelta(days = 2)
-
     if isBanned(user, room.title):
         return 'roomban'
     if isSpam(msg, user, room.title, now):
