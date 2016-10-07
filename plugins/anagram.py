@@ -94,20 +94,20 @@ class Anagram(GenericGame):
 
 
 
-WHITELIST = ['cryolite']
+WHITELIST = ['cryolite','crimsonchin','octbot']
 WHITELIST_RANK = '%'
 
 def start(bot, cmd, room, msg, user):
     global WHITELIST
-    reply = r.ReplyObject('', True, False, False, True, True)
+    reply = r.ReplyObject('', True, False, True, True, False)
     if room.title == 'pm' and not cmd.startswith('score'):
         return reply.response("Don't try to play games in pm please")
     if msg == 'new':
         if(not user.hasRank(WHITELIST_RANK)
-            and (not user.name.strip() in WHITELIST)):
-            return reply.response('You do not have permission to start a game'
+            and (not user.id in WHITELIST)):
+            return reply.response(('You do not have permission to start a game'
                                   ' in this room. (Requires {rank})'
-                                  ).format(rank=WHITELIST_RANK)
+                                  ).format(rank=WHITELIST_RANK))
         if room.activity:
             return reply.response('A game is already running somewhere')
         if not room.allowGames:
@@ -120,8 +120,9 @@ def start(bot, cmd, room, msg, user):
         if room.activity:
             return reply.response('The hint is: '+room.activity.getHint())
         return reply.response('There is no active anagram right now')
+
     elif msg == 'end':
-        if not user.hasRank(WHITELIST_RANK):
+        if not user.hasRank(WHITELIST_RANK) and not user.id in WHITELIST:
             return reply.response('You do not have permission to end the'
                                   ' anagram. (Requires %)')
         if not (room.activity and room.activity.isThisGame(Anagram)):
@@ -152,7 +153,7 @@ def start(bot, cmd, room, msg, user):
         return reply.response('There is no active anagram right now')
 
 def answer(bot, cmd, room, msg, user):
-    reply = r.ReplyObject('', True, False, False, True, True)
+    reply = r.ReplyObject('', True, False, True, True, False)
     if not (room.activity and room.activity.isThisGame(Anagram)):
         return reply.response('There is no anagram active right now')
     if room.activity.isCorrect(re.sub(r'[ -]', '', msg).lower()):
@@ -160,7 +161,7 @@ def answer(bot, cmd, room, msg, user):
         timeTaken = room.activity.getSolveTimeStr()
         room.activity = None
         # lambda expression to determine the user's score
-        start_score = lambda u,s: 1 if(u in s) else s[u]+1
+        start_score = lambda u,s: 1 if(u not in s) else s[u]+1
         Scoreboard[user.id] = start_score(user.id, Scoreboard)
         # write the score to file
         with open('plugins/anagram_scoreboard.yaml', 'w') as ym:

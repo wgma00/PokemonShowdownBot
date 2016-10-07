@@ -220,14 +220,14 @@ def parse_text(txt):
     txt = txt.lower()
     return _parse_text_bfs(txt)
 
-WHITELIST = ['cryolite']
+WHITELIST = ['cryolite','crimsonchin','octbot']
 WHITELIST_RANK = '%'
 PERIODIC_OBJ = Periodic()
 
 
 def start(bot, cmd, room, msg, user):
     global WHITELIST
-    reply = r.ReplyObject('', True, False, False, True, True)
+    reply = r.ReplyObject('', True, False, True, True, True)
     if (msg.startswith("'") and msg.endswith("'")
         or (msg.startswith('"') and msg.endswith('"'))):
         return str(parse_text(msg))
@@ -235,10 +235,10 @@ def start(bot, cmd, room, msg, user):
         return reply.response("Don't try to play games in pm please")
     if msg == 'new':
         if(not user.hasRank(WHITELIST_RANK)
-           and (not user.name.strip() in WHITELIST)):
-            return reply.response('You do not have permission to start a game'
+           and (not user.id in WHITELIST)):
+            return reply.response(('You do not have permission to start a game'
                                   ' in this room. (Requires {rank})'
-                                  ).format(rank=WHITELIST_RANK)
+                                  ).format(rank=WHITELIST_RANK))
         if room.activity:
             return reply.response('A game is already running somewhere')
         if not room.allowGames:
@@ -246,14 +246,15 @@ def start(bot, cmd, room, msg, user):
         room.activity = PERIODIC_OBJ
         room.activity.new_game()
         return reply.response(('A new periodic game has been created'
-                               ' (guess with .a):\n')+room.activity.getWord())
+                               ' (guess with .pa):\n')+room.activity.get_word())
 
     elif msg == 'hint':
         if room.activity:
             return reply.response('The hint is: '+room.activity.get_hint())
         return reply.response('There is no active periodic game right now')
+
     elif msg == 'end':
-        if not user.hasRank(WHITELIST_RANK):
+        if not user.hasRank(WHITELIST_RANK) and not user.id in WHITELIST:
             return reply.response(('You do not have permission to end '
                                    'the periodic game. (Requires {rank})'
                                    '').format(rank=WHITELIST_RANK))
@@ -286,7 +287,7 @@ def start(bot, cmd, room, msg, user):
         return reply.response('There is no active anagram right now')
 
 def answer(bot, cmd, room, msg, user):
-    reply = r.ReplyObject('', True, False, False, True, True)
+    reply = r.ReplyObject('', True, False, True, True, False)
     ans = list(msg.lower().split(' '))
     if not (room.activity and room.activity.isThisGame(Periodic)):
         return reply.response('There is no periodic game active right now')
@@ -295,7 +296,7 @@ def answer(bot, cmd, room, msg, user):
         timeTaken = room.activity.getSolveTimeStr()
         room.activity = None
         # lambda expression to determine the user's score
-        start_score = lambda u,s: 1 if(u in s) else s[u]+1
+        start_score = lambda u,s : 1 if(u not in s) else s[u]+1
         Scoreboard[user.id] = start_score(user.id, Scoreboard)
         with open('plugins/periodic_scoreboard.yaml', 'w') as ym:
             yaml.dump(Scoreboard, ym)
