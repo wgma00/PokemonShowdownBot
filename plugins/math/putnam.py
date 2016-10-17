@@ -51,10 +51,11 @@ class LatexParsingException(Exception):
 
 
 class Putnam(object):
-    """Handles LaTeX related commands.
+    """Generates a random putnam problem and upload the problem to imgur.  
 
-    This class will take in commands of the form ".latex $equation$". It will
-    generate the corresponding LaTeX and upload it to the imgur image hosting.
+    This class will take in commands of the form ".putnam" and It will
+    randomly generate a random putnam problem from the following problem
+    archive:  http://kskedlaya.org/putnam-archive/ .
 
     Attributes:
        client: client object that interacts with the imgur host.

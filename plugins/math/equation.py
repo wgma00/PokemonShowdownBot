@@ -34,7 +34,7 @@ def sanatize_input(user_input):
     return user_input
 
 def solve(user_input, x=""):
-    """ Solves a mathematical expresion using the gnome calculator software."""
+    """Solves a mathematical expresion using the gnome calculator software."""
     # sanatize input to avoid security errors
     user_input = sanatize_input(user_input)
     x = sanatize_input(x)
