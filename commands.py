@@ -324,10 +324,8 @@ def Command(self, cmd, room, msg, user, markov_db=None):
         return ReplyObject(('Format: http://www.smogon.com/dex/xy/formats/'
                             '{tier}/').format(tier = cmd), True)
     # This command is here because it's an awful condition, so try it last :/
-    new_list = filter(lambda p: re.sub('-(?:mega(?:-(x|y))?|primal|xl|l)','',
-                      cmd, flags=re.I) in p.replace(' ','').lower(),
-                      [p for p in Pokedex])
-    if new_list:
+    pkmn_name_regex = re.sub('-(?:mega(?:-(x|y))?|primal|xl|l)','', cmd, flags=re.I) 
+    if filter(lambda p: pkmn_name_regex in p.replace(' ','').lower(), [p for p in Pokedex]):
         cmd = re.sub('-(?:mega(?:-(x|y))?|primal)','', cmd)
         # This doesn't break Arceus-Steel like adding |S to the regex would
         # and gourgeist-s /pumpkaboo-s still get found, because it matches the
