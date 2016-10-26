@@ -325,7 +325,7 @@ def Command(self, cmd, room, msg, user, markov_db=None):
                             '{tier}/').format(tier = cmd), True)
     # This command is here because it's an awful condition, so try it last :/
     pkmn_name_regex = re.sub('-(?:mega(?:-(x|y))?|primal|xl|l)','', cmd, flags=re.I) 
-    if filter(lambda p: pkmn_name_regex in p.replace(' ','').lower(), [p for p in Pokedex]):
+    if filter(lambda p: pkmn_name_regex in self.removespaces(p).lower(), [p for p in Pokedex]):
         cmd = re.sub('-(?:mega(?:-(x|y))?|primal)','', cmd)
         # This doesn't break Arceus-Steel like adding |S to the regex would
         # and gourgeist-s /pumpkaboo-s still get found, because it matches the
@@ -339,7 +339,7 @@ def Command(self, cmd, room, msg, user, markov_db=None):
                        'giratina-o':'giratina-origin',
                        'mr.mime':'mr_mime',
                        'mimejr.':'mime_jr'}
-        if cmd.lower() not in (self.removeSpaces(p).lower() for p in Pokedex):
+        if cmd.lower() not in [self.removeSpaces(p).lower() for p in Pokedex]:
             return ReplyObject('{cmd} is not a valid command'.format(cmd=cmd),
                                True)
         if cmd in substitutes:
