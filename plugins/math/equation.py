@@ -19,7 +19,7 @@ import subprocess
 import threading
 import queue
 
-MATH_CONST = {"pi":"π"}
+def MATH_CONST(): return  {"pi":"π"}
 
 def sanatize_input(user_input):
     """ Removes nasty stuff that could bork the system."""
@@ -38,9 +38,9 @@ def solve(user_input, x=""):
     # sanatize input to avoid security errors
     user_input = sanatize_input(user_input)
     x = sanatize_input(x)
-    for const in MATH_CONST:
-        user_input = user_input.replace(const, MATH_CONST[const])
-        x = x.replace(const, MATH_CONST[const])
+    for const in MATH_CONST():
+        user_input = user_input.replace(const, MATH_CONST()[const])
+        x = x.replace(const, MATH_CONST()[const])
     user_input = user_input.replace("x", x)
     out = subprocess.check_output("echo '{uinput}' | gcalccmd".format(uinput=user_input), shell=True)
     ret = out.decode("utf-8")
