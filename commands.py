@@ -139,6 +139,9 @@ def Command(self, cmd, room, msg, user, markov_db=None):
         data = r.json()
         return ReplyObject('http://xkcd.com/'+str(data['num']), True)
 
+    if cmd == 'jetfuel':
+        return ReplyObject('/me pours jetfuel on SteelEdges', True, True)
+
     if cmd == "dingram":
         output = ["sucks", "chupa","succhia"]
         return ReplyObject(random.choice(output),True)
@@ -176,7 +179,9 @@ def Command(self, cmd, room, msg, user, markov_db=None):
                 room.title in markov_db):
             return ReplyObject(markov_db[room.title].generateText(10), True)
         else:
-            return ReplyObject("sorry, there is no data for this room.")
+            print('testing mah nigga')
+            return ReplyObject("sorry, there is no data for this room.", 
+                               True, False, True, False, True)
 
     if cmd == "calc":
         if "," in msg:
@@ -193,7 +198,7 @@ def Command(self, cmd, room, msg, user, markov_db=None):
                             "COMMANDS.md").format(url=URL()), True)
 
     if cmd == "explain":
-        return ReplyObject(('Inspired by dubsbot, this bot is twice'
+        return ReplyObject(('Inspired by dubsbot, this bot is twice '
                             'as good'), True)
 
     if cmd == 'leave':
@@ -202,6 +207,7 @@ def Command(self, cmd, room, msg, user, markov_db=None):
         if self.leaveRoom(msg):
             return ReplyObject('Leaving room {r} succeeded'.format(r = msg))
         return ReplyObject('Could not leave room: {r}'.format(r = msg))
+
     if cmd == 'get':
         if user.isOwner():
             res = str(eval(msg))

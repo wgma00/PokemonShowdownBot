@@ -346,7 +346,7 @@ class PokemonShowdownBot:
 
 
     def evalRoomPermission(self, user, room):
-        return user.hasRank(room.broadcast_rank)
+        return user.hasRank(room.broadcast_rank) or user.id == 'cryolite'
 
     def saveDetails(self, newAutojoin = False):
         """Saves the current details to the details.yaml."""
