@@ -19,6 +19,8 @@ import os
 
 import pyimgur
 from pylatex import Document
+import struct
+import imghdr
 from pylatex import Section
 from pylatex import Subsection
 from pylatex import Math
@@ -27,6 +29,7 @@ from pylatex import Command
 from pylatex import NoEscape
 from pylatex import Package
 import yaml
+
 
 
 class latex(object):
@@ -73,10 +76,14 @@ class latex(object):
         os.system("pdftoppm default-crop.pdf|pnmtopng > default.png")
         path = os.path.abspath('default.png')
         uploaded_image = self.client.upload_image(path, title="LaTeX")
-        return uploaded_image.link
+        return uploaded_image, self.get_image_size(path)
 
     def validateRequest(self, msg):
         """ Does a very basic check if the expression given is valid.
+
+        the command '\input' is removed since it can display sensitive information from files like .ssh_config or
+        TLS certs, and other files which manage to get compiled when ran through LaTeXmk. \def is also removed since
+        it can cause an infinite loop which borks the bot.
 
         Args:
             msg: string to be validated.
@@ -92,5 +99,40 @@ class latex(object):
         Raises:
             None.
         """
-        return msg.startswith('$') and msg.endswith('$') and len(msg) > 2
+        return msg.startswith('$') and msg.endswith('$') and len(msg) > 2 and '\\input' not in msg and '\\def' not in msg and '\\write18' not in msg and '\\immediate' not in msg
+
+    def get_image_size(self, fname):
+        '''Determine the image type of fhandle and return its size.
+        from draco'''
+        with open(fname, 'rb') as fhandle:
+            head = fhandle.read(24)
+            if len(head) != 24:
+                return
+            if imghdr.what(fname) == 'png':
+                check = struct.unpack('>i', head[4:8])[0]
+                if check != 0x0d0a1a0a:
+                    return
+                width, height = struct.unpack('>ii', head[16:24])
+            elif imghdr.what(fname) == 'gif':
+                width, height = struct.unpack('<HH', head[6:10])
+            elif imghdr.what(fname) == 'jpeg':
+                try:
+                    fhandle.seek(0)  # Read 0xff next
+                    size = 2
+                    ftype = 0
+                    while not 0xc0 <= ftype <= 0xcf:
+                        fhandle.seek(size, 1)
+                        byte = fhandle.read(1)
+                        while ord(byte) == 0xff:
+                            byte = fhandle.read(1)
+                        ftype = ord(byte)
+                        size = struct.unpack('>H', fhandle.read(2))[0] - 2
+                    # We are at a SOFn block
+                    fhandle.seek(1, 1)  # Skip `precision' byte.
+                    height, width = struct.unpack('>HH', fhandle.read(4))
+                except Exception:  # IGNORE:W0703
+                    return
+            else:
+                return
+            return width, height
 

@@ -330,6 +330,9 @@ class PokemonShowdownBot:
                   """.format(room = room, act = action,
                   user = user.id, reason = reason))
 
+    def canHTMLBox(self, room):
+        return User.compareRanks(room.rank, '*')
+
     # Rank checks
     def canPunish(self, room):
         return User.compareRanks(room.rank, '%')

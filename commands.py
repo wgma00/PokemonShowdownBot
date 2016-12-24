@@ -127,8 +127,13 @@ def Command(self, cmd, room, msg, user, markov_db=None):
         if not ltx.validateRequest(msg):
             return ReplyObject("invalid latex expression")
         else:
-            url_upload = ltx.handleRequest(msg)
-            return ReplyObject(url_upload, True)
+            uploaded_image_data= ltx.handleRequest(msg)
+            uploaded_image = uploaded_image_data[0]
+            uploaded_image_dims = uploaded_image_data[1]
+            if User.compareRanks(room.rank, '*'):
+                return ReplyObject('!htmlbox <img src="{url}" height="{height}" width={width}></img>'.format(url=uploaded_image.link, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
+            else:
+                return ReplyObject(uploaded_image.link, True)
 
     if cmd == "dilbert":
         return ReplyObject(('http://dilbert.com/'
