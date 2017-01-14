@@ -28,8 +28,8 @@ class Latex(OnlineImage):
     Attributes:
         _LATEX_URL_HOST: str,  
     """
-    _LATEX_URL_HOST = 'http://latex.codecogs.com/png.latex?' 
-    _HTML_ESCAPE_TABLE = {" ": "&space;"} 
+    _LATEX_URL_HOST = 'http://latex.codecogs.com/png.latex?\\bg_white&space;'
+    _HTML_ESCAPE_TABLE = {" ": "&space;"}
 
     @staticmethod
     def html_escape(text):
