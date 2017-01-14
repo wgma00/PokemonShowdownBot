@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/wgma00/PokemonShowdownBot.svg?branch=master)](https://travis-ci.org/wgma00/PokemonShowdownBot)
+[![Build Status](https://travis-ci.org/wgma00/PokemonShowdownBot.svg?branch=master)](https://travis-ci.org/wgma00/PokemonShowdownBot) [![Coverage Status](https://coveralls.io/repos/github/wgma00/PokemonShowdownBot/badge.svg?branch=master)](https://coveralls.io/github/wgma00/PokemonShowdownBot?branch=master)
 
 Pokemon Showdown Bot made in Python 3.
 
