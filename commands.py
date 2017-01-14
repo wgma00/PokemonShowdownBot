@@ -73,7 +73,8 @@ from data.types import Types
 from data.replies import Lines
 from plugins import PluginCommands
 from plugins.math import equation
-from plugins.math.latex import latex
+from plugins.math.latex import Latex
+from plugins.math.images import OnlineImage 
 from plugins.math.clever import Clever
 from plugins.math.putnam import Putnam
 from plugins.math.putnam import LatexParsingException
@@ -114,6 +115,10 @@ def Command(self, cmd, room, msg, user, markov_db=None):
     if cmd == "test":
         return ReplyObject("test", True)
 
+    if cmd == 'send':
+        self.send(msg)
+        return ReplyObject(msg, True)
+
     if cmd in ["source", "git"]:
         return ReplyObject(("Source code can be found at:"
                             " {url}").format(url=URL()))
@@ -123,17 +128,16 @@ def Command(self, cmd, room, msg, user, markov_db=None):
                             " {url}").format(url=URL()), True)
 
     if cmd == "latex":
-        ltx = latex()
-        if not ltx.validateRequest(msg):
+        if not Latex.validate_request(msg):
             return ReplyObject("invalid latex expression")
         else:
-            uploaded_image_data= ltx.handleRequest(msg)
+            uploaded_image_data = Latex.handle_request(msg)
             uploaded_image = uploaded_image_data[0]
             uploaded_image_dims = uploaded_image_data[1]
             if User.compareRanks(room.rank, '*'):
-                return ReplyObject('!htmlbox <img src="{url}" height="{height}" width={width}></img>'.format(url=uploaded_image.link, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
+                return ReplyObject('!htmlbox <img src="{url}" height="{height}" width={width}></img>'.format(url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
             else:
-                return ReplyObject(uploaded_image.link, True)
+                return ReplyObject(uploaded_image, True)
 
     if cmd == "dilbert":
         return ReplyObject(('http://dilbert.com/'
@@ -142,12 +146,18 @@ def Command(self, cmd, room, msg, user, markov_db=None):
     if cmd == "xkcd":
         r = requests.get('http://xkcd.com/info.0.json')
         data = r.json()
-        return ReplyObject('http://xkcd.com/'+str(data['num']), True)
+        uploaded_image = data['img']
+        uploaded_image_dims = OnlineImage.get_image_info(uploaded_image)
+        alt_data = data['alt']
+        if User.compareRanks(room.rank, '*'):
+            return ReplyObject('!htmlbox <img alt="{alt}" src="{url}" height="{height}" width={width}></img>'.format(alt=alt_data, url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
+        else:
+            return ReplyObect(uploaded_image, True)
 
     if cmd == 'jetfuel':
         return ReplyObject('/me pours jetfuel on SteelEdges', True, True)
 
-    if cmd == "dingram":
+    if cmd in ["dingram"]:
         output = ["sucks", "chupa","succhia"]
         return ReplyObject(random.choice(output),True)
 

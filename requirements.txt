@@ -5,3 +5,5 @@ websocket-client == 0.23.0
 cleverbot == 1.0.2
 pylatex == 1.0.0
 pyimgur == 0.5.3
+python-coveralls
+Pillow == 4.0.0
