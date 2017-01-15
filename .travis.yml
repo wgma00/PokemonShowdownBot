@@ -6,8 +6,12 @@ before_install:
     - sudo apt-get -qq update
     - sudo apt-get install texlive
     - sudo apt-get install poppler-utils 
-install: "pip install -r requirements.txt" 
+install: 
+    - pip install -r requirements.txt
+    - pip install coveralls
 # command to run tests
-script: nosetests
-after_success:
-    - coveralls
+script: 
+    - pytest test
+    - coverage run --source=data, plugins, app.py, commands.py, robot.py room.py, user.py
+after_sucess:
+    coveralls
