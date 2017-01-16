@@ -12,6 +12,6 @@ install:
 # command to run tests
 script: 
     - pytest test/*
-    - coverage run --source=data, plugins, app.py, commands.py, robot.py room.py, user.py
+    - coverage run
 after_sucess:
     coveralls
