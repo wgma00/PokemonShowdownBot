@@ -79,6 +79,7 @@ from plugins.math.partyparrot import PartyParrot
 from plugins.math.clever import Clever
 from plugins.math.putnam import Putnam
 from plugins.math.putnam import LatexParsingException
+from decorator import decorator
 from robot import ReplyObject
 from user import User
 from room import RoomCommands
@@ -92,7 +93,25 @@ def URL():
     """URL for the source code"""
     return "https://github.com/wgma00/PokemonShowdownBot/"
 
+@decorator
+def RTLOverrideDecorator(cmd_function, *args):
+    """Removes RTL override 'U+202E' from input which reverses bot's output.
 
+    Args:
+        cmd_function: Command, normal command function.
+        *args: paramters within the command function called.
+    Returns:
+        Modifies input, so it removes U+202E from cmd and msg
+    """
+    args=list(args)
+    CMD_INDEX = 1
+    MSG_INDEX = 3
+    args[CMD_INDEX] = args[CMD_INDEX].encode('ascii','ignore').decode()
+    args[MSG_INDEX] = args[MSG_INDEX].encode('ascii','ignore').decode()
+    return cmd_function(*args)
+
+
+@RTLOverrideDecorator
 def Command(self, cmd, room, msg, user, markov_db=None):
     """ Handles commands given by the chat parser.
 
@@ -113,13 +132,14 @@ def Command(self, cmd, room, msg, user, markov_db=None):
         Exception: There was likely improper input in the .calc command or
                    something I entirely missed lol.
     """
+    # This handles the abuse of RTL override
 
     if cmd == "test":
         return ReplyObject("test", True)
 
-    if cmd == 'send':
+    if cmd == 'send' and user.isOwner():
         self.send(msg)
-        return ReplyObject(msg, True)
+        return ReplyObject(msg, True, True)
 
     if cmd in ["source", "git"]:
         return ReplyObject(("Source code can be found at:"
@@ -152,7 +172,7 @@ def Command(self, cmd, room, msg, user, markov_db=None):
         uploaded_image_dims = OnlineImage.get_image_info(uploaded_image)
         alt_data = data['alt']
         if User.compareRanks(room.rank, '*'):
-            return ReplyObject('!htmlbox <img alt="{alt}" src="{url}" height="{height}" width={width}></img>'.format(alt=alt_data, url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
+            return ReplyObject('!htmlbox <img src="{url}" height="{height}" width={width}></img><br><b>{alt}</b></br>'.format(alt=alt_data, url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
         else:
             return ReplyObect(uploaded_image, True)
 
@@ -193,7 +213,7 @@ def Command(self, cmd, room, msg, user, markov_db=None):
                  "Emperor of the Known Universe.\n"),
                 ("Send a third stage Guild Navigator to Kaitain to demand "
                  "details from the Emperor. The spice must flow…\n"),
-                 "https://www.youtube.com/watch?v=E_fzSc_i0Tc\n"]
+                "https://www.youtube.com/watch?v=nJ_ysxBi_O0\n"]
         return ReplyObject(dune[0]+dune[1]+dune[2]+dune[3]+dune[4], True)
 
     if cmd == "clever":
