@@ -9,3 +9,5 @@ plugins/bans.yaml
 
 # logs
 logs/
+.idea/
+pokemonshowdownbot/
