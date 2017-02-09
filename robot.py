@@ -70,6 +70,7 @@ from plugins.battling.battleHandler import BattleHandler
 from plugins.math.markov import Markov
 from plugins.math.clever import Clever
 
+
 class PokemonShowdownBot:
     """This class contains most of the functionality of the bot.
 
@@ -89,21 +90,33 @@ class PokemonShowdownBot:
              websocket will attempt connecting to.
     """
     def __init__(self, url, onMessage = None):
-        with open("details.yaml", 'r') as yaml_file:
-            self.details = yaml.load(yaml_file)
-            self.owner = self.toId(self.details['master'])
-            self.name = self.details['user']
+        try:
+            with open("details.yaml", 'r') as yaml_file:
+                self.details = yaml.load(yaml_file)
+                self.owner = self.toId(self.details['master'])
+                self.name = self.details['user']
+                self.id = self.toId(self.name)
+                self.rooms = {}
+                self.rooms_markov = {}
+                self.commandchar = self.details['command']
+                self.intro()
+                self.splitMessage = onMessage if onMessage else self.onMessage
+                self.url = url
+                # websocket.enableTrace(True)
+                # self.addBattleHandler()
+                self.clever_bot = Clever()
+                self.openConnection()
+        except FileNotFoundError as e:
+            self.owner = 'wgma'
+            self.name = 'quadbot'
             self.id = self.toId(self.name)
             self.rooms = {}
             self.rooms_markov = {}
-            self.commandchar = self.details['command']
-            self.intro()
+            self.commandchar = '.'
             self.splitMessage = onMessage if onMessage else self.onMessage
             self.url = url
-            # websocket.enableTrace(True)
-            # self.addBattleHandler()
             self.clever_bot = Clever()
-            self.openConnection()
+
 
     def onError(self, ws, error):
         """Error message to be printed on error with websocket."""
