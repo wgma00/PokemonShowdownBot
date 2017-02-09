@@ -12,6 +12,6 @@ install:
     - pip install pytest pytest-cov
 # command to run tests
 script: 
-    - python3 -m pytest --cov=. test
+    - python3 -m pytest --doctest-modules --cov=. test --cov-report term-missing
 after_sucess:
     - coveralls
