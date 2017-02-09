@@ -94,5 +94,6 @@ class PartyParrot(OnlineImage):
 
 
 
-print(PartyParrot.random_parrot())
-print(PartyParrot.get_parrot('congapartyparrot'))
+if __name__ == '__main__':
+    print(PartyParrot.random_parrot())
+    print(PartyParrot.get_parrot('congapartyparrot'))
