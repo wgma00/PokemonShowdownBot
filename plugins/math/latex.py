@@ -41,6 +41,9 @@ class Latex(OnlineImage):
             _client_id = _details['imgur_apikey']
             _client = pyimgur.Imgur(_client_id)
     except FileNotFoundError as e:
+        _details = None
+        _client_id = None
+        _client = None
         print('details.yaml not found')
 
     @staticmethod
