@@ -11,5 +11,4 @@ install:
 # command to run tests
 script: 
     - python3 -m pytest --cov-report term-missing --doctest-modules --cov=. test
-after_sucess:
     - COVERALLS_REPO_TOKEN=$COVERALLS_TOKEN coveralls
