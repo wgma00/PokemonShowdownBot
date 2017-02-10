@@ -35,10 +35,13 @@ class Latex(OnlineImage):
         details: map which holds values for sensitive variables i.e. api keys
     """
 
-    with open("details.yaml", 'r') as yaml_file:
-        _details = yaml.load(yaml_file)
-        _client_id = _details['imgur_apikey']
-        _client = pyimgur.Imgur(_client_id)
+    try:
+        with open("details.yaml", 'r') as yaml_file:
+            _details = yaml.load(yaml_file)
+            _client_id = _details['imgur_apikey']
+            _client = pyimgur.Imgur(_client_id)
+    except FileNotFoundError as e:
+        print('details.yaml not found')
 
     @staticmethod
     def handle_request(msg):
@@ -58,14 +61,15 @@ class Latex(OnlineImage):
         doc = Document(documentclass='minimal')
         doc.packages = [Package(i) for i in 'amsmath,amsthm,amssymb,amsfonts'.split(',')]
         doc.append(NoEscape(msg))
-        doc.generate_pdf('default')
+        doc.generate_pdf('default', compiler_args=['-no-shell-escape',])
         # These are normal Linux commands that are used to convert the pdf
         # file created by pylatex into a snippet
         os.system("pdfcrop default.pdf")
         os.system("pdftoppm default-crop.pdf|pnmtopng > default.png")
         path = os.path.abspath('default.png')
         uploaded_image = Latex._client.upload_image(path, title="LaTeX")
-        return uploaded_image, Latex.get_local_image_info(path)
+        print(uploaded_image.link, Latex.get_local_image_info(path))
+        return uploaded_image.link, Latex.get_local_image_info(path)
 
     @staticmethod
     def handle_request_compilation(msg):
@@ -105,9 +109,8 @@ class Latex(OnlineImage):
         Raises:
             None.
         """
-        return (msg.startswith('$') and msg.endswith('$') and len(msg) > 2 
-                and '\\input' not in msg and '\\def' not in msg 
-                and '\\write18' not in msg and '\\immediate' not in msg)
+        return (msg.startswith('$') and msg.endswith('$') and len(msg) > 2 )
+
 
 
 if __name__ == '__main__':
