@@ -12,4 +12,4 @@ install:
 script: 
     - python3 -m pytest --cov-report term-missing --doctest-modules --cov=. test
 after_sucess:
-    - coveralls
+    - COVERALLS_REPO_TOKEN=$COVERALLS_TOKEN coveralls
