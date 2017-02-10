@@ -76,7 +76,6 @@ from plugins.math import equation
 from plugins.math.latex import Latex
 from plugins.math.images import OnlineImage 
 from plugins.math.partyparrot import PartyParrot
-from plugins.math.clever import Clever
 from plugins.math.putnam import Putnam
 from plugins.math.putnam import LatexParsingException
 from decorator import decorator
@@ -176,7 +175,7 @@ def Command(self, cmd, room, msg, user, markov_db=None):
         else:
             return ReplyObect(uploaded_image, True)
 
-    if cmd in ['partyparrot','pp','parrot','party']:
+    if cmd in ['partyparrot', 'pp', 'parrot', 'party']:
         uploaded_image_data = PartyParrot.random_parrot()
         if PartyParrot.get_parrot(msg):
             uploaded_image_data = PartyParrot.get_parrot(msg)
@@ -186,7 +185,6 @@ def Command(self, cmd, room, msg, user, markov_db=None):
             return ReplyObject('!htmlbox <img src="{url}" height="{height}" width={width}></img>'.format(url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
         else:
             return ReplyObject(uploaded_image, True)
-
 
     if cmd == 'jetfuel':
         return ReplyObject('/me pours jetfuel on SteelEdges', True, True)
@@ -216,9 +214,6 @@ def Command(self, cmd, room, msg, user, markov_db=None):
                 "https://www.youtube.com/watch?v=nJ_ysxBi_O0\n"]
         return ReplyObject(dune[0]+dune[1]+dune[2]+dune[3]+dune[4], True)
 
-    if cmd == "clever":
-        return ReplyObject(self.clever_bot.reply(), True)
-
     if cmd == "reset":
         self.clever_bot = Clever()
         return ReplyObject("Clever bot reset", True)
@@ -228,8 +223,7 @@ def Command(self, cmd, room, msg, user, markov_db=None):
                 room.title in markov_db):
             return ReplyObject(markov_db[room.title].generateText(10), True)
         else:
-            print('testing mah nigga')
-            return ReplyObject("sorry, there is no data for this room.", 
+            return ReplyObject("sorry, there is no data for this room.",
                                True, False, True, False, True)
 
     if cmd == "calc":

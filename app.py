@@ -290,10 +290,6 @@ class PSBot(PokemonShowdownBot):
                                                           anything, message[2])
                     self.takeAction(room.title, user, action, reason)
 
-            #update clever bot with last message
-            if not message[4].startswith(self.commandchar):
-                self.clever_bot.update(message[4].lower())
-
             if(room.title not in self.rooms_markov
                and not message[4].startswith(self.commandchar)):
                 self.rooms_markov[room.title] = Markov(room.title)

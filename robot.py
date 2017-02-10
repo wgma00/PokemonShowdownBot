@@ -60,15 +60,12 @@ import websocket
 import requests
 import json
 import yaml
-from time import sleep
-import datetime
 import re
 
 from room import Room
 from user import User
 from plugins.battling.battleHandler import BattleHandler
 from plugins.math.markov import Markov
-from plugins.math.clever import Clever
 
 
 class PokemonShowdownBot:
@@ -102,9 +99,8 @@ class PokemonShowdownBot:
                 self.intro()
                 self.splitMessage = onMessage if onMessage else self.onMessage
                 self.url = url
-                # websocket.enableTrace(True)
+                websocket.enableTrace(True)
                 # self.addBattleHandler()
-                self.clever_bot = Clever()
                 self.openConnection()
         except FileNotFoundError as e:
             self.owner = 'wgma'
@@ -115,7 +111,6 @@ class PokemonShowdownBot:
             self.commandchar = '.'
             self.splitMessage = onMessage if onMessage else self.onMessage
             self.url = url
-            self.clever_bot = Clever()
 
 
     def onError(self, ws, error):

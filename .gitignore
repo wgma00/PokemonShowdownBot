@@ -11,3 +11,5 @@ plugins/bans.yaml
 logs/
 .idea/
 pokemonshowdownbot/
+venv/
+default*

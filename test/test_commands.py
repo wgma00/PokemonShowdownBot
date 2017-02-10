@@ -1,3 +1,5 @@
+from plugins.math.putnam import LatexParsingException
+
 from commands import Command, ReplyObject, Latex
 from room import Room
 from user import User
@@ -66,8 +68,13 @@ def test_latex_compilation_dangerous_input():
     assert reply == answer, '\input was not handled in latex'
 
 
-
-
-
+def test_putnam_problem_generator():
+    """Note: there is corrently an error that hasn't been identified on this piece of software."""
+    test_room = Room('test')
+    regular_user = User('user', False)
+    try:
+        Command(psb, 'putnam', test_room, '', regular_user)
+    except LatexParsingException:
+        print('warning, putnam generator did not parse an input correctly.')
 
 

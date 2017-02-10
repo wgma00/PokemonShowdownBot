@@ -33,7 +33,7 @@ class OnlineImage(object):
         file = BytesIO(urlopen(URL).read())
         im=Image.open(file)
         width, height = im.size
-        return width,height
+        return width, height
 
     @staticmethod
     def get_local_image_info(file_name):
