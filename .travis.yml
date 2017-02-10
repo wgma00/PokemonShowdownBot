@@ -8,10 +8,8 @@ before_install:
     - sudo apt-get install poppler-utils
 install: 
     - pip install -r requirements.txt
-    - pip install coveralls
-    - pip install pytest pytest-cov
 # command to run tests
 script: 
-    - python3 -m pytest --doctest-modules --cov=. test --cov-report term-missing
+    - python3 -m pytest --cov-report term-missing --doctest-modules --cov=. test
 after_sucess:
     - coveralls
