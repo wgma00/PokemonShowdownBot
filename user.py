@@ -47,10 +47,12 @@ class UnSpecifiedUserRankException(Exception):
     """This error is thrown in the case that there is a new user added by the
     admins of PokemonShowdown, i.e. when they added the new bot user rank.
     """
-    def __init__(self,user_class):
+    def __init__(self, user_class):
         self.user_class = user_class
+
     def __str__(self):
         return 'Unsupported user class:' + self.user_class
+
 
 class User:
     """Very basic class for a pokemon showdown user.
@@ -61,7 +63,7 @@ class User:
         rank:string, user rank.
         owner:Bool, is this you.
     """
-    Groups = {' ':0,'+':1,'★':1,'%':2,'@':3,'*':3.1,'&':4,'#':5,'~':6}
+    Groups = {' ': 0, '+': 1, '★': 1, '%': 2, '@': 3, '*': 4, '&': 5, '#': 6, '~': 7}
 
     def __init__(self, name, rank, owner = False):
         """Initializes user.
@@ -88,11 +90,11 @@ class User:
         """
         try:
             return User.Groups[rank1] >= User.Groups[rank2]
-        except:
-            if not rank1 in User.Groups:
-                raise UnSpecifiedUserClassException
-            if not rank2 in User.Groups:
-                raise UnSpecifiedUserClassException
+        except KeyError:
+            if rank1 not in User.Groups:
+                raise UnSpecifiedUserRankException(rank1)
+            if rank2 not in User.Groups:
+                raise UnSpecifiedUserRankException(rank2)
             return False
 
     def isOwner(self):
@@ -101,7 +103,7 @@ class User:
 
     def hasRank(self, rank):
         """Determines if a user has sufficient staff rights"""
-        return self.owner or User.compareRanks(self.rank, rank) or self.id == 'cryolite'
+        return self.owner or User.compareRanks(self.rank, rank)
 
 
 if __name__ == '__main__':
