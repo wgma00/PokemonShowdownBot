@@ -59,8 +59,8 @@
 #   user: A user object like the one described in the app.py file
 
 import random
-import re
 import math
+import re
 import time
 import requests
 
@@ -88,9 +88,11 @@ ExternalCommands.update(PluginCommands)
 
 usageLink = r'http://www.smogon.com/stats/2016-08/'
 
+
 def URL():
     """URL for the source code"""
     return "https://github.com/wgma00/PokemonShowdownBot/"
+
 
 @decorator
 def RTLOverrideDecorator(cmd_function, *args):
@@ -190,7 +192,7 @@ def Command(self, cmd, room, msg, user, markov_db=None):
         return ReplyObject('/me pours jetfuel on SteelEdges', True, True)
 
     if cmd in ["dingram"]:
-        output = ["sucks", "chupa","succhia"]
+        output = ["sucks", "chupa", "succhia"]
         return ReplyObject(random.choice(output),True)
 
     if cmd == "putnam":
@@ -213,10 +215,6 @@ def Command(self, cmd, room, msg, user, markov_db=None):
                  "details from the Emperor. The spice must flow…\n"),
                 "https://www.youtube.com/watch?v=nJ_ysxBi_O0\n"]
         return ReplyObject(dune[0]+dune[1]+dune[2]+dune[3]+dune[4], True)
-
-    if cmd == "reset":
-        self.clever_bot = Clever()
-        return ReplyObject("Clever bot reset", True)
 
     if cmd == "m":
         if (markov_db is not None and room.title is not 'pm' and
@@ -254,7 +252,7 @@ def Command(self, cmd, room, msg, user, markov_db=None):
     if cmd == 'get':
         if user.isOwner():
             res = str(eval(msg))
-            return ReplyObject(res if not res == None else '', True)
+            return ReplyObject(res if not res is None else '', True)
         return ReplyObject('You do not have permisson to use this '
                            'command. (Only for owner)')
     if cmd == 'forcerestart':
@@ -316,15 +314,15 @@ def Command(self, cmd, room, msg, user, markov_db=None):
         if msg in Links[cmd]:
             return ReplyObject(Links[cmd][msg], True)
         return ReplyObject(('{tier} is not a supported format for {command}'
-                            '').format(tier = msg, command = cmd), True)
+                            '').format(tier=msg, command=cmd), True)
     if cmd == 'usage':
         return ReplyObject(usageLink, True, False, False, False, True)
     # Fun stuff
     if cmd == 'pick':
         options = msg.split(',')
-        return ReplyObject(options[randint(0,(len(options) - 1))], True)
+        return ReplyObject(options[math.randint(0,(len(options) - 1))], True)
     if cmd == 'ask':
-        return ReplyObject(Lines[randint(0, len(Lines) - 1)], True)
+        return ReplyObject(Lines[math.randint(0, len(Lines) - 1)], True)
     if cmd == 'seen':
         return ReplyObject(("This is not a command because I value other"
                             " users' privacy."), True)
@@ -333,7 +331,7 @@ def Command(self, cmd, room, msg, user, markov_db=None):
     if cmd in YoutubeLinks:
         return ReplyObject(YoutubeLinks[cmd], True)
     if cmd in tiers:
-        pick = list(tiers[cmd])[randint(0,len(tiers[cmd])-1)]
+        pick = list(tiers[cmd])[math.randint(0,len(tiers[cmd])-1)]
         pNoForm = re.sub('-(?:Mega(?:-(X|Y))?|Primal)','', pick).lower()
         return ReplyObject(('{poke} was chosen: http://www.smogon.com/dex/xy/'
                             'pokemon/{mon}/').format(poke=pick, mon=pNoForm),
@@ -344,7 +342,7 @@ def Command(self, cmd, room, msg, user, markov_db=None):
         attempts = 0
         while len(team) < 6 or not acceptableWeakness(team):
             poke = list(tiers[cmd.replace('team','poke')])
-            poke = poke[randint(0, len(tiers[cmd.replace('team','poke')])-1)]
+            poke = poke[math.randint(0, len(tiers[cmd.replace('team','poke')])-1)]
             # Test if share dex number with anything in the team
             if [p for p in team if Pokedex[poke]['dex'] == Pokedex[p]['dex']]:
                 continue
@@ -365,7 +363,7 @@ def Command(self, cmd, room, msg, user, markov_db=None):
                 while len(team) < 6:
                     teams = list(tiers[cmd.replace('team','poke')])
                     seed = len(tiers[cmd.replace('team','poke')])-1
-                    rand_team = [randint(0, seed)]
+                    rand_team = [math.randint(0, seed)]
                     team |= {rand_team}
                 break
         return ReplyObject(' / '.join(list(team)), True)

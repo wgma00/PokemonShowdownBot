@@ -22,7 +22,8 @@ import pyimgur
 from pylatex import Document
 from pylatex import NoEscape
 from pylatex import Package
-import yaml
+import details
+
 
 class Latex(OnlineImage):
     """Handles LaTeX related commands.
@@ -31,20 +32,12 @@ class Latex(OnlineImage):
     generate the corresponding LaTeX and upload it to the imgur image hosting.
 
     Attributes:
+        client_id: client object that interacts with the imgur host
         client: client object that interacts with the imgur host
-        details: map which holds values for sensitive variables i.e. api keys
     """
 
-    try:
-        with open("details.yaml", 'r') as yaml_file:
-            _details = yaml.load(yaml_file)
-            _client_id = _details['imgur_apikey']
-            _client = pyimgur.Imgur(_client_id)
-    except FileNotFoundError as e:
-        _details = None
-        _client_id = None
-        _client = None
-        print('details.yaml not found')
+    _client_id = details.client_id
+    _client = pyimgur.Imgur(_client_id)
 
     @staticmethod
     def handle_request(msg):
@@ -71,23 +64,7 @@ class Latex(OnlineImage):
         os.system("pdftoppm default-crop.pdf|pnmtopng > default.png")
         path = os.path.abspath('default.png')
         uploaded_image = Latex._client.upload_image(path, title="LaTeX")
-        print(uploaded_image.link, Latex.get_local_image_info(path))
         return uploaded_image.link, Latex.get_local_image_info(path)
-
-    @staticmethod
-    def handle_request_compilation(msg):
-        # create a barebones latex document with only the one line
-        # specified from the user in the document.
-        doc = Document(documentclass='minimal')
-        doc.packages = [Package(i) for i in 'amsmath,amsthm,amssymb,amsfonts'.split(',')]
-        doc.append(NoEscape(msg))
-        doc.generate_pdf('default')
-        # These are normal Linux commands that are used to convert the pdf
-        # file created by pylatex into a snippet
-        os.system("pdfcrop default.pdf")
-        os.system("pdftoppm default-crop.pdf|pnmtopng > default.png")
-        path = os.path.abspath('default.png')
-        return path
 
     @staticmethod
     def validate_request(msg):
@@ -115,7 +92,6 @@ class Latex(OnlineImage):
         return (msg.startswith('$') and msg.endswith('$') and len(msg) > 2
                 and '\\input' not in msg and '\\def' not in msg
                 and '\\write18' not in msg and '\\immediate' not in msg)
-
 
 
 if __name__ == '__main__':

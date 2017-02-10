@@ -59,13 +59,13 @@
 import websocket
 import requests
 import json
-import yaml
 import re
 
 from room import Room
 from user import User
 from plugins.battling.battleHandler import BattleHandler
 from plugins.math.markov import Markov
+import details
 
 
 class PokemonShowdownBot:
@@ -86,32 +86,19 @@ class PokemonShowdownBot:
         url: string, the url for pokemon showdown's open port that the
              websocket will attempt connecting to.
     """
-    def __init__(self, url, onMessage = None):
-        try:
-            with open("details.yaml", 'r') as yaml_file:
-                self.details = yaml.load(yaml_file)
-                self.owner = self.toId(self.details['master'])
-                self.name = self.details['user']
-                self.id = self.toId(self.name)
-                self.rooms = {}
-                self.rooms_markov = {}
-                self.commandchar = self.details['command']
-                self.intro()
-                self.splitMessage = onMessage if onMessage else self.onMessage
-                self.url = url
-                websocket.enableTrace(True)
-                # self.addBattleHandler()
-                self.openConnection()
-        except FileNotFoundError as e:
-            self.owner = 'wgma'
-            self.name = 'quadbot'
-            self.id = self.toId(self.name)
-            self.rooms = {}
-            self.rooms_markov = {}
-            self.commandchar = '.'
-            self.splitMessage = onMessage if onMessage else self.onMessage
-            self.url = url
-
+    def __init__(self, url, onMessage=None):
+        self.owner = details.master
+        self.name = details.bot_name
+        self.id = details.bot_id
+        self.rooms = {}
+        self.rooms_markov = {}
+        self.commandchar = details.command_char
+        self.intro()
+        self.splitMessage = onMessage if onMessage else self.onMessage
+        self.url = url
+        # websocket.enableTrace(True)
+        # self.addBattleHandler()
+        self.openConnection()
 
     def onError(self, ws, error):
         """Error message to be printed on error with websocket."""
@@ -178,7 +165,7 @@ class PokemonShowdownBot:
         """
         payload = { 'act':'login',
                     'name': self.name,
-                    'pass': self.details['password'],
+                    'pass': details.password,
                     'challengekeyid': challengekeyid,
                     'challenge': challenge
                     }
@@ -209,10 +196,10 @@ class PokemonShowdownBot:
             print('crashing now; have a nice day :)')
             exit()
 
-        if self.details['avatar'] >= 0:
-            self.send('|/avatar {num}'.format(num = self.details['avatar']))
+        if details.avatar >= 0:
+            self.send('|/avatar {num}'.format(num=details.avatar))
         print('{name}: Successfully logged in.'.format(name=self.name))
-        for rooms in self.details['joinRooms']:
+        for rooms in details.joinRooms:
             name = [n for n in rooms][0] # joinRoom entry is a list of dicts
             self.joinRoom(name, rooms[name])
 

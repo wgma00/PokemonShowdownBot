@@ -4,15 +4,10 @@ from commands import Command, ReplyObject, Latex
 from room import Room
 from user import User
 from app import PSBot
-import os
 from subprocess import CalledProcessError
 import pytest
-import pyimgur
 
 psb = PSBot()
-if not Latex._client_id:
-    Latex._client_id = os.environ['IMGUR_API']
-    Latex._client_id = Latex._client = pyimgur.Imgur(Latex._client_id)
 
 """ Tests the commands that are within the Command method
 """
@@ -48,8 +43,8 @@ def test_latex_compilation_expected_input():
     test_room = Room('test')
     regular_user = User('user', False)
     try:
-        reply = Command(psb, 'latex', test_room, '$1+1$', regular_user)
-    except CalledProcessError as e:
+        Command(psb, 'latex', test_room, '$1+1$', regular_user)
+    except CalledProcessError:
         assert False, 'There was an error with the compiling of latex'
 
 
@@ -69,12 +64,10 @@ def test_latex_compilation_dangerous_input():
 
 
 def test_putnam_problem_generator():
-    """Note: there is corrently an error that hasn't been identified on this piece of software."""
+    """Note: there is correctly an error that hasn't been identified on this piece of software."""
     test_room = Room('test')
     regular_user = User('user', False)
     try:
         Command(psb, 'putnam', test_room, '', regular_user)
     except LatexParsingException:
         print('warning, putnam generator did not parse an input correctly.')
-
-
