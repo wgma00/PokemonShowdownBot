@@ -58,6 +58,16 @@ def test_latex_compilation_wrong_input():
         Command(psb, 'latex', test_room, '$\\begin{}+1$', regular_user)
 
 
+def test_latex_compilation_dangerous_input():
+    test_room = Room('test')
+    regular_user = User('user', False)
+    reply = Command(psb, 'latex', test_room, '$\input{/etc/passwd}$', regular_user)
+    answer = ReplyObject("invalid latex expression")
+    assert reply == answer, '\input was not handled in latex'
+
+
+
+
 
 
 
