@@ -404,6 +404,7 @@ class PokemonShowdownBot:
         elif parts[1] == 'updateuser':
             self.updateUser(parts[2], parts[3])
 
+
 class ReplyObject:
     """Reply object containing important information about how to handle an
     event to a user.
@@ -427,6 +428,17 @@ class ReplyObject:
         self.ignoreBroadcastPermission = broadcast
         self.gameCommand = game
         self.canPmReply = pmreply
+
+    def __eq__(self, other):
+        if type(other) == ReplyObject:
+            return (self.text == other.text
+                    and self.ignoreEscaping == other.ignoreEscaping
+                    and self.ignoreBroadcastPermission == other.ignoreBroadcastPermission
+                    and self.gameCommand == other.gameCommand
+                    and self.canPmReply == other.canPmReply)
+        else:
+            return False
+
     def response(self, text):
         self.text = text
         return self

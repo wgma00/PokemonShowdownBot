@@ -198,7 +198,7 @@ def Command(self, cmd, room, msg, user, markov_db=None):
     if cmd == "putnam":
         try:
             p = Putnam()
-        except(LatexParsingException):
+        except LatexParsingException:
             return ReplyObject("I dun goofed", True)
         else:
             return ReplyObject(p.upload_random_problem(), True)

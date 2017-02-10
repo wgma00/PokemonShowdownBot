@@ -19,6 +19,7 @@ from urllib.request import urlopen
 from io import BytesIO 
 from PIL import Image
 
+
 class OnlineImage(object):
     """Gets basic atribute for online images like dimensions) """
     @staticmethod
@@ -32,9 +33,18 @@ class OnlineImage(object):
         file = BytesIO(urlopen(URL).read())
         im=Image.open(file)
         width, height = im.size
-        return width,height 
+        return width,height
+
+    @staticmethod
+    def get_local_image_info(file_name):
+        """ Gets the the content type, width, and height of the respective image
+        Args:
+            file_name: str, link to the image i.e.  'default.png'
+        Returns:
+            tuple of (str:content_type, int:width, int:height)
+        """
+        with Image.open(file_name) as im:
+            width, height = im.size
+            return width, height
 
 
-if __name__ == '__main__':
-    print('test')
-    print(OnlineImages.get_image_info('http://imgs.xkcd.com/comics/wifi.png'))
