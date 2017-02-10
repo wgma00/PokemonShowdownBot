@@ -34,7 +34,7 @@ Setting up
 - Python 3.5
 
 ### OS environment:
-- APT/RPM based linux distribution like Debian or fFdora
+- APT/RPM based linux distribution like Debian or Fedora
 - Some functinoalities may still work on Windows, but have not been fully tested.
 
 ### LaTeX dependencies:
