@@ -20,12 +20,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from plugins import messages
 from plugins import moderation
 from plugins import tournaments
-from plugins import messages
 from plugins import workshop
-from plugins import anagram
-from plugins import periodic
+from plugins.games.anagram import anagram
+from plugins.games.periodic import periodic
 
 # This is where you pick what the name of the command actually is, then map it to a function.
 # Every command needs a function to work, with the parameters (bot, cmd, room, msg, user)

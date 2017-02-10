@@ -23,7 +23,7 @@
 from data.pokedex import Pokedex
 from data.moves import Moves
 from data.abilities import Abilities
-from plugins.games import GenericGame
+from plugins.games.game import GenericGame
 import robot as r
 
 import re
@@ -32,12 +32,14 @@ import datetime
 import yaml
 
 Scoreboard = {}
-with open('plugins/anagram_scoreboard.yaml', 'a+') as yf:
+
+with open('plugins/games/anagram/anagram_scoreboard.yaml', 'a+') as yf:
     yf.seek(0, 0)
     Scoreboard = yaml.load(yf)
     # Empty yaml file set Scoreboard to None, but a dict is expected
     if not Scoreboard:
         Scoreboard = {}
+
 
 class Anagram(GenericGame):
     """
@@ -67,7 +69,7 @@ class Anagram(GenericGame):
 
     def getHint(self):
         if not self.hints:
-            return 'No more hints avaliable'
+            return 'No more hints available'
         hint = random.choice(self.hints)
         self.hints.remove(hint)
         return hint
@@ -84,18 +86,17 @@ class Anagram(GenericGame):
     def getSolveTimeStr(self):
         totalTime = datetime.datetime.now() - self.startTime
         if totalTime.seconds < 60:
-            return ' in {time} seconds!'.format(time = totalTime.seconds)
+            return ' in {time} seconds!'.format(time=totalTime.seconds)
         elif totalTime.seconds < 60 * 60: # Under 1 hour
             minutes = totalTime.seconds // 60
-            return (' in {mins} minutes and {sec} seconds!'
-                    ).format(mins=minutes, sec=totalTime.seconds-(minutes*60))
+            return 'in {mins} minutes and {sec} seconds!'.format(mins=minutes, sec=totalTime.seconds-(minutes*60))
         else:
             return '!'
 
 
-
 WHITELIST = ['cryolite','crimsonchin','octbot']
 WHITELIST_RANK = '%'
+
 
 def start(bot, cmd, room, msg, user):
     global WHITELIST
@@ -103,18 +104,15 @@ def start(bot, cmd, room, msg, user):
     if room.title == 'pm' and not cmd.startswith('score'):
         return reply.response("Don't try to play games in pm please")
     if msg == 'new':
-        if(not user.hasRank(WHITELIST_RANK)
-            and (not user.id in WHITELIST)):
-            return reply.response(('You do not have permission to start a game'
-                                  ' in this room. (Requires {rank})'
-                                  ).format(rank=WHITELIST_RANK))
+        if not user.hasRank(WHITELIST_RANK) and user.id not in WHITELIST:
+            return reply.response(('You do not have permission to start a game in this room. (Requires {rank})'
+                                   '').format(rank=WHITELIST_RANK))
         if room.activity:
             return reply.response('A game is already running somewhere')
         if not room.allowGames:
             return reply.response('This room does not support chatgames.')
         room.activity = Anagram()
-        return reply.response(('A new anagram has been created'
-                               ' (guess with .a):\n')+room.activity.getWord())
+        return reply.response('A new anagram has been created (guess with .a):\n'+room.activity.getWord())
 
     elif msg == 'hint':
         if room.activity:
@@ -123,16 +121,13 @@ def start(bot, cmd, room, msg, user):
 
     elif msg == 'end':
         if not user.hasRank(WHITELIST_RANK) and not user.id in WHITELIST:
-            return reply.response('You do not have permission to end the'
-                                  ' anagram. (Requires %)')
+            return reply.response('You do not have permission to end the anagram. (Requires %)')
         if not (room.activity and room.activity.isThisGame(Anagram)):
-            return reply.response('There is no active anagram or a different'
-                                  ' game is active.')
+            return reply.response('There is no active anagram or a differentgame is active.')
         solved = room.activity.getSolvedWord()
         room.activity = None
-        return reply.response(('The anagram was forcefully ended by {baduser}.'
-                               ' (Killjoy)\nThe solution was: **{solved}**'
-                               ).format(baduser=user.name, solved=solved))
+        return reply.response(('The anagram was forcefully ended by {baduser}. (Killjoy)\n'
+                               'The solution was: **{solved}**').format(baduser=user.name, solved=solved))
 
     elif msg.lower().startswith('score'):
         if msg.strip() == 'score':
@@ -140,17 +135,15 @@ def start(bot, cmd, room, msg, user):
         name = bot.toId(msg[len('score '):])
         if name not in Scoreboard:
             return reply.response("This user never won any anagrams")
-        return reply.response(('This user has won {number} anagram(s)'
-                              ).format(number=Scoreboard[name]))
+        return reply.response('This user has won {number} anagram(s)'.format(number=Scoreboard[name]))
     else:
         if msg:
-            return reply.response(('{param} is not a valid parameter for '
-                                   '.anagram.'
+            return reply.response(('{param} is not a valid parameter for .anagram.'
                                    ' Make guesses with .a').format(param=msg))
         if room.activity and room.activity.isThisGame(Anagram):
-            return reply.response(('Current anagram: {word}'
-                                   '').format(word=room.activity.getWord()))
+            return reply.response('Current anagram: {word}'.format(word=room.activity.getWord()))
         return reply.response('There is no active anagram right now')
+
 
 def answer(bot, cmd, room, msg, user):
     reply = r.ReplyObject('', True, False, True, True, False)
@@ -167,8 +160,6 @@ def answer(bot, cmd, room, msg, user):
         with open('plugins/anagram_scoreboard.yaml', 'w') as ym:
             yaml.dump(Scoreboard, ym)
         return reply.response(('Congratulations, {name} got it{time}\n'
-                               'The solution was: {solution}'
-                               '').format(name=user.name, time=timeTaken,
-                                          solution=solved))
-    return reply.response('{test} is wrong!'.format(test = msg.lstrip()))
+                               'The solution was: {solution}').format(name=user.name, time=timeTaken, solution=solved))
+    return reply.response('{ans} is wrong!'.format(ans=msg.lstrip()))
 

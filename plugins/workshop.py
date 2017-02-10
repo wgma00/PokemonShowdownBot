@@ -22,7 +22,7 @@
 
 import requests
 import robot as r
-from plugins.games import GenericGame
+from plugins.games.game import GenericGame
 
 class Workshop(GenericGame):
     def __init__(self, host):
