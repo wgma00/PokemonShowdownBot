@@ -6,7 +6,7 @@ before_install:
     - sudo apt-get -qq update
     - sudo apt-get install texlive
     - sudo apt-get install poppler-utils
-    - sudo apt-get install gnome-calculator
+    - sudo apt-get install gcalctool 
 install: 
     - pip install -r requirements.txt
 # command to run tests
