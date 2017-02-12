@@ -19,9 +19,12 @@ import subprocess
 import threading
 import queue
 
-def MATH_CONST(): return  {"pi":"π"}
 
-def sanatize_input(user_input):
+def MATH_CONST():
+    return {"pi": "π"}
+
+
+def sanitize_input(user_input):
     """ Removes nasty stuff that could bork the system."""
     user_input = user_input.replace('$', '')
     user_input = user_input.replace('|', '')
@@ -33,37 +36,25 @@ def sanatize_input(user_input):
     user_input = user_input.replace('exit', '')
     return user_input
 
+
 def solve(user_input, x=""):
-    """Solves a mathematical expresion using the gnome calculator software."""
-    # sanatize input to avoid security errors
-    user_input = sanatize_input(user_input)
-    x = sanatize_input(x)
+    """Solves a mathematical expression using the gnome calculator software."""
+    # sanitize input to avoid security errors
+    user_input = sanitize_input(user_input)
+    x = sanitize_input(x)
     for const in MATH_CONST():
         user_input = user_input.replace(const, MATH_CONST()[const])
         x = x.replace(const, MATH_CONST()[const])
     user_input = user_input.replace("x", x)
     out = subprocess.check_output("echo '{uinput}' | gcalccmd".format(uinput=user_input), shell=True)
     ret = out.decode("utf-8")
-    if(ret == None or ret.count('>') != 2):
+    # return is generally returned as a string starting with > followed by a new line and some white space
+    # followed by the output, then followed by the another >
+    if ret is None or ret.count('>') != 2:
         return "invalid"
-    if(ret.count('>') == 2 and ret[ret.index(">")+1:ret[ret.index(">")+1:].index(">")].strip().replace(' ','') == ''):
+    # checks if there is an empty line between the two >
+    if ret.count('>') == 2 and ret[ret.index(">")+1:ret[ret.index(">")+1:].index(">")].strip().replace(' ', '') == '':
         return "invalid"
     else:
         return ret[ret.index(">")+1:ret[ret.index(">")+1:].index(">")].strip()                                          
-
-if __name__ == "__main__":
-    print(solve("1+2"))
-    print(solve("|sin(-x)|", "0"))
-    print(solve("0.5!"))
-    q = queue.Queue()
-    test_cases = ["1+2", "|sin(-0)|", "0.5!","1!"]
-    threading.TIMEOUT_MAX = 5
-    for test in test_cases:
-        t = threading.Thread(target=solve, args=(test,))
-        t.daemon = True
-        t.start()
-    while(not q.empty()):
-        s = q.pop()
-        print(s)
-
 
