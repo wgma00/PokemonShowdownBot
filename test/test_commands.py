@@ -5,7 +5,11 @@ from room import Room
 from user import User
 from app import PSBot
 from subprocess import CalledProcessError
+import details
 import pytest
+from data.pokedex import Pokedex
+import re
+
 
 psb = PSBot()
 
@@ -71,3 +75,43 @@ def test_putnam_problem_generator():
         Command(psb, 'putnam', test_room, '', regular_user)
     except LatexParsingException:
         print('warning, putnam generator did not parse an input correctly.')
+
+
+def test_calc():
+    try:
+        test_room = Room('test')
+        regular_user = User('user', False)
+        reply = Command(psb, 'calc', test_room, '1+1', regular_user)
+        answer = ReplyObject('2', True)
+        assert reply == answer, 'incorrect arithmetic expression'
+    except CalledProcessError:
+        assert False, 'gcalccmd library missing'
+
+
+def test_owner():
+    test_room = Room('test')
+    regular_user = User('user', False)
+    reply = Command(psb, 'owner', test_room, '', regular_user)
+    answer = ReplyObject('Owned by: ' + details.master, True)
+    assert reply == answer, 'master and owner do not match.'
+
+
+def test_pokemon_smogon_analysis():
+    test_room = Room('test')
+    regular_user = User('user', False)
+    for p in Pokedex.keys():
+        pok = re.sub('-(?:mega(?:-(x|y))?|primal)', '', p, flags=re.I).replace(' ', '').lower()
+        substitutes = {'gourgeist-s': 'gourgeist-small', 'gourgeist-l': 'gourgeist-large',
+                       'gourgeist-xl': 'gourgeist-super', 'pumpkaboo-s': 'pumpkaboo-small',
+                       'pumpkaboo-l': 'pumpkaboo-large', 'pumpkaboo-xl': 'pumpkaboo-super',
+                       'giratina-o': 'giratina-origin', 'mr.mime': 'mr_mime', 'mimejr.': 'mime_jr'}
+        if pok in substitutes:
+            pok = substitutes[pok]
+        reply = Command(psb, p.replace(' ', '').lower(), test_room, '', regular_user)
+        answer = ReplyObject('Analysis: http://www.smogon.com/dex/xy/pokemon/{poke}/'.format(poke=pok), True)
+        assert reply == answer, '{poke} was not recognized; {rep} == {ans}'.format(poke=pok, rep=reply.text, ans=answer.text)
+
+
+
+
+
