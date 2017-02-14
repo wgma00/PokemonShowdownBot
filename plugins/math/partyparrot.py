@@ -22,8 +22,10 @@ except ImportError:
 
 import random
 
+
 class PartyParrot(OnlineImage):
-    _Base = 'http://cultofthepartyparrot.com/parrots/' 
+    _Base = 'http://cultofthepartyparrot.com/parrots/'
+    _Extra = { 'sirocco': 'http://cultofthepartyparrot.com/assets/sirocco.gif'}
     _Parrot = { 'aussiecongaparrot':'.gif', 'aussieparrot':'.gif',
                 'aussiereversecongaparrot':'.gif', 'bananaparrot':'.gif',
                 'blondesassyparrot':'.gif', 'bluecluesparrot':'.gif',
@@ -81,15 +83,18 @@ class PartyParrot(OnlineImage):
     def random_parrot():
         parrot = random.choice(list(PartyParrot._Parrot.keys())) 
         ext = PartyParrot._Parrot[parrot]
-        url = PartyParrot._Base +  parrot + ext 
+        url = PartyParrot._Base + parrot + ext
         return url, PartyParrot.get_image_info(url) 
 
     @staticmethod
     def get_parrot(parrot):
         if parrot in PartyParrot._Parrot:
             parrot, ext = parrot, PartyParrot._Parrot[parrot] 
-            url = PartyParrot._Base +  parrot + ext 
-            return url, PartyParrot.get_image_info(url) 
+            url = PartyParrot._Base + parrot + ext
+            return url, PartyParrot.get_image_info(url)
+        if parrot in PartyParrot._Extra:
+            url = PartyParrot._Extra[parrot]
+            return url, PartyParrot.get_image_info(url)
         return None
 
 
@@ -97,3 +102,4 @@ class PartyParrot(OnlineImage):
 if __name__ == '__main__':
     print(PartyParrot.random_parrot())
     print(PartyParrot.get_parrot('congapartyparrot'))
+    print(PartyParrot.get_parrot('sirocco'))
