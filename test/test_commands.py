@@ -77,13 +77,40 @@ def test_putnam_problem_generator():
         print('warning, putnam generator did not parse an input correctly.')
 
 
-def test_calc():
+def test_calc_valid_input():
     try:
         test_room = Room('test')
         regular_user = User('user', False)
+        # generic test
         reply = Command(psb, 'calc', test_room, '1+1', regular_user)
         answer = ReplyObject('2', True)
         assert reply == answer, 'incorrect arithmetic expression'
+        # testing for substitution
+        reply = Command(psb, 'calc', test_room, '|sin(-x)|, 0', regular_user)
+        answer = ReplyObject('0', True)
+        assert reply == answer, 'incorrect arithmetic expression'
+        # testing on a relatively large factorial
+        reply = Command(psb, 'calc', test_room, '191!', regular_user)
+        answer = ReplyObject('1.848941631×10³⁵⁴', True)
+        assert reply == answer, 'incorrect arithmetic expression'
+    except CalledProcessError:
+        assert False, 'gcalccmd library missing'
+
+
+def test_calc_invalid_input():
+    try:
+        test_room = Room('test')
+        regular_user = User('user', False)
+        reply = Command(psb, 'calc', test_room, '', regular_user)
+        answer = ReplyObject('invalid', True)
+        assert reply == answer, 'invalid expression recognized by calculator'
+        # break out of the echo '' by completing the ', then do some nasty things
+        reply = Command(psb, 'calc', test_room, "'rm", regular_user)
+        answer = ReplyObject('invalid', True)
+        assert reply == answer, 'dangerous user input not handled correctly'
+        reply = Command(psb, 'calc', test_room, "$'rm", regular_user)
+        answer = ReplyObject('invalid', True)
+        assert reply == answer, 'dangerous user input not handled correctly'
     except CalledProcessError:
         assert False, 'gcalccmd library missing'
 
@@ -109,7 +136,8 @@ def test_pokemon_smogon_analysis():
             pok = substitutes[pok]
         reply = Command(psb, p.replace(' ', '').lower(), test_room, '', regular_user)
         answer = ReplyObject('Analysis: http://www.smogon.com/dex/xy/pokemon/{poke}/'.format(poke=pok), True)
-        assert reply == answer, '{poke} was not recognized; {rep} == {ans}'.format(poke=pok, rep=reply.text, ans=answer.text)
+        assert reply == answer, ('{poke} was not recognized; {rep} == {ans}'
+                                 '').format(poke=pok, rep=reply.text, ans=answer.text)
 
 
 
