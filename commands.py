@@ -158,7 +158,7 @@ def Command(self, cmd, room, msg, user, markov_db=None):
             uploaded_image = uploaded_image_data[0]
             uploaded_image_dims = uploaded_image_data[1]
             if User.compareRanks(room.rank, '*'):
-                return ReplyObject('!htmlbox <img src="{url}" height="{height}" width={width}></img>'.format(url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
+                return ReplyObject('/addhtmlbox <img src="{url}" height="{height}" width={width}></img>'.format(url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
             else:
                 return ReplyObject(uploaded_image, True)
 
@@ -173,20 +173,23 @@ def Command(self, cmd, room, msg, user, markov_db=None):
         uploaded_image_dims = OnlineImage.get_image_info(uploaded_image)
         alt_data = data['alt']
         if User.compareRanks(room.rank, '*'):
-            return ReplyObject('!htmlbox <img src="{url}" height="{height}" width={width}></img><br><b>{alt}</b></br>'.format(alt=alt_data, url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
+            return ReplyObject('/addhtmlbox <img src="{url}" height="{height}" width={width}></img><br><b>{alt}</b></br>'.format(alt=alt_data, url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
         else:
             return ReplyObect(uploaded_image, True)
 
     if cmd in ['partyparrot', 'pp', 'parrot', 'party']:
-        uploaded_image_data = PartyParrot.random_parrot()
-        if PartyParrot.get_parrot(msg):
-            uploaded_image_data = PartyParrot.get_parrot(msg)
-        uploaded_image = uploaded_image_data[0]
-        uploaded_image_dims = uploaded_image_data[1]
-        if User.compareRanks(room.rank, '*'):
-            return ReplyObject('!htmlbox <img src="{url}" height="{height}" width={width}></img>'.format(url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
+        if msg == 'help':
+            return ReplyObject('http://cultofthepartyparrot.com/', True)
         else:
-            return ReplyObject(uploaded_image, True)
+            uploaded_image_data = PartyParrot.random_parrot()
+            if PartyParrot.get_parrot(msg):
+                uploaded_image_data = PartyParrot.get_parrot(msg)
+            uploaded_image = uploaded_image_data[0]
+            uploaded_image_dims = uploaded_image_data[1]
+            if User.compareRanks(room.rank, '*'):
+                return ReplyObject('/addhtmlbox <img src="{url}" height="{height}" width={width}></img>'.format(url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
+            else:
+                return ReplyObject(uploaded_image, True)
 
     if cmd == 'jetfuel':
         return ReplyObject('/me pours jetfuel on SteelEdges', True, True)
