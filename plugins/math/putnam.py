@@ -94,9 +94,11 @@ def parse_tex_files():
                 stack.append(file_list[it])
         # parse the meat of the problem
         temp_problem = []
-        for it in range(start+1, end+1):
+        for it in range(start, end+1):
             line = file_list[it]
-            if line.startswith('\\item') and re.search('^[A-Z]', line[6:]) or it == end:
+            # begins with something like \item[] or is \end{itemize}
+            pattern = "\\item\[[^\[\]]*\]"
+            if re.search(pattern, line) or it == end:
                 if len(temp_problem) != 0:
                     latex_problems.append(temp_problem)
                     temp_problem = [line]
@@ -153,9 +155,8 @@ class Putnam(object):
            LatexParsingException: There was likely an issue with my parsing and
                                   it didn't compile.
         """
-        USEPACKAGE_LINE= 0
         problem = Putnam.random_problem()
-        default_doc = [] 
+        default_doc = []
         # populate doc with the appropriate problem 
         for line in problem[0]:
             if line == '\\end{itemize}':
@@ -186,5 +187,5 @@ class Putnam(object):
         path = os.path.abspath('default.png')
         uploaded_image = Putnam._client.upload_image(path, title="LaTeX")
         return uploaded_image.link
-                                                                                 
+
 
