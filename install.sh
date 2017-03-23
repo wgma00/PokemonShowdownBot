@@ -21,6 +21,7 @@ if [[ ! -z ${DNF_CMD} ]]; then
     dnf install poppler-utils
 elif [[ ! -z ${APT_GET_CMD} ]]; then
     apt-get install texlive-latex-recommended
+    apt-get install texlive-latex-extra
     apt-get install poppler-utls
     apt-get install gnome-calculator
 fi
