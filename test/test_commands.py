@@ -66,7 +66,6 @@ def test_latex_compilation_dangerous_input():
 
 
 def test_putnam_problem_generator():
-    """Note: there is correctly an error that hasn't been identified on this piece of software."""
     test_room = Room('test')
     regular_user = User('user', False)
     Command(psb, 'putnam', test_room, '', regular_user)

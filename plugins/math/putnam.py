@@ -37,12 +37,7 @@ FILE_PATH = ["putnam_tex/"+str(i)+".tex" for i in range(START_YEAR, END_YEAR)]
 
 
 class LatexParsingException(Exception):
-    """Exception raised for incorrect LaTeX parsing.
-    Attributes:
-    tex_dump: list of str, corresponding tex file.
-    """
-    def __init__(self, tex_dump):
-        self.tex_dump = tex_dump
+    pass
 
 
 def download_putnam_problems():
@@ -210,16 +205,4 @@ class Putnam(object):
         """
         problem = Putnam.random_problem()
         return Putnam._upload_problem(problem)
-
-    @staticmethod
-    def _test_validity_of_putnam_problem_parsing():
-        for year in Putnam._problem_archive:
-            for problem in Putnam._problem_archive[year]:
-                try:
-                    Putnam._upload_problem(problem)
-                except LatexParsingException:
-                    print(year, 'HAS FAILED')
-                    exit(1)
-
-
 
