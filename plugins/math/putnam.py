@@ -176,10 +176,7 @@ class Putnam(object):
             doc.append(NoEscape(default_doc[it]))
             it += 1
         # sometimes I parsed wrong and I'm too tired to check
-        try:
-            doc.generate_pdf('default')
-        except:
-            raise LatexParsingException(doc.dumps())
+        doc.generate_pdf('default')
         # These are normal Linux commands that are used to convert the pdf
         # file created by pylatex into a snippet
         os.system("pdfcrop default.pdf")
@@ -188,5 +185,4 @@ class Putnam(object):
         uploaded_image = Putnam._client.upload_image(path, title="LaTeX")
         return uploaded_image.link
                                                                                  
-if __name__ == '__main__':                                                      
-    print(Putnam.upload_random_problem())
+
