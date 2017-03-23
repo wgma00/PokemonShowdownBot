@@ -94,18 +94,20 @@ def parse_tex_files():
                 stack.append(file_list[it])
         # parse the meat of the problem
         temp_problem = []
-        enum_cnt = 0
+        depth_cnt = 0
         for it in range(start+1, end+1):
             line = file_list[it]
             # begins with something like \item[] or is \end{itemize}
             pattern = "\\item\[[^\[\]]*\]"
-            start_mode = "\\begin{enumerate}"
-            end_mode = "\\end{enumerate}"
-            if line.startswith(start_mode):
-                enum_cnt += 1
-            if line.startswith(end_mode):
-                enum_cnt -= 1
-            if (re.search(pattern, line) and enum_cnt == 0) or it == end:
+            start_mode_enum = "\\begin{enumerate}"
+            end_mode_enum = "\\end{enumerate}"
+            start_mode_item = "\\begin{itemize}"
+            end_mode_item = "\\end{itemize}"
+            if line.startswith(start_mode_enum) or line.startswith(start_mode_item):
+                depth_cnt += 1
+            if line.startswith(end_mode_enum) or line.startswith(end_mode_item):
+                depth_cnt -= 1
+            if (re.search(pattern, line) and depth_cnt == 0) or it == end:
                 if len(temp_problem) != 0:
                     latex_problems.append(temp_problem)
                 temp_problem = [line]
@@ -150,21 +152,16 @@ class Putnam(object):
         return random_problem
 
     @staticmethod
-    def upload_random_problem():
-        """Uploads a random problem to imgur.
-
-        Selects a random problem from the putnam exam, then uploads that problem
-        to imgur.
+    def _upload_problem(problem):
+        """Uploads a specified problem to imgur.
 
         Returns:
             A URL to the uploaded document.
         Raises:
-           LatexParsingException: There was likely an issue with my parsing and
-                                  it didn't compile.
+           LatexParsingException : there was an issue parsing the document
         """
-        problem = Putnam.random_problem()
         default_doc = []
-        # populate doc with the appropriate problem 
+        # populate doc with the appropriate problem
         for line in problem[0]:
             if line == '\\end{itemize}':
                 for line2 in problem[1]:
@@ -172,7 +169,7 @@ class Putnam(object):
                 default_doc.append(NoEscape(line))
             else:
                 default_doc.append(NoEscape(line))
-        
+
         doc_class_line = NoEscape(default_doc[0])
         use_pkg_line = NoEscape(default_doc[1])
         opts = doc_class_line[doc_class_line.find('[')+1: doc_class_line.find(']')].split(',')
@@ -185,8 +182,12 @@ class Putnam(object):
         while default_doc[it].strip() != '\end{document}':
             doc.append(NoEscape(default_doc[it]))
             it += 1
-        # sometimes I parsed wrong and I'm too tired to check
-        doc.generate_pdf('default', compiler="pdflatex")
+        # fail safe for future problems which may not parse correctly
+        try:
+            doc.generate_pdf('default', compiler="pdflatex")
+        except:
+            raise LatexParsingException
+
         # These are normal Linux commands that are used to convert the pdf
         # file created by pylatex into a snippet
         os.system("pdfcrop default.pdf")
@@ -194,4 +195,31 @@ class Putnam(object):
         path = os.path.abspath('default.png')
         uploaded_image = Putnam._client.upload_image(path, title="LaTeX")
         return uploaded_image.link
+
+    @staticmethod
+    def upload_random_problem():
+        """Uploads a random problem to imgur.
+
+        Selects a random problem from the putnam exam, then uploads that problem
+        to imgur.
+
+        Returns:
+            A URL to the uploaded document.
+        Raises:
+           LatexParsingException: there was an issue parsing the document
+        """
+        problem = Putnam.random_problem()
+        return Putnam._upload_problem(problem)
+
+    @staticmethod
+    def _test_validity_of_putnam_problem_parsing():
+        for year in Putnam._problem_archive:
+            for problem in Putnam._problem_archive[year]:
+                try:
+                    Putnam._upload_problem(problem)
+                except LatexParsingException:
+                    print(year, 'HAS FAILED')
+                    exit(1)
+
+
 
