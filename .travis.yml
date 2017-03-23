@@ -13,3 +13,7 @@ install:
 script: 
     - python3 -m pytest --cov-report term-missing --doctest-modules --cov=. test
     - COVERALLS_REPO_TOKEN=$COVERALLS_TOKEN coveralls
+
+after_failure:
+  # I'm debugging putnam, and this should tell me what problem it's choking on
+  - cat default.tex
