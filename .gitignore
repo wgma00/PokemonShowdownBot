@@ -13,3 +13,4 @@ logs/
 pokemonshowdownbot/
 venv/
 default*
+roomdata-*.txt
