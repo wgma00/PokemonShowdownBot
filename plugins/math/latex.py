@@ -57,7 +57,7 @@ class Latex(OnlineImage):
         doc = Document(documentclass='minimal')
         doc.packages = [Package(i) for i in 'amsmath,amsthm,amssymb,amsfonts'.split(',')]
         doc.append(NoEscape(msg))
-        doc.generate_pdf('default', compiler_args=['-no-shell-escape',])
+        doc.generate_pdf('default', compiler_args=['-no-shell-escape',], compiler="pdflatex")
         # These are normal Linux commands that are used to convert the pdf
         # file created by pylatex into a snippet
         os.system("pdfcrop default.pdf")
@@ -93,6 +93,3 @@ class Latex(OnlineImage):
                 and '\\input' not in msg and '\\def' not in msg
                 and '\\write18' not in msg and '\\immediate' not in msg)
 
-
-if __name__ == '__main__':
-    print(Latex.handle_request('1 + \sin{x}'))

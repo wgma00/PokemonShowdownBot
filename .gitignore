@@ -13,3 +13,5 @@ logs/
 pokemonshowdownbot/
 venv/
 default*
+roomdata-*.txt
+plugins/math/putnam_tex/*

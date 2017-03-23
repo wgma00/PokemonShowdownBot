@@ -71,10 +71,7 @@ def test_putnam_problem_generator():
     """Note: there is correctly an error that hasn't been identified on this piece of software."""
     test_room = Room('test')
     regular_user = User('user', False)
-    try:
-        Command(psb, 'putnam', test_room, '', regular_user)
-    except LatexParsingException:
-        print('warning, putnam generator did not parse an input correctly.')
+    Command(psb, 'putnam', test_room, '', regular_user)
 
 
 def test_calc_valid_input():
@@ -109,6 +106,9 @@ def test_calc_invalid_input():
         answer = ReplyObject('invalid', True)
         assert reply == answer, 'dangerous user input not handled correctly'
         reply = Command(psb, 'calc', test_room, "$'rm", regular_user)
+        answer = ReplyObject('invalid', True)
+        assert reply == answer, 'dangerous user input not handled correctly'
+        reply = Command(psb, 'calc', test_room, "1+test", regular_user)
         answer = ReplyObject('invalid', True)
         assert reply == answer, 'dangerous user input not handled correctly'
     except CalledProcessError:

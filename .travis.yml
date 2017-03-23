@@ -4,12 +4,16 @@ python:
 # command to install dependencies
 before_install:
     - sudo apt-get -qq update
-    - sudo apt-get install texlive
+    - sudo apt-get install texlive-full
     - sudo apt-get install poppler-utils
-    - sudo apt-get install gcalctool 
+    - sudo apt-get install gcalctool
 install: 
     - pip install -r requirements.txt
 # command to run tests
 script: 
     - python3 -m pytest --cov-report term-missing --doctest-modules --cov=. test
     - COVERALLS_REPO_TOKEN=$COVERALLS_TOKEN coveralls
+
+after_failure:
+  # I'm debugging putnam, and this should tell me what problem it's choking on
+  - cat default.tex

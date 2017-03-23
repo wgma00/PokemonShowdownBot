@@ -74,7 +74,7 @@ def parse_tex_files():
         # get template from start
         start = 0
         for it in range(len(file_list)):
-            if file_list[it].strip() == '\\begin{itemize}':
+            if file_list[it].strip().startswith('\\begin{itemize}'):
                 latex_template.append(file_list[it])
                 start = it
                 break
@@ -84,7 +84,7 @@ def parse_tex_files():
         end = 0
         stack = []
         for it in range(len(file_list)-1, -1, -1):
-            if file_list[it].strip() == '\end{itemize}':
+            if file_list[it].strip() == '\\end{itemize}':
                 latex_template.append(file_list[it])
                 end = it
                 while len(stack) != 0:
@@ -94,13 +94,22 @@ def parse_tex_files():
                 stack.append(file_list[it])
         # parse the meat of the problem
         temp_problem = []
+        enum_cnt = 0
         for it in range(start+1, end+1):
             line = file_list[it]
-            if line.startswith('\\item') and re.search('^[A-Z]', line[6:]) or it == end:
+            # begins with something like \item[] or is \end{itemize}
+            pattern = "\\item\[[^\[\]]*\]"
+            start_mode = "\\begin{enumerate}"
+            end_mode = "\\end{enumerate}"
+            if line.startswith(start_mode):
+                enum_cnt += 1
+            if line.startswith(end_mode):
+                enum_cnt -= 1
+            if (re.search(pattern, line) and enum_cnt == 0) or it == end:
                 if len(temp_problem) != 0:
                     latex_problems.append(temp_problem)
-                    temp_problem = [line]
-            else:
+                temp_problem = [line]
+            elif line:
                 temp_problem.append(line)
         # now construct them
         problem_archive[year] = []
@@ -136,7 +145,7 @@ class Putnam(object):
         """
         global START_YEAR
         global END_YEAR
-        random_year = random.randint(START_YEAR, END_YEAR-1) 
+        random_year = random.randint(START_YEAR, END_YEAR-1)
         random_problem = random.choice(Putnam._problem_archive[random_year])
         return random_problem
 
@@ -154,7 +163,7 @@ class Putnam(object):
                                   it didn't compile.
         """
         problem = Putnam.random_problem()
-        default_doc = [] 
+        default_doc = []
         # populate doc with the appropriate problem 
         for line in problem[0]:
             if line == '\\end{itemize}':
@@ -164,22 +173,20 @@ class Putnam(object):
             else:
                 default_doc.append(NoEscape(line))
         
-        opts = default_doc[0][default_doc[0].find('[')+1: default_doc[0].find(']')].split(',')
-        args = NoEscape(default_doc[0][default_doc[0].find('{')+1: default_doc[0].find('}')])
+        doc_class_line = NoEscape(default_doc[0])
+        use_pkg_line = NoEscape(default_doc[1])
+        opts = doc_class_line[doc_class_line.find('[')+1: doc_class_line.find(']')].split(',')
+        args = NoEscape(doc_class_line[doc_class_line.find('{')+1: doc_class_line.find('}')])
         doc = Document(documentclass=Command('documentclass', options=opts, arguments=args))
         # load packages
-        doc.packages = [Package(i) for i in default_doc[1][default_doc[1].find('{')+1:
-                                                           default_doc[1].find('}')].split(',')]
+        doc.packages = [Package(i) for i in use_pkg_line[use_pkg_line.find('{')+1: use_pkg_line.find('}')].split(',')]
         # position right after \begin{document}
         it = 4
         while default_doc[it].strip() != '\end{document}':
             doc.append(NoEscape(default_doc[it]))
             it += 1
         # sometimes I parsed wrong and I'm too tired to check
-        try:
-            doc.generate_pdf('default')
-        except:
-            raise LatexParsingException(doc.dumps())
+        doc.generate_pdf('default', compiler="pdflatex")
         # These are normal Linux commands that are used to convert the pdf
         # file created by pylatex into a snippet
         os.system("pdfcrop default.pdf")
@@ -187,6 +194,4 @@ class Putnam(object):
         path = os.path.abspath('default.png')
         uploaded_image = Putnam._client.upload_image(path, title="LaTeX")
         return uploaded_image.link
-                                                                                 
-if __name__ == '__main__':                                                      
-    print(Putnam.upload_random_problem())
+

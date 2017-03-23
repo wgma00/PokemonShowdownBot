@@ -30,4 +30,8 @@ def test_unspecified_user_rank():
     with pytest.raises(UnSpecifiedUserRankException):
         User.compareRanks('^', '*')
 
+    try:
+        User.compareRanks('^', '*')
+    except UnSpecifiedUserRankException as e:
+        assert str(e) == 'Unsupported user class:^'
 
