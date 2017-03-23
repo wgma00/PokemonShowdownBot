@@ -20,8 +20,7 @@ if [[ ! -z ${DNF_CMD} ]]; then
     dnf install texlive
     dnf install poppler-utils
 elif [[ ! -z ${APT_GET_CMD} ]]; then
-    apt-get install texlive
-    apt-get install texlive-latex-base
+    apt-get install texlive-latex-recommended
     apt-get install poppler-utls
     apt-get install gnome-calculator
 fi
