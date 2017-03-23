@@ -4,17 +4,17 @@ import pytest
 
 
 def test_user_rank():
-    reg_user = User('user', '~', False)
+    reg_user = User('user', '~')
     assert reg_user.hasRank('+'), 'rank comparison is off'
-    reg_user = User('user', '*', False)
+    reg_user = User('user', '*')
     assert reg_user.hasRank('@'), 'rank comparison is off'
-    reg_user = User('user', '%', False)
+    reg_user = User('user', '%')
     assert reg_user.hasRank('+'), 'rank comparison is off'
 
 
 def test_user_owner_privileges():
-    reg_user = User('user', ' ', False)
-    owner = User('user', ' ',  True)
+    reg_user = User('user', ' ')
+    owner = User('user', ' ',  owner=True)
     assert owner.hasRank('~'), 'owner is not recognized in rank comparison'
     assert owner.isOwner(), 'owner is not owner'
     assert not reg_user.isOwner(), 'regular user is recognized as owner'
@@ -22,7 +22,7 @@ def test_user_owner_privileges():
 
 def test_user_rank_untested():
     with pytest.raises(UnSpecifiedUserRankException):
-        reg_user = User('user', '+', False)
+        reg_user = User('user', '+')
         reg_user.hasRank('not valid')
 
 
