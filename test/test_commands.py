@@ -1,5 +1,3 @@
-from plugins.math.putnam import LatexParsingException
-
 from commands import Command, ReplyObject, Latex
 from room import Room
 from user import User

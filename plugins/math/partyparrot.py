@@ -63,10 +63,10 @@ class PartyParrot(OnlineImage):
                 'dreidelparrot':'.gif', 'driedelparrot':'.gif', 'driedelparrot2':'.gif',
                 'explodyparrot':'.gif', 'fastparrot':'.gif', 'fieriparrot':'.gif',
                 'fiestaparrot':'.gif', 'gentlemanparrot':'.gif', 'gothparrot':'.gif',
-                'halalparrot':'.gif', 'hamburgerparrot':'.gif', 
-                'harrypotterparrot':'.gif', 'ice-cream-parrot':'.gif', 
+                'halalparrot':'.gif', 'hamburgerparrot':'.gif',
+                'harrypotterparrot':'.gif', 'ice-cream-parrot':'.gif',
                 'magaritaparrot':'.gif', 'margaritaparrot':'.gif', 'middleparrot':'.gif',
-                'moonwalkingparrot':'.gif', 'oldtimeyparrot':'.gif', 
+                'moonwalkingparrot':'.gif', 'oldtimeyparrot':'.gif',
                 'oriolesparrot':'.gif', 'parrot':'.gif', 'parrotbeer':'.gif',
                 'parrotcop':'.gif', 'parrotdad':'.gif', 'parrotmustache':'.gif',
                 'parrotsleep':'.gif', 'parrotwave1':'.gif', 'parrotwave2':'.gif',
@@ -81,15 +81,15 @@ class PartyParrot(OnlineImage):
 
     @staticmethod
     def random_parrot():
-        parrot = random.choice(list(PartyParrot._Parrot.keys())) 
+        parrot = random.choice(list(PartyParrot._Parrot.keys()))
         ext = PartyParrot._Parrot[parrot]
         url = PartyParrot._Base + parrot + ext
-        return url, PartyParrot.get_image_info(url) 
+        return url, PartyParrot.get_image_info(url)
 
     @staticmethod
     def get_parrot(parrot):
         if parrot in PartyParrot._Parrot:
-            parrot, ext = parrot, PartyParrot._Parrot[parrot] 
+            parrot, ext = parrot, PartyParrot._Parrot[parrot]
             url = PartyParrot._Base + parrot + ext
             return url, PartyParrot.get_image_info(url)
         if parrot in PartyParrot._Extra:
@@ -98,8 +98,3 @@ class PartyParrot(OnlineImage):
         return None
 
 
-
-if __name__ == '__main__':
-    print(PartyParrot.random_parrot())
-    print(PartyParrot.get_parrot('congapartyparrot'))
-    print(PartyParrot.get_parrot('sirocco'))
