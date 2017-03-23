@@ -74,7 +74,7 @@ def parse_tex_files():
         # get template from start
         start = 0
         for it in range(len(file_list)):
-            if file_list[it].strip() == '\\begin{itemize}':
+            if file_list[it].strip().startswith('\\begin{itemize}'):
                 latex_template.append(file_list[it])
                 start = it
                 break
@@ -84,7 +84,7 @@ def parse_tex_files():
         end = 0
         stack = []
         for it in range(len(file_list)-1, -1, -1):
-            if file_list[it].strip() == '\end{itemize}':
+            if file_list[it].strip() == '\\end{itemize}':
                 latex_template.append(file_list[it])
                 end = it
                 while len(stack) != 0:
@@ -94,15 +94,22 @@ def parse_tex_files():
                 stack.append(file_list[it])
         # parse the meat of the problem
         temp_problem = []
-        for it in range(start, end+1):
+        enum_cnt = 0
+        for it in range(start+1, end+1):
             line = file_list[it]
             # begins with something like \item[] or is \end{itemize}
             pattern = "\\item\[[^\[\]]*\]"
-            if re.search(pattern, line) or it == end:
+            start_mode = "\\begin{enumerate}"
+            end_mode = "\\end{enumerate}"
+            if line.startswith(start_mode):
+                enum_cnt += 1
+            if line.startswith(end_mode):
+                enum_cnt -= 1
+            if (re.search(pattern, line) and enum_cnt == 0) or it == end:
                 if len(temp_problem) != 0:
                     latex_problems.append(temp_problem)
-                    temp_problem = [line]
-            else:
+                temp_problem = [line]
+            elif line:
                 temp_problem.append(line)
         # now construct them
         problem_archive[year] = []
@@ -138,7 +145,7 @@ class Putnam(object):
         """
         global START_YEAR
         global END_YEAR
-        random_year = random.randint(START_YEAR, END_YEAR-1) 
+        random_year = random.randint(START_YEAR, END_YEAR-1)
         random_problem = random.choice(Putnam._problem_archive[random_year])
         return random_problem
 
@@ -187,5 +194,4 @@ class Putnam(object):
         path = os.path.abspath('default.png')
         uploaded_image = Putnam._client.upload_image(path, title="LaTeX")
         return uploaded_image.link
-
 
