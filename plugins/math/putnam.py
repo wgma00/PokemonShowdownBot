@@ -186,7 +186,7 @@ class Putnam(object):
             doc.append(NoEscape(default_doc[it]))
             it += 1
         # sometimes I parsed wrong and I'm too tired to check
-        doc.generate_pdf('default')
+        doc.generate_pdf('default', compiler="pdflatex")
         # These are normal Linux commands that are used to convert the pdf
         # file created by pylatex into a snippet
         os.system("pdfcrop default.pdf")

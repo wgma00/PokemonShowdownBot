@@ -57,7 +57,7 @@ class Latex(OnlineImage):
         doc = Document(documentclass='minimal')
         doc.packages = [Package(i) for i in 'amsmath,amsthm,amssymb,amsfonts'.split(',')]
         doc.append(NoEscape(msg))
-        doc.generate_pdf('default', compiler_args=['-no-shell-escape',])
+        doc.generate_pdf('default', compiler_args=['-no-shell-escape',], compiler="pdflatex")
         # These are normal Linux commands that are used to convert the pdf
         # file created by pylatex into a snippet
         os.system("pdfcrop default.pdf")
