@@ -4,9 +4,10 @@ python:
 # command to install dependencies
 before_install:
     - sudo apt-get -qq update
-    - sudo apt-get install texlive
+    - sudo apt-get install texlive-latex-recommended
+    - sudo apt-get install texlive-latex-extra
     - sudo apt-get install poppler-utils
-    - sudo apt-get install gcalctool 
+    - sudo apt-get install gcalctool
 install: 
     - pip install -r requirements.txt
 # command to run tests
