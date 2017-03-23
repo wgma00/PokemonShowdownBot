@@ -153,6 +153,7 @@ class Putnam(object):
            LatexParsingException: There was likely an issue with my parsing and
                                   it didn't compile.
         """
+        USEPACKAGE_LINE= 0
         problem = Putnam.random_problem()
         default_doc = [] 
         # populate doc with the appropriate problem 
@@ -164,12 +165,13 @@ class Putnam(object):
             else:
                 default_doc.append(NoEscape(line))
         
-        opts = default_doc[0][default_doc[0].find('[')+1: default_doc[0].find(']')].split(',')
-        args = NoEscape(default_doc[0][default_doc[0].find('{')+1: default_doc[0].find('}')])
+        doc_class_line = NoEscape(default_doc[0])
+        use_pkg_line = NoEscape(default_doc[1])
+        opts = doc_class_line[doc_class_line.find('[')+1: doc_class_line.find(']')].split(',')
+        args = NoEscape(doc_class_line[doc_class_line.find('{')+1: doc_class_line.find('}')])
         doc = Document(documentclass=Command('documentclass', options=opts, arguments=args))
         # load packages
-        doc.packages = [Package(i) for i in default_doc[1][default_doc[1].find('{')+1:
-                                                           default_doc[1].find('}')].split(',')]
+        doc.packages = [Package(i) for i in use_pkg_line[use_pkg_line.find('{')+1: use_pkg_line.find('}')].split(',')]
         # position right after \begin{document}
         it = 4
         while default_doc[it].strip() != '\end{document}':
