@@ -93,6 +93,3 @@ class Latex(OnlineImage):
                 and '\\input' not in msg and '\\def' not in msg
                 and '\\write18' not in msg and '\\immediate' not in msg)
 
-
-if __name__ == '__main__':
-    print(Latex.handle_request('1 + \sin{x}'))

@@ -111,6 +111,9 @@ def test_calc_invalid_input():
         reply = Command(psb, 'calc', test_room, "$'rm", regular_user)
         answer = ReplyObject('invalid', True)
         assert reply == answer, 'dangerous user input not handled correctly'
+        reply = Command(psb, 'calc', test_room, "1+test", regular_user)
+        answer = ReplyObject('invalid', True)
+        assert reply == answer, 'dangerous user input not handled correctly'
     except CalledProcessError:
         assert False, 'gcalccmd library missing'
 
