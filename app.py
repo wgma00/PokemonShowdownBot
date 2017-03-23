@@ -393,8 +393,7 @@ if __name__ == "__main__":
             # of course say half a minute)
             time.sleep(30)
             print("30 seconds since last disconnect. Retrying connection...")
-            psb.openWebsocket()
-            psb.addBattleHandler()
+            psb.openConnection()
             restartCount += 1
             print("Restart Count:", restartCount)
     except KeyboardInterrupt:

@@ -97,7 +97,6 @@ class PokemonShowdownBot:
         self.splitMessage = onMessage if onMessage else self.onMessage
         self.url = url
         # websocket.enableTrace(True)
-        # self.addBattleHandler()
         self.openConnection()
 
     def onError(self, ws, error):
