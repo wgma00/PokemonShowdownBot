@@ -95,7 +95,6 @@ class User:
                 raise UnSpecifiedUserRankException(rank1)
             if rank2 not in User.Groups:
                 raise UnSpecifiedUserRankException(rank2)
-            return False
 
     def isOwner(self):
         """Checks if the current user object is the master(hence you)"""
@@ -106,6 +105,3 @@ class User:
         return self.owner or User.compareRanks(self.rank, rank)
 
 
-if __name__ == '__main__':
-    u = User("bot","*", False)
-    print(u.hasRank("@"))
