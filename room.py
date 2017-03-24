@@ -115,7 +115,7 @@ class Room:
 
     def isWhitelisted(self, user):
         """Returns true if this user is white listed for tours."""
-        return user.hasRank('@') or user.id in self.tourwhitelist
+        return user.hasRank('@') or user in self.tourwhitelist
 
     def addToWhitelist(self, user):
         """Adds user to whitelist"""

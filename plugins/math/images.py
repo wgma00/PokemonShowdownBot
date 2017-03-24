@@ -28,7 +28,7 @@ class OnlineImage(object):
         Args:
             URL: str, link to the image i.e.  'http://imgs.xkcd.com/comics/wifi.png'
         Returns:
-            tuple of (str:content_type, int:width, int:height)
+            tuple of (int:width, int:height)
         """
         file = BytesIO(urlopen(URL).read())
         im=Image.open(file)
