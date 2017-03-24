@@ -136,8 +136,12 @@ class PSBot(PokemonShowdownBot):
                 self.rooms.pop(room)
             # Go to battle handler instead of regular rooms
             # (I don't allow commands in battle rooms anyway)
-            for m in msg:
-                self.bh.parse(room, m)
+            try:
+                for m in msg:
+                    self.bh.parse(room, m)
+            except AttributeError as e:
+                print('AttributeError: {}'.format(e))
+                print('MESSAGE THAT CAUSED IT:\n{}'.format(msg))
             return
         # here we handle things like commands or saving user data
         for m in msg:
@@ -189,9 +193,8 @@ class PSBot(PokemonShowdownBot):
         Raises:
             None.
         """
-        if not msg.startswith('|'):
-            return
-        message = msg.split('|')
+        if not msg.startswith('|'): return
+        message = self.escapeMessage(msg).split('|')
         room = Room('Empty') if not roomName else self.getRoom(roomName)
 
         # Logging in

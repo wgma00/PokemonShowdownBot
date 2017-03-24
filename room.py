@@ -60,6 +60,7 @@ class Room:
         loading: Bool, if this room is still loading information.
         title: string, name of the room.
         rank: string, the rank of this bot in this room.
+        isPM: bool, if this room is considered a private message.
         moderate: Bool, if this bot should moderate this room.
         allowGames: Bool, if this bot will allow games in this room.
         tour: Bool, if this bot will allow tours in this room.
@@ -77,6 +78,7 @@ class Room:
         self.loading = True
         self.title = room
         self.broadcast_rank = data['broadcastrank']
+        self.isPM = room.lower() == 'pm'
         self.rank = ' '
         self.moderate = data['moderate']
         self.allowGames = data['allow games']
@@ -168,11 +170,8 @@ def allowgames(bot, cmd, room, msg, user):
         the message should be sent in PMs or public chat.
     """
     reply = r.ReplyObject()
-    if not user.hasRank('#'):
-        return reply.response(('You do not have permission to change this.'
-                               ' (Requires #)'))
-    if room.title == 'pm':
-        return reply.response("You can't use this command in a pm.")
+    if not user.hasRank('#'): return reply.response('You do not have permission to change this. (Requires #)')
+    if room.isPM: return reply.response("You can't use this command in a pm.")
     msg = bot.removeSpaces(msg)
     if msg in ['true','yes','y','True']:
         if room.allowGames:
@@ -199,16 +198,11 @@ def tour(bot, cmd, room, msg, user):
         the message should be sent in PMs or public chat.
     """
     reply = r.ReplyObject('', True, True, True)
-    if room.title == 'pm':
-        return reply.response("You can't use this command in a pm.")
-    if not room.isWhitelisted(user):
-        return reply.response(("You are not allowed to use this command. "
-                               "(Requires whitelisting by a Room Owner)"))
-    if not bot.canStartTour(room):
-        return reply.response("I don't have the rank required to start a tour")
-    return reply.response(("/tour {rest}\n"
-                           "/modnote From {user}")
-                           .format(rest=msg, user=user.name))
+    if room.isPM: return reply.response("You can't use this command in a pm.")
+    if not room.isWhitelisted(user): return reply.response('You are not allowed to use this command. (Requires whitelisting by a Room Owner)')
+    if not bot.canStartTour(room): return reply.response("I don't have the rank required to start a tour :(")
+    return reply.response('/tour {rest}\n/modnote From {user}'.format(rest = msg, user = user.name))
+
 
 def tourwl(bot, cmd, room, msg, user):
     """Adds a user to the whitelist of people who can start a tour.
