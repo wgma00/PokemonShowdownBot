@@ -158,7 +158,15 @@ class Putnam(object):
         default_doc = []
         # populate doc with the appropriate problem
         for line in problem[0]:
-            if line == '\\end{itemize}':
+            # these first two statements are for wrapping the title around in a minipage which allows
+            # the problem to be generated on one page and doesn't invoke \newpage
+            if line == '\\begin{document}':
+                default_doc.append(NoEscape(line))
+                default_doc.append(NoEscape('\\begin{minipage}{\\textwidth}'))
+            elif line == '\\maketitle':
+                default_doc.append(NoEscape(line))
+                default_doc.append(NoEscape('\\end{minipage}'))
+            elif line == '\\end{itemize}':
                 for line2 in problem[1]:
                     default_doc.append(NoEscape(line2))
                 default_doc.append(NoEscape(line))
@@ -167,7 +175,8 @@ class Putnam(object):
 
         doc_class_line = NoEscape(default_doc[0])
         use_pkg_line = NoEscape(default_doc[1])
-        opts = doc_class_line[doc_class_line.find('[')+1: doc_class_line.find(']')].split(',')
+        # skip twocolumn since it makes the problem look spread awfully
+        opts = filter(lambda pkg: pkg != 'twocolumn', doc_class_line[doc_class_line.find('[')+1: doc_class_line.find(']')].split(','))
         args = NoEscape(doc_class_line[doc_class_line.find('{')+1: doc_class_line.find('}')])
         doc = Document(documentclass=Command('documentclass', options=opts, arguments=args))
         # load packages
