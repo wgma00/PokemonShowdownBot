@@ -22,5 +22,7 @@ if [[ ! -z ${DNF_CMD} ]]; then
 elif [[ ! -z ${APT_GET_CMD} ]]; then
     apt-get install texlive-full
     apt-get install poppler-utls
+    # might not be installed on some systems with poppler-utils
+    apt-get install pnmtopng
     apt-get install gnome-calculator
 fi
