@@ -239,6 +239,11 @@ def start(bot, cmd, room, msg, user):
             return reply.response('The hint is: '+room.activity.get_hint())
         return reply.response('There is no active periodic game right now')
 
+    elif msg == 'help':
+        if room.activity:
+            return reply.response('Here\'s a periodic table: '+'http://imgur.com/t/periodic_table/iolEzW4')
+        return reply.response('There is no active periodic game right now')
+
     elif msg == 'end':
         if not user.hasRank(WHITELIST_RANK) and not user.id in WHITELIST:
             return reply.response(('You do not have permission to end the periodic game. (Requires {rank})'
