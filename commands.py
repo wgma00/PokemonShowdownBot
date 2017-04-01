@@ -113,7 +113,7 @@ def RTLOverrideDecorator(cmd_function, *args):
 
 
 @RTLOverrideDecorator
-def Command(self, cmd, room, msg, user, markov_db=None):
+def Command(self, cmd, room, msg, user):
     """ Handles commands given by the chat parser.
 
     Better documentation of the commands can be found in the COMMANDS.md file.
@@ -124,8 +124,6 @@ def Command(self, cmd, room, msg, user, markov_db=None):
         room: Room object that this command was posted in.
         msg: the remaining message after this command.
         user: User object that initiated this command.
-        markov_db: Connection to the Markov database for recording messages
-                   to improve grammar of sentences formed.
     Returns:
         Returns a Reply object a differing reply object depending on the
         nature of the command.
@@ -162,6 +160,9 @@ def Command(self, cmd, room, msg, user, markov_db=None):
             else:
                 return ReplyObject(uploaded_image, True)
 
+    if cmd == 'machine':
+        return ReplyObject("I am the machine!", True)
+
     if cmd == "dilbert":
         return ReplyObject(('http://dilbert.com/'
                            'strip/')+time.strftime("%Y-%m-%d"), True)
@@ -195,7 +196,7 @@ def Command(self, cmd, room, msg, user, markov_db=None):
         return ReplyObject('/me pours jetfuel on SteelEdges', True, True)
 
     if cmd in ["dingram"]:
-        output = ["sucks", "chupa", "succhia"]
+        output = ["rocks", "sucks", "chupa", "succhia"]
         return ReplyObject(random.choice(output),True)
 
     if cmd == "putnam":
@@ -220,9 +221,15 @@ def Command(self, cmd, room, msg, user, markov_db=None):
         return ReplyObject(dune[0]+dune[1]+dune[2]+dune[3]+dune[4], True)
 
     if cmd == "m":
-        if (markov_db is not None and room.title is not 'pm' and
-                room.title in markov_db):
-            return ReplyObject(markov_db[room.title].generateText(10), True)
+        if (self.rooms_markov is not None and msg is not 'pm' and
+                msg in self.rooms_markov):
+            return ReplyObject(self.rooms_markov[msg].generateText(10), True)
+        elif (msg and msg not in self.rooms_markov):
+            return ReplyObject("sorry, there is no data for this room.",
+                               True, False, True, False, True)
+        elif (self.rooms_markov is not None and room.title is not 'pm' and
+                room.title in self.rooms_markov):
+            return ReplyObject(self.rooms_markov[room.title].generateText(10), True)
         else:
             return ReplyObject("sorry, there is no data for this room.",
                                True, False, True, False, True)

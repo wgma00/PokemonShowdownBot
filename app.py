@@ -68,6 +68,7 @@ from plugins.battling.battleHandler import supportedFormats
 from plugins import moderation
 from plugins.messages import MessageDatabase
 from plugins.workshop import Workshop
+import details
 
 
 class PSBot(PokemonShowdownBot):
@@ -307,8 +308,9 @@ class PSBot(PokemonShowdownBot):
 
                 res = self.do(self, command, room,
                               message[4][len(command)+1:].lstrip(),
-                              user, self.rooms_markov)
-                if not res.text or res.text == 'NoAnswer':
+                              user)
+                if(not res.text or res.text == 'NoAnswer' 
+                    or (room.title == 'joim' and not details.debug_joim)):
                     return
 
                 if(self.evalRoomPermission(user, room)
