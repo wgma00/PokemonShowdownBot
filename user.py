@@ -63,7 +63,7 @@ class User:
         rank:string, user rank.
         owner:Bool, is this you.
     """
-    Groups = {' ': 0, '+': 1, '★': 1, '%': 2, '@': 3, '*': 4, '&': 5, '#': 6, '~': 7}
+    Groups = {' ': 0, '+': 1, '☆': 1, '%': 2, '@': 3, '*': 4, '&': 5, '#': 6, '~': 7}
 
     def __init__(self, name, rank, owner = False):
         """Initializes user.

@@ -59,8 +59,8 @@ class Player:
         for poke in self.team:
             if self.team[poke].species == species:
                 return self.team[poke]
-        print('Tried getting:', species)
-        print('from team:', self.team)
+        # Logically this shouldn't happen, but apparently it does sometimes?
+        raise AttributeError('{mon} isn\'t in the team'.format(mon = species))
     def removeBaseForm(self, pokemon, mega):
         self.team[mega] = self.team.pop(pokemon, None)
         self.team[mega].species = mega
@@ -81,5 +81,6 @@ class Battle:
         self.other.name = other
         self.other.id = pId
     def setFieldCond(self, cond):
+        # TODO: do this
         pass
 

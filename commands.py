@@ -86,7 +86,7 @@ from room import RoomCommands
 ExternalCommands = RoomCommands.copy()
 ExternalCommands.update(PluginCommands)
 
-usageLink = r'http://www.smogon.com/stats/2016-08/'
+usageLink = r'http://www.smogon.com/stats/2017-02/'
 
 
 def URL():
@@ -176,7 +176,7 @@ def Command(self, cmd, room, msg, user):
         if User.compareRanks(room.rank, '*'):
             return ReplyObject('/addhtmlbox <img src="{url}" height="{height}" width={width}></img><br><b>{alt}</b></br>'.format(alt=alt_data, url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
         else:
-            return ReplyObect(uploaded_image, True)
+            return ReplyObject(uploaded_image, True)
 
     if cmd in ['partyparrot', 'pp', 'parrot', 'party']:
         if msg == 'help':
@@ -299,24 +299,23 @@ def Command(self, cmd, room, msg, user):
             return ReplyObject("No broadcast ranks in PMs")
 
     if cmd == 'setbroadcast':
-        if room.title != "pm":
-            msg = self.removeSpaces(msg)
-            if msg in User.Groups or msg in ["off", "no", "false"]:
-                if user.hasRank("#"):
-                    if msg in ["off", "no", "false"]: msg = " "
-                    room.broadcast_rank = msg
-                    return ReplyObject(("Local broadcast rank set to {rank}."
-                                        " (This is not saved on reboot)"
-                                        ).format(rank=msg), True)
-                return ReplyObject(("You're not allowed to set broadcast rank."
-                                    " (Requires #)"))
-            return ReplyObject("{rank} is not a valid rank".format(rank=msg))
-        else:
-            return ReplyObject("No broadcast ranks in Pms")
+        msg = self.removeSpaces(msg)
+        if msg in User.Groups or msg in ['off', 'no', 'false']:
+            if user.hasRank('#'):
+                if msg in ['off', 'no', 'false']: msg = ' '
+                if self.details['broadcastrank'] == msg:
+                    return ReplyObject('Broadcast rank is already {rank}'.format(rank = msg if not msg == ' ' else 'none'), True)
+                self.details['broadcastrank'] = msg
+                return ReplyObject('Broadcast rank set to {rank}. (This is not saved on reboot)'.format(rank = msg if not msg == ' ' else 'none'), True)
+            return ReplyObject('You are not allowed to set broadcast rank. (Requires #)')
+        return ReplyObject('{rank} is not a valid rank'.format(rank = msg if not msg == ' ' else 'none'))
 
     # External commands from plugins (and also room.py)
-    if cmd in ExternalCommands.keys():
+    try:
         return ExternalCommands[cmd](self, cmd, room, msg, user)
+    except:
+        # Do nothing, it's expected some commands doesn't exist
+        pass
 
     # Informational commands
     if cmd in Links:

@@ -115,7 +115,6 @@ infractionScore = {
     'caps': 1,
     'stretching': 1,
     'badlink': 2,
-    'harmful': 3,
     'flooding': 3,
     'banword': 3,
     'roomban': 10
@@ -126,7 +125,6 @@ actionReplies = {
     'caps': 'Would you mind not using caps so much, please.',
     'stretching': "Please don't stretch unnecessarily.",
     'badlink': 'The link has nothing to do with NU.',
-    'harmful': "Don't use spoiler: with all caps like that.",
     'flooding': "Don't spam, please :c",
     'banword': "You can't say that in here, so please don't.",
     'roomban': "You are banned from this room."
@@ -149,6 +147,7 @@ def MIN_MESSAGE_TIME(): return timedelta(milliseconds=300)*MESSAGES_FOR_SPAM()
 def SPAM_INTERVAL(): return timedelta(seconds = 6)
 
 def addBan(t, room, ban):
+    global banned
     if room not in banned:
         banned[room] = {'user': [], 'phrase': []}
     if t == 'user':
@@ -162,6 +161,7 @@ def addBan(t, room, ban):
         yaml.dump(banned, yf)
 
 def removeBan(t, room, ban):
+    global banned
     if room not in banned: return
     ban = re.sub(r'[^a-zA-z0-9]', '', ban).lower()
     if t == 'user' and ban not in banned[room]['user']:
@@ -179,6 +179,7 @@ def shouldBan(bot, user, room):
     return room.moderate and isBanned(user.id, room.title) and bot.canBan(room)
 
 def isBanned(user, room):
+    global banned
     return user in banned[room]['user']
 
 class PunishedUser:
@@ -224,6 +225,7 @@ def recentlyPunished(user, now):
     return timeDiff < timedelta(seconds = 3)
 
 def isBanword(msg, room):
+    global banned
     for ban in banned[room]['phrase']:
         if ban.lower() in msg:
             return True
@@ -274,15 +276,6 @@ def isGroupMention(msg):
         return True
     return False
 
-def probablyHarmful(msg, userlist):
-    # Arguably using `spoiler:` and all caps is never something that will occur
-    # so rather than letting the other monitors take it, deal with it here.
-    # Just make sure the message is long enough to not be a mistake.
-    if 'spoiler:' in msg:
-        hidden = msg[msg.index('spoiler:') + len('spoiler:'):]
-        return isCaps(hidden, userlist) and len(hidden) > 20
-    return False
-
 def getAction(bot, room, user, wrong, unixTime):
     # This assumes unixTime is a valid unix timestamp
     now = datetime.utcfromtimestamp(int(unixTime))
@@ -318,7 +311,7 @@ def getAction(bot, room, user, wrong, unixTime):
 
 nextReset = datetime.now().date()+timedelta(days=2)
 def shouldAct(msg, user, room, unixTime):
-    global nextReset
+    global nextReset, banned
 
     # If the room isn't present in bans.yaml we need to add it at
     # least temporary
@@ -339,24 +332,23 @@ def shouldAct(msg, user, room, unixTime):
         return 'banword'
     if recentlyPunished(user, now):
         return False
-    if probablyHarmful(msg, room.users):
-        return 'harmful'
-    # Disabled any moderating that isn't directly harmful to the rooms.
-    # If moderating for stretching or caps is desired, uncomment the relevant
-    # section of code. The recently punished test can stay to avoid forgetting
-    # when re-enabling a function again.
 
-    # if isStretching(msg, room.users):
-    #     return 'stretching'
-    # if isCaps(msg, room.users):
-    #     return 'caps'
+# Disabled any moderating that isn't directly harmful to the rooms.
+# If moderating for stretching or caps is desired, uncomment the relevant
+# section of code. The recently punished test can stay to avoid forgetting
+# when re-enabling a function again.
 
-    # if isGroupMention(msg):
-    #     return 'groupchat'
-    # if containUrl(msg.lower()):
-    #     url = moderation.getUrl(message[4])
-    #     if badLink(url):
-    #         return 'badlink'
+#    if isStretching(msg, room.users):
+#        return 'stretching'
+#    if isCaps(msg, room.users):
+#        return 'caps'
+
+#    if isGroupMention(msg):
+#        return 'groupchat'
+#    if containUrl(msg.lower()):
+#        url = moderation.getUrl(message[4])
+#        if badLink(url):
+#            return 'badlink'
     return False
 
 
@@ -387,26 +379,22 @@ def moderate(bot, cmd, room, msg, user):
 
 def banthing(bot, cmd, room, msg, user):
     reply = r.ReplyObject('', True, True)
-    if not user.hasRank('#'):
-        return reply.response('You do not have permission to do this. '
-                              '(Requires #)')
+    if not user.hasRank('#'): return reply.response('You do not have permission to do this. (Requires #)')
+    if room.isPm: return reply.response("You can't ban things in PMs")
     error = addBan(cmd[3:], room.title, msg)
     if not error:
         modnote = ('/modnote {user} added {thing} to the '
                    'blacklist').format(thing=msg, user=user.name)
         ban = ''
-        if msg in room.userlist:
-            ban = '\n/roomban {user}, Was added to blacklist'.format(user=msg)
-        return reply.response(('Added {thing} to the banlist\n'
-                               '{note}{act}').format(thing=msg, user=user.name,
-                                                     note=modnote, act=ban))
+        if msg in room.users:
+            ban = '\n/roomban {user}, Was added to blacklist'.format(user = msg)
+        return reply.response('Added {thing} to the banlist\n{note}{act}'.format(thing = msg, user = user.name, note = modnote, act = ban))
     return reply.response(error)
 
 def unbanthing(bot, cmd, room, msg, user):
     reply = r.ReplyObject('', True, True)
-    if not user.hasRank('#'):
-        return reply.response('You do not have permission to do this.'
-                              ' (Requires #)')
+    if not user.hasRank('#'): return reply.response('You do not have permission to do this. (Requires #)')
+    if room.isPm: return reply.response("You can't unban things in PMs")
     error = removeBan(cmd[5:], room.title, msg)
     if not error:
         return reply.response(('Removed {thing} from the banlist {room}\n'
