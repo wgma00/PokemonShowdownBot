@@ -292,7 +292,7 @@ def Command(self, cmd, room, msg, user):
                            " (Requires #)")
     # Permissions
     if cmd == 'broadcast':
-        if room.title != "pm":
+        if not room.isPM:
             return ReplyObject(("Rank required to broadcast: {rank}"
                                 "").format(rank=room.broadcast_rank), True)
         else:
@@ -303,9 +303,9 @@ def Command(self, cmd, room, msg, user):
         if msg in User.Groups or msg in ['off', 'no', 'false']:
             if user.hasRank('#'):
                 if msg in ['off', 'no', 'false']: msg = ' '
-                if self.details['broadcastrank'] == msg:
+                if room.broadcast_rank == msg:
                     return ReplyObject('Broadcast rank is already {rank}'.format(rank = msg if not msg == ' ' else 'none'), True)
-                self.details['broadcastrank'] = msg
+                room.broadcast_rank = msg
                 return ReplyObject('Broadcast rank set to {rank}. (This is not saved on reboot)'.format(rank = msg if not msg == ' ' else 'none'), True)
             return ReplyObject('You are not allowed to set broadcast rank. (Requires #)')
         return ReplyObject('{rank} is not a valid rank'.format(rank = msg if not msg == ' ' else 'none'))

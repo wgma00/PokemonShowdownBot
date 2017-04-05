@@ -33,7 +33,7 @@ try:
         bot_id = to_id(bot_name)
         command_char = details['command']
         avatar = details['avatar']
-        debug_joim = details['debug_joim'] 
+        debug_joim = False 
         joinRooms = details['joinRooms']
         client_id = details['imgur_apikey']
         api_key = details['apikey']
