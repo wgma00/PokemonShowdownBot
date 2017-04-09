@@ -173,6 +173,14 @@ def Command(self, cmd, room, msg, user):
         uploaded_image = data['img']
         uploaded_image_dims = OnlineImage.get_image_info(uploaded_image)
         alt_data = data['alt']
+        if msg and int(msg) >= 1 and int(msg) <= data['num']:
+            r = requests.get('http://xkcd.com/{num}/info.0.json'.format(num=int(msg)))
+            data = r.json()
+            uploaded_image = data['img']
+            uploaded_image_dims = OnlineImage.get_image_info(uploaded_image)
+            alt_data = data['alt']
+
+
         if User.compareRanks(room.rank, '*'):
             return ReplyObject('/addhtmlbox <img src="{url}" height="{height}" width={width}></img><br><b>{alt}</b></br>'.format(alt=alt_data, url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
         else:
