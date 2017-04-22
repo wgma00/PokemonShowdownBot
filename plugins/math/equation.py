@@ -62,19 +62,25 @@ def solve_on_standard_posix(user_input, x):
         return ret[ret.index(">")+1:ret[ret.index(">")+1:].index(">")].strip()
 
 
-def solve_on_windows_running_ubuntu_bash(user_input, x):
+def solve_on_windows_running_ubuntu_bash(user_input, x=""):
     user_input = sanitize_input(user_input)
     x = sanitize_input(x)
     for const in MATH_CONST():
         user_input = user_input.replace(const, MATH_CONST()[const])
         x = x.replace(const, MATH_CONST()[const])
     user_input = user_input.replace("x", x)
-    out = subprocess.check_output("echo '{uinput}' | gcalccmd".format(uinput=user_input), shell=True,
-                                  executable="C:\\Windows\\System32\\bash.exe")
+
+    # determining where the bash.exe exuctable is locaed in 32 bit systems.
+    is32bit = (platform.architecture()[0] == '32bit')
+    system32 = os.path.join(os.environ['SystemRoot'], 'SysNative' if is32bit else 'System32')
+    bash = os.path.join(system32, 'cmd.exe')
+
+    # piping input to bash
+    out = subprocess.check_output("bash -c \"echo '{uinput}' | gcalccmd\"".format(uinput=user_input),
+                                  shell=True, executable=bash, stderr=subprocess.PIPE)
     ret = out.decode("utf-8")
-    print(ret)
-    if ret or ret.count('>') != 2:
-        return "invalid"
+    if ret is None or ret.count('>') != 2:
+        return "invalid 1"
     if(ret.count('>') == 2
        and ret[ret.index(">") + 1:ret[ret.index(">") + 1:].index(">")].strip().replace(' ', '') == ''):
         return "invalid"
@@ -90,20 +96,12 @@ def solve(user_input, x=""):
     else:
         return solve_on_windows_running_ubuntu_bash(user_input, x)
 
-
-def wintolin(path):
-    path = os.path.abspath(path)
-    if path[1:2] == ':':
-        drive = path[:1].lower()
-        return '/mnt/' + drive + path[2:].replace('\\', '/')
-
 if __name__ == "__main__":
-    is32bit = (platform.architecture()[0] == '32bit')
-    system32 = os.path.join(os.environ['SystemRoot'],
-                            'SysNative' if is32bit else 'System32')
-    bash = os.path.join(system32, 'cmd.exe')
-
+    #is32bit = (platform.architecture()[0] == '32bit')
+    #system32 = os.path.join(os.environ['SystemRoot'], 'SysNative' if is32bit else 'System32')
+    #bash = os.path.join(system32, 'cmd.exe')
+    #print(bash)
     #subprocess.check_call('"%s" -c "echo \'hello world\'"' % bash)
-    out = subprocess.check_output("bash -c pwd", shell=True, executable=bash, stderr=subprocess.PIPE)
-    ret = out.decode("utf-8")
-    print(ret)
+    #out = subprocess.check_output("bash -c pwd", shell=True, executable=bash, stderr=subprocess.PIPE)
+    #ret = out.decode("utf-8")
+    print(solve_on_windows_running_ubuntu_bash('1+sin(x)', '0'))
