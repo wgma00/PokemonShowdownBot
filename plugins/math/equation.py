@@ -16,11 +16,6 @@
 # along with PokemonShowdownBot.  If not, see <http://www.gnu.org/licenses/>.
 
 import subprocess
-import threading
-import queue
-import platform
-import tempfile
-import os
 
 
 def MATH_CONST():
@@ -38,7 +33,6 @@ def sanitize_input(user_input):
     user_input = user_input.replace('quit', '')
     user_input = user_input.replace('exit', '')
     return user_input
-
 
 
 def solve_on_standard_posix(user_input, x):
@@ -62,46 +56,8 @@ def solve_on_standard_posix(user_input, x):
         return ret[ret.index(">")+1:ret[ret.index(">")+1:].index(">")].strip()
 
 
-def solve_on_windows_running_ubuntu_bash(user_input, x=""):
-    user_input = sanitize_input(user_input)
-    x = sanitize_input(x)
-    for const in MATH_CONST():
-        user_input = user_input.replace(const, MATH_CONST()[const])
-        x = x.replace(const, MATH_CONST()[const])
-    user_input = user_input.replace("x", x)
-
-    # determining where the bash.exe exuctable is locaed in 32 bit systems.
-    is32bit = (platform.architecture()[0] == '32bit')
-    system32 = os.path.join(os.environ['SystemRoot'], 'SysNative' if is32bit else 'System32')
-    bash = os.path.join(system32, 'cmd.exe')
-
-    # piping input to bash
-    out = subprocess.check_output("bash -c \"echo '{uinput}' | gcalccmd\"".format(uinput=user_input),
-                                  shell=True, executable=bash, stderr=subprocess.PIPE)
-    ret = out.decode("utf-8")
-    if ret is None or ret.count('>') != 2:
-        return "invalid 1"
-    if(ret.count('>') == 2
-       and ret[ret.index(">") + 1:ret[ret.index(">") + 1:].index(">")].strip().replace(' ', '') == ''):
-        return "invalid"
-    else:
-        return ret[ret.index(">") + 1:ret[ret.index(">") + 1:].index(">")].strip()
-
-
 def solve(user_input, x=""):
-    """Solves a mathematical expresion using the gnome calculator software."""
-    # sanatize input to avoid security errors
-    if os.name != 'nt':
-        return solve_on_standard_posix(user_input, x)
-    else:
-        return solve_on_windows_running_ubuntu_bash(user_input, x)
+    """Solves a mathematical expression using the gnome calculator software."""
+    return solve_on_standard_posix(user_input, x)
 
-if __name__ == "__main__":
-    #is32bit = (platform.architecture()[0] == '32bit')
-    #system32 = os.path.join(os.environ['SystemRoot'], 'SysNative' if is32bit else 'System32')
-    #bash = os.path.join(system32, 'cmd.exe')
-    #print(bash)
-    #subprocess.check_call('"%s" -c "echo \'hello world\'"' % bash)
-    #out = subprocess.check_output("bash -c pwd", shell=True, executable=bash, stderr=subprocess.PIPE)
-    #ret = out.decode("utf-8")
-    print(solve_on_windows_running_ubuntu_bash('1+sin(x)', '0'))
+
