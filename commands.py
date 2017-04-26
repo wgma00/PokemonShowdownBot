@@ -204,7 +204,7 @@ def Command(self, cmd, room, msg, user):
         return ReplyObject('/me pours jetfuel on SteelEdges', True, True)
 
     if cmd in ["dingram"]:
-        output = ["rocks", "sucks", "chupa", "succhia"]
+        output = ["rocks", "sucks", "chupa", "succhia", "바보", "不好" ]
         return ReplyObject(random.choice(output),True)
 
     if cmd == "putnam":

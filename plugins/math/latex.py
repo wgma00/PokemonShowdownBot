@@ -89,7 +89,6 @@ class Latex(OnlineImage):
         Raises:
             None.
         """
-        return (msg.startswith('$') and msg.endswith('$') and len(msg) > 2
-                and '\\input' not in msg and '\\def' not in msg
+        return ('\\input' not in msg and '\\def' not in msg
                 and '\\write18' not in msg and '\\immediate' not in msg)
 
