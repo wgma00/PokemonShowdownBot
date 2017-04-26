@@ -51,16 +51,17 @@ am trying to claw my way closer to these standards.
 Setting up
 ---------
 The following are the necessary dependencies for running this software.
+
 ### Operating System:
 - APT/RPM based linux distribution like Debian or Fedora
 - Some functionality may still work on Windows, but have not been fully tested. Use at your own discretion.
+
 ### LaTeX:
 - Requires the following to be installed, ``texlive`` and ``poppler-utils``
-### Calculator:
-- Requires that ``gcalccmd`` is installed### LaTeX:
-- Requires the following to be installed, ``texlive`` and ``poppler-utils``
+
 ### Calculator:
 - Requires that ``gcalccmd`` is installed
+
 #### Python:
 - Python 3.4, not tested for any other versions yet. And no plans are made to make it Python 2 compliant.
 - PIP - package manager for python
