@@ -156,7 +156,7 @@ def Command(self, cmd, room, msg, user):
             uploaded_image = uploaded_image_data[0]
             uploaded_image_dims = uploaded_image_data[1]
             if User.compareRanks(room.rank, '*'):
-                return ReplyObject('/addhtmlbox <img src="{url}" height="{height}" width={width}></img>'.format(url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
+                return ReplyObject('/addhtmlbox <img src="{url}" height=100% width=100%></img>'.format(url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
             else:
                 return ReplyObject(uploaded_image, True)
 
@@ -182,7 +182,7 @@ def Command(self, cmd, room, msg, user):
 
 
         if User.compareRanks(room.rank, '*'):
-            return ReplyObject('/addhtmlbox <img src="{url}" height="{height}" width={width}></img><br><b>{alt}</b></br>'.format(alt=alt_data, url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
+            return ReplyObject('/addhtmlbox <img src="{url}" height=100% width=100%></img><br><b>{alt}</b></br>'.format(alt=alt_data, url=uploaded_image, width=uploaded_image_dims[0]),True, True)
         else:
             return ReplyObject(uploaded_image, True)
 
