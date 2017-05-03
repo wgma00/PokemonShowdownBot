@@ -414,7 +414,12 @@ def Command(self, cmd, room, msg, user):
             cmd = substitutes[cmd]
         if User.compareRanks(room.rank, '*'):
             return ReplyObject(('/addhtmlbox <a href="http://www.smogon.com/'
-                            '/{mon}/').format(mon = cmd), True)
+                                 'dex/xy/pokemon/{mon}/">{capital} analysis</a>'
+                                 ).format(mon=cmd, capital=cmd.title()), True,
+                                 True)
+        else:
+            return ReplyObject(('Analysis: http://www.smogon.com/dex/xy/pokemon'
+                                              '/{mon}/').format(mon = cmd), True)
 
     return ReplyObject('{command} is not a valid command.'.format(command=cmd))
 
