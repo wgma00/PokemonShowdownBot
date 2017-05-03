@@ -36,7 +36,7 @@ These commands are only allowed after relevant part enbling them through the all
 - `anagram new` : Generates a new anagram from a Pokémon or a move.
 - `anagram hint` : Display the hint for the current anagram
 - `anagram end` : Forcefully ends the current game, revealing the solution
-- Doing `.anagram` without any parameter prints out the current anagram if one exists.
+- Doing `~anagram` without any parameter prints out the current anagram if one exists.
 
 
 ### Periodic Parser ###
@@ -47,7 +47,7 @@ to date with current IUPAC standards.
 - `periodic new`: generates a new periodic
 - `periodic hint`: Display a hint for the current word
 - `periodic end`: forcefully ends the current game, revealing the solution
-- Doing `.periodic` without any parameter prints out the current anagram if one exists.
+- Doing `~periodic` without any parameter prints out the current anagram if one exists.
 - `a` : Guess the solution. Everything after a is treated as the guess.
 
 

@@ -50,18 +50,21 @@ am trying to claw my way closer to these standards.
 
 Setting up
 ---------
-#### Python version:
-- Python 3.4, not tested for any other versions yet. And no plans are made to make it Python 2 compliant.
+The following are the necessary dependencies for running this software.
 
-### OS environment:
+### Operating System:
 - APT/RPM based linux distribution like Debian or Fedora
 - Some functionality may still work on Windows, but have not been fully tested. Use at your own discretion.
 
-### LaTeX dependencies:
+### LaTeX:
 - Requires the following to be installed, ``texlive`` and ``poppler-utils``
 
-### Calculator requirements:
+### Calculator:
 - Requires that ``gcalccmd`` is installed
+
+#### Python:
+- Python 3.4, not tested for any other versions yet. And no plans are made to make it Python 2 compliant.
+- PIP - package manager for python
 
 #### Guide:
 0. (optional) setup a virtualenv with the following ``virtualenv -p /usr/bin/python3 pokemonshowdownbot && source pokemonshowdownbot/bin/activate`` 
@@ -71,6 +74,11 @@ Setting up
 3. Follow the instructions in `details-example.yaml` to configure your bot for login
 4. Run using `python3 app.py`
 5. (optional) Test for errors you can run ``test.sh`` using ``chmod +x test.sh && ./test.sh``
+
+
+### Docker (optional)
+A docker image is available with the all of the necessary dependencies installed. You will still need to follow steps
+3-4 in the above guide. ``docker pull wgma/pokemonshowdownbot``
 
 License
 -------
