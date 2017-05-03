@@ -29,16 +29,8 @@ def test_source():
     regular_user = User('user', False)
     reply_one = Command(psb, 'git', test_room, '', regular_user)
     reply_two = Command(psb, 'source', test_room, '', regular_user)
-    answer = ReplyObject('Source code can be found at: https://github.com/wgma00/PokemonShowdownBot/')
+    answer = ReplyObject('Source code can be found at: https://github.com/wgma00/quadbot/')
     assert reply_one == answer and reply_two == answer, 'source has been changed'
-
-
-def test_credits():
-    test_room = Room('test')
-    regular_user = User('user', False)
-    reply = Command(psb, 'credits', test_room, '', regular_user)
-    answer = ReplyObject('Credits can be found: https://github.com/wgma00/PokemonShowdownBot/')
-    assert reply == answer, 'credits have been changed'
 
 
 def test_latex_compilation_expected_input():
