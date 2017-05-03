@@ -91,7 +91,7 @@ usageLink = r'http://www.smogon.com/stats/2017-02/'
 
 def URL():
     """URL for the source code"""
-    return "https://github.com/wgma00/PokemonShowdownBot/"
+    return "https://github.com/wgma00/quadbot/"
 
 
 @decorator
@@ -140,13 +140,9 @@ def Command(self, cmd, room, msg, user):
         self.send(msg)
         return ReplyObject(msg, True, True)
 
-    if cmd in ["source", "git"]:
+    if cmd in ["source", "git", "credits"]:
         return ReplyObject(("Source code can be found at:"
                             " {url}").format(url=URL()))
-
-    if cmd == "credits":
-        return ReplyObject(("Credits can be found:"
-                            " {url}").format(url=URL()), True)
 
     if cmd == "latex":
         if not Latex.validate_request(msg):
@@ -173,14 +169,22 @@ def Command(self, cmd, room, msg, user):
         uploaded_image = data['img']
         uploaded_image_dims = OnlineImage.get_image_info(uploaded_image)
         alt_data = data['alt']
-        if msg and int(msg) >= 1 and int(msg) <= data['num']:
+        if msg and msg == 'rand':
+            msg = random.randint(1, data['num'])
             r = requests.get('http://xkcd.com/{num}/info.0.json'.format(num=int(msg)))
             data = r.json()
             uploaded_image = data['img']
             uploaded_image_dims = OnlineImage.get_image_info(uploaded_image)
             alt_data = data['alt']
-
-
+        elif msg and msg.isdigit() and int(msg) >= 1 and int(msg) <= data['num']:
+            r = requests.get('http://xkcd.com/{num}/info.0.json'.format(num=int(msg)))
+            data = r.json()
+            uploaded_image = data['img']
+            uploaded_image_dims = OnlineImage.get_image_info(uploaded_image)
+            alt_data = data['alt']
+        else:
+            return ReplyObject('Please select a valid xkcd article from 1 to {num} or use rand to generate a random one'.format(num=data['num']), True)
+        
         if User.compareRanks(room.rank, '*'):
             return ReplyObject('/addhtmlbox <img src="{url}" height=100% width=100%></img><br><b>{alt}</b></br>'.format(alt=alt_data, url=uploaded_image, width=uploaded_image_dims[0]),True, True)
         else:
@@ -196,7 +200,8 @@ def Command(self, cmd, room, msg, user):
             uploaded_image = uploaded_image_data[0]
             uploaded_image_dims = uploaded_image_data[1]
             if User.compareRanks(room.rank, '*'):
-                return ReplyObject('/addhtmlbox <img src="{url}" height="{height}" width={width}></img>'.format(url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
+                return ReplyObject('/addhtmlbox <img src="{url}" height="{height}" width={width}></img>'.format(
+                                   url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
             else:
                 return ReplyObject(uploaded_image, True)
 
@@ -228,7 +233,7 @@ def Command(self, cmd, room, msg, user):
                 "https://www.youtube.com/watch?v=nJ_ysxBi_O0\n"]
         return ReplyObject(dune[0]+dune[1]+dune[2]+dune[3]+dune[4], True)
 
-    if cmd == "m":
+    if cmd in ["m", "markov"]:
         if (self.rooms_markov is not None and msg is not 'pm' and
                 msg in self.rooms_markov):
             return ReplyObject(self.rooms_markov[msg].generateText(10), True)
@@ -253,8 +258,7 @@ def Command(self, cmd, room, msg, user):
         return ReplyObject("Owned by: {owner}".format(owner=self.owner), True)
 
     if cmd in ["commands", "help"]:
-        return ReplyObject(("Read about commands here: {url}blob/master/"
-                            "COMMANDS.md").format(url=URL()), True)
+        return ReplyObject(("Read about commands here: {url}wiki/Commands").format(url=URL()), True)
 
     if cmd == "explain":
         return ReplyObject(('Inspired by dubsbot, this bot is twice '
@@ -337,9 +341,9 @@ def Command(self, cmd, room, msg, user):
     # Fun stuff
     if cmd == 'pick':
         options = msg.split(',')
-        return ReplyObject(options[math.randint(0,(len(options) - 1))], True)
+        return ReplyObject(options[random.randint(0,(len(options) - 1))], True)
     if cmd == 'ask':
-        return ReplyObject(Lines[math.randint(0, len(Lines) - 1)], True)
+        return ReplyObject(Lines[random.randint(0, len(Lines) - 1)], True)
     if cmd == 'seen':
         return ReplyObject(("This is not a command because I value other"
                             " users' privacy."), True)
@@ -348,7 +352,7 @@ def Command(self, cmd, room, msg, user):
     if cmd in YoutubeLinks:
         return ReplyObject(YoutubeLinks[cmd], True)
     if cmd in tiers:
-        pick = list(tiers[cmd])[math.randint(0,len(tiers[cmd])-1)]
+        pick = list(tiers[cmd])[random.randint(0,len(tiers[cmd])-1)]
         pNoForm = re.sub('-(?:Mega(?:-(X|Y))?|Primal)','', pick).lower()
         return ReplyObject(('{poke} was chosen: http://www.smogon.com/dex/xy/'
                             'pokemon/{mon}/').format(poke=pick, mon=pNoForm),
@@ -359,7 +363,7 @@ def Command(self, cmd, room, msg, user):
         attempts = 0
         while len(team) < 6 or not acceptableWeakness(team):
             poke = list(tiers[cmd.replace('team','poke')])
-            poke = poke[math.randint(0, len(tiers[cmd.replace('team','poke')])-1)]
+            poke = poke[random.randint(0, len(tiers[cmd.replace('team','poke')])-1)]
             # Test if share dex number with anything in the team
             if [p for p in team if Pokedex[poke]['dex'] == Pokedex[p]['dex']]:
                 continue
@@ -380,7 +384,7 @@ def Command(self, cmd, room, msg, user):
                 while len(team) < 6:
                     teams = list(tiers[cmd.replace('team','poke')])
                     seed = len(tiers[cmd.replace('team','poke')])-1
-                    rand_team = [math.randint(0, seed)]
+                    rand_team = [random.randint(0, seed)]
                     team |= {rand_team}
                 break
         return ReplyObject(' / '.join(list(team)), True)
@@ -410,10 +414,6 @@ def Command(self, cmd, room, msg, user):
             cmd = substitutes[cmd]
         if User.compareRanks(room.rank, '*'):
             return ReplyObject(('/addhtmlbox <a href="http://www.smogon.com/'
-                                'dex/xy/pokemon/{mon}/">{capital} analysis</a>'
-                                ).format(mon=cmd, capital=cmd.title()), True,
-                                True)
-        return ReplyObject(('Analysis: http://www.smogon.com/dex/xy/pokemon'
                             '/{mon}/').format(mon = cmd), True)
 
     return ReplyObject('{command} is not a valid command.'.format(command=cmd))
