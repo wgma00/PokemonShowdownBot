@@ -182,7 +182,8 @@ def Command(self, cmd, room, msg, user):
             uploaded_image = data['img']
             uploaded_image_dims = OnlineImage.get_image_info(uploaded_image)
             alt_data = data['alt']
-        else:
+        elif msg is not '':
+            print(msg)
             return ReplyObject('Please select a valid xkcd article from 1 to {num} or use rand to generate a random one'.format(num=data['num']), True)
         
         if User.compareRanks(room.rank, '*'):
