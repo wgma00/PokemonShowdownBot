@@ -19,14 +19,14 @@ import subprocess
 
 
 def MATH_CONST():
-    return {"pi": "π"}
+    return {"pi": "π", "phi":"(1+sqrt(5))/2"}
 
 
 def sanitize_input(user_input):
     """ Removes nasty stuff that could bork the system."""
     user_input = user_input.replace('$', '')
-    user_input = user_input.replace('|', '')
     user_input = user_input.replace('>', '')
+    user_input = user_input.replace('|', '')
     user_input = user_input.replace("'", '')
     user_input = user_input.replace('"', '')
     user_input = user_input.replace('rm', '')
@@ -36,7 +36,10 @@ def sanitize_input(user_input):
 
 
 def solve_on_standard_posix(user_input, x):
-    """Solves the equation on a normal unix or unix like operating system"""
+    """Solves the equation on a normal unix or unix like operating system.
+   
+    Pipes input to gcalccmd library which is currently only supported on linux.
+    """
     user_input = sanitize_input(user_input)
     x = sanitize_input(x)
     for const in MATH_CONST():
@@ -56,7 +59,7 @@ def solve_on_standard_posix(user_input, x):
         return ret[ret.index(">")+1:ret[ret.index(">")+1:].index(">")].strip()
 
 
-def solve(user_input, x=""):
+def solve(user_input, x="0"):
     """Solves a mathematical expression using the gnome calculator software."""
     return solve_on_standard_posix(user_input, x)
 

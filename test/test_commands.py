@@ -75,6 +75,10 @@ def test_calc_valid_input():
         reply = Command(psb, 'calc', test_room, '|sin(-x)|, 0', regular_user)
         answer = ReplyObject('0', True)
         assert reply == answer, 'incorrect arithmetic expression'
+        # testing for singular substitution 
+        reply = Command(psb, 'calc', test_room, 'x', regular_user)
+        answer = ReplyObject('0', True)
+        assert reply == answer, 'incorrect arithmetic expression'
         # testing on a relatively large factorial
         reply = Command(psb, 'calc', test_room, '191!', regular_user)
         answer = ReplyObject('1.848941631×10³⁵⁴', True)
