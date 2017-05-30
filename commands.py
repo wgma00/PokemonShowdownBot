@@ -152,7 +152,8 @@ def Command(self, cmd, room, msg, user):
             uploaded_image = uploaded_image_data[0]
             uploaded_image_dims = uploaded_image_data[1]
             if User.compareRanks(room.rank, '*'):
-                return ReplyObject('/addhtmlbox <img src="{url}" height=100% width=100%></img>'.format(url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
+                # don't render to 100% of screen because latex renders badly
+                return ReplyObject('/addhtmlbox <img src="{url}" height="{height}" width="{width}"></img>'.format(url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]),True, True)
             else:
                 return ReplyObject(uploaded_image, True)
 
