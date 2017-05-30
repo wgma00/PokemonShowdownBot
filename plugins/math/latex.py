@@ -55,7 +55,7 @@ class Latex(OnlineImage):
         # create a barebones latex document with only the one line
         # specified from the user in the document.
         doc = Document(documentclass='minimal')
-        doc.packages = [Package(i) for i in 'amsmath,amsthm,amssymb,amsfonts'.split(',')]
+        doc.packages = [Package(NoEscape(i)) for i in 'amsmath,amsthm,amssymb,amsfonts,tikz-cd'.split(',')]
         doc.append(NoEscape(msg))
         doc.generate_pdf('default', compiler_args=['-no-shell-escape',], compiler="pdflatex")
         # These are normal Linux commands that are used to convert the pdf
