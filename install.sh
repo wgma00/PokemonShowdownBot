@@ -4,6 +4,10 @@
 install_dep_apt() {
     apt-get install texlive-full
     apt-get install texlive-pictures
+    tlmgr install pgf
+    tlmgr install tikz-cd
+
+
     apt-get install poppler-utils
     # might not be installed on some systems with poppler-utils
     apt-get install pnmtopng
