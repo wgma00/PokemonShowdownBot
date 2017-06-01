@@ -348,6 +348,7 @@ class PSBot(PokemonShowdownBot):
                         self.sendPm(user.id, ("Only global voices (+) and up "
                                               "can add me to rooms, sorry :("))
 
+            message[4] = '|'.join(message[4:])
             if(message[4].startswith(self.commandchar) and message[4][1:] and
                message[4][1].isalpha()):
                 command = self.extractCommand(message[4])
