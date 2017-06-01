@@ -26,7 +26,6 @@ def sanitize_input(user_input):
     """ Removes nasty stuff that could bork the system."""
     user_input = user_input.replace('$', '')
     user_input = user_input.replace('>', '')
-    user_input = user_input.replace('|', '')
     user_input = user_input.replace("'", '')
     user_input = user_input.replace('"', '')
     user_input = user_input.replace('rm', '')
