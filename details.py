@@ -33,7 +33,6 @@ try:
         bot_id = to_id(bot_name)
         command_char = details['command']
         avatar = details['avatar']
-        debug_joim = False 
         joinRooms = details['joinRooms']
         client_id = details['imgur_apikey']
         api_key = details['apikey']
@@ -46,8 +45,7 @@ except FileNotFoundError as e:
         bot_id = to_id(bot_name)
         command_char = '.'
         avatar = 0
-        debug_joim = False
-        joinRooms = []
+        joinRooms = {}
         client_id = os.environ['IMGUR_API']
         api_key = '0'
     except Exception:

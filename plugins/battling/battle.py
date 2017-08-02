@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 class Pokemon:
-    def __init__(self, ident, details, condition, active, stats, moves, baseAbility, item, canMegaEvo, slot):
+    def __init__(self, ident, details, condition, active, stats, moves, baseAbility, item, canMegaEvo, slot, side):
         self.species = ident
         self.details = details
         self.condition = condition.split()[0]
@@ -33,7 +33,19 @@ class Pokemon:
         self.item = item
         self.canMega = canMegaEvo
         self.teamSlot = slot
+        self.side = side
         self.boosts = {'atk':0, 'def':0, 'spa':0, 'spd':0, 'spe':0, 'evasion':0, 'accuracy':0}
+        self.lastMoveUsed = None
+
+    def clearBoosts(self):
+        self.boosts = {'atk':0, 'def':0, 'spa':0, 'spd':0, 'spe':0, 'evasion':0, 'accuracy':0}
+
+    def markLastUsedMove(self, move):
+        self.lastMoveUsed = move
+
+    def clearLastUsedMove(self):
+        self.lastMoveUsed = None
+
     def setCondition(self, cond, status):
         self.condition = cond
         self.status = status
@@ -42,12 +54,17 @@ class Player:
     def __init__(self):
         self.name = ''
         self.id = ''
+        self.canZmove = True
+        self.canMegaPokemon = True
         self.active = None
         self.team = {}
         self.side = {}
     def setActive(self, poke):
         self.active = poke
+        self.active.clearBoosts()
     def updateTeam(self, poke):
+        if poke.species in self.team:
+            poke.boosts = self.team[poke.species].boosts
         self.team[poke.species] = poke
     def changeTeamSlot(self, old, new):
         if not old:
@@ -64,15 +81,21 @@ class Player:
     def removeBaseForm(self, pokemon, mega):
         self.team[mega] = self.team.pop(pokemon, None)
         self.team[mega].species = mega
+        self.canMegaPokemon = False
+
+    def usedZmove(self):
+        self.canZmove = False
 
 class Battle:
     def __init__(self, name):
         self.rqid = 1
+        self.name = name
         self.myActiveData = {}
         self.me = Player()
         self.other = Player()
         self.field = {}
         self.spectating = False
+        self.ladderGame = False
 
     def setMe(self, me, pId):
         self.me.name = me
@@ -80,6 +103,8 @@ class Battle:
     def setOther(self, other, pId):
         self.other.name = other
         self.other.id = pId
+    def isLadderMatch(self):
+        self.ladderGame = True
     def setFieldCond(self, cond):
         # TODO: do this
         pass

@@ -25,7 +25,8 @@ from plugins import moderation
 from plugins import tournaments
 from plugins import workshop
 from plugins.games.anagram import anagram
-from plugins.games.periodic import periodic
+from plugins.games.periodic import periodic 
+from plugins.battling import battleHandler
 
 # This is where you pick what the name of the command actually is, then map it to a function.
 # Every command needs a function to work, with the parameters (bot, cmd, room, msg, user)
@@ -37,6 +38,7 @@ PluginCommands = {
     'unbanuser'     : moderation.unbanthing,
     'unbanphrase'   : moderation.unbanthing,
     'oldgentour'    : tournaments.oldgentour,
+    'showranking'   : tournaments.getranking,
     'tell'          : messages.tell,
     'read'          : messages.read,
     'untell'        : messages.untell,
@@ -45,5 +47,6 @@ PluginCommands = {
     'anagram'       : anagram.start,
     'a'             : anagram.answer,
     'periodic'      : periodic.start,
-    'pa'            : periodic.answer
+    'pa'            : periodic.answer,
+    'storeteam'     : battleHandler.acceptTeam
 }

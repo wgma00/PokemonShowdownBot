@@ -15,14 +15,23 @@ command: '.'
 # OPTIONAL: The specific avatar the bot should use. Leave as 0 to pick the default one.
 avatar: 0
 
-#This will be used for debugging in the joim room 
-debug: False
-
 # The rooms that should be joined on login. Leave moderate as fale to not enforce punishments.
 # allow games: Specify if chatgames like hangman should be allowed in the room
 # tourwhitelist: If you want to make specific people able to start tournaments without being @, add them to this list
 joinRooms:
-    - joim: { moderate: False, allow games: False , tourwhitelist: [], broadcastrank: ' '}
+  room:
+    moderate:
+      anything: false
+      banword: false
+      caps: false
+      groupchats: false
+      room: room # This should be the same name as the room name above
+      broadcastrank: ' '
+      spam: false
+      stretching: false
+      urls: false
+    allow games: False
+    tourwhitelist: []
 
 # Set if the bot will attempt to join any tornament that is started in the room, if the tiers it got accepts it. Default is False
 joinTours: False
@@ -30,6 +39,6 @@ joinTours: False
 # OPTIONAL: For workshops, set this to an api key given from Pastebin to automatically paste the workshop log
 apikey: '0'
 # OPTIONAL: If you would like the LaTeX command services simply get your own apikey from imgur
-imgur_apikey: ''
+imgur_apikey: '59fdf359ff5011e'
 # Do nothing with the one below, it should be empty
 rooms: {}

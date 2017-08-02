@@ -50,6 +50,8 @@ import json
 from collections import deque
 from plugins.tournaments import Tournament
 import robot as r
+from user import User
+from plugins.moderation import ModerationHandler
 
 
 class Room:
@@ -68,34 +70,46 @@ class Room:
         tourwhiteList: list of str, users who are not moderators but who have
                        permission to start a tour.
     """
-    def __init__(self, room, data=None):
+    def __init__(self, room, data = None):
         """Intializes room with preliminary information."""
-        if not data:
-            # This is to support both strings and dicts as input
-            data = {'moderate': False, 'allow games': False,
-                    'tourwhitelist': [], 'broadcastrank':' '}
+        if not data: data = {
+            'moderate': {
+                'room': room,
+                'anything': False,
+                'spam': False,
+                'banword': False,
+                'caps': False,
+                'groupchats': False,
+                'urls': False
+            },
+            'broadcastrank': ' ',
+            'stretching': False,
+            'allow games':False,
+            'tourwhitelist':[]}
         self.users = {}
         self.loading = True
         self.title = room
         self.broadcast_rank = data['broadcastrank']
         self.isPM = room.lower() == 'pm'
         self.rank = ' '
-        self.moderate = data['moderate']
+        self.moderation = ModerationHandler(data['moderate'])
         self.allowGames = data['allow games']
         self.tour = None
         self.activity = None
         self.tourwhitelist = data['tourwhitelist']
-        self.chatlog = deque({'': -1}, 20) # we will log the past 20 messages
+        self.chatlog = deque({'': -1}, 20)
+        self.moderation.assignRoom(self)
 
     def doneLoading(self):
         """Set loading status to False"""
         self.loading = False
 
     def addUser(self, user):
-        """Adds user to room."""
+        if self.moderation.isBannedFromRoom(user):
+            return
         if user.id not in self.users:
             self.users[user.id] = user
-
+        return True
     def removeUser(self, userid):
         """Removes user from this room."""
         if userid in self.users:
@@ -110,6 +124,9 @@ class Room:
         """Returns true if this user is in this room."""
         if name in self.users:
             return self.users[name]
+
+    def botHasBanPermission(self):
+        return User.compareRanks(self.rank, '@')
 
     def logChat(self, user, message):
         """Logs the message unto our message queue"""
@@ -132,16 +149,14 @@ class Room:
             return False
         self.tourwhitelist.remove(target)
         return True
-
-    def createTour(self, ws, form):
+    def createTour(self, ws, form, battleHandler):
         """Creates a tour with the specified format.
 
         Args:
             ws: websocket.
             form: string, type of format for this tournament.
         """
-        self.tour = Tournament(ws, self.title, form)
-
+        self.tour = Tournament(ws, self, form, battleHandler)
     def getTourWinner(self, msg):
         """Returns the winner of the current game.
         Args:
@@ -150,14 +165,23 @@ class Room:
             tuple (str,str) , represeting the user and the format won.
         """
         things = json.loads(msg)
-        return things['results'][0], things['format']
-
+        winner = things['results'][0]
+        if self.tour: self.tour.logWin(winner)
+        return winner, things['format']
     def endTour(self):
         """Ends the current tournament."""
         self.tour = None
 
 
 # Commands
+def leaveroom(bot, cmd, room, msg, user):
+    reply = r.ReplyObject()
+    msg = bot.removeSpaces(msg)
+    if not msg: msg = room.title
+    if bot.leaveRoom(msg):
+        return reply.response('Leaving room {r} succeeded'.format(r = msg))
+    return reply.response('Could not leave room: {r}'.format(r = msg))
+
 def allowgames(bot, cmd, room, msg, user):
     """Determines if a user is allowed to commence a chat game of any sort.
     Args:
@@ -169,7 +193,7 @@ def allowgames(bot, cmd, room, msg, user):
         Reply object denoting the mesage to be returned and whether or not it
         the message should be sent in PMs or public chat.
     """
-    reply = r.ReplyObject()
+    reply = r.ReplyObject(True)
     if not user.hasRank('#'): return reply.response('You do not have permission to change this. (Requires #)')
     if room.isPM: return reply.response("You can't use this command in a pm.")
     msg = bot.removeSpaces(msg)
@@ -249,8 +273,9 @@ def untourwl(bot, cmd, room, msg, user):
                            .format(name = msg))
 
 RoomCommands = {
-    'allowgames': allowgames,
-    'tour': tour,
-    'tourwl': tourwl,
-    'untourwl': untourwl
+    'leave'         : leaveroom,
+    'allowgames'    : allowgames,
+    'tour'          : tour,
+    'tourwl'        : tourwl,
+    'untourwl'      : untourwl
 }

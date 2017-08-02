@@ -86,7 +86,7 @@ from room import RoomCommands
 ExternalCommands = RoomCommands.copy()
 ExternalCommands.update(PluginCommands)
 
-usageLink = r'http://www.smogon.com/stats/2017-02/'
+usageLink = r'http://www.smogon.com/stats/2017-06/'
 
 
 def URL():
@@ -94,25 +94,6 @@ def URL():
     return "https://github.com/wgma00/quadbot/"
 
 
-@decorator
-def RTLOverrideDecorator(cmd_function, *args):
-    """Removes RTL override 'U+202E' from input which reverses bot's output.
-
-    Args:
-        cmd_function: Command, normal command function.
-        *args: paramters within the command function called.
-    Returns:
-        Modifies input, so it removes U+202E from cmd and msg
-    """
-    args=list(args)
-    CMD_INDEX = 1
-    MSG_INDEX = 3
-    args[CMD_INDEX] = args[CMD_INDEX].encode('ascii','ignore').decode()
-    args[MSG_INDEX] = args[MSG_INDEX].encode('ascii','ignore').decode()
-    return cmd_function(*args)
-
-
-@RTLOverrideDecorator
 def Command(self, cmd, room, msg, user):
     """ Handles commands given by the chat parser.
 
@@ -141,8 +122,7 @@ def Command(self, cmd, room, msg, user):
         return ReplyObject(msg, True, True)
 
     if cmd in ["source", "git", "credits"]:
-        return ReplyObject(("Source code can be found at:"
-                            " {url}").format(url=URL()))
+        return ReplyObject(("Source code can be found at: {url}").format(url=URL()))
 
     if cmd == "latex":
         if not Latex.validate_request(msg):
@@ -161,8 +141,7 @@ def Command(self, cmd, room, msg, user):
         return ReplyObject("I am the machine!", True)
 
     if cmd == "dilbert":
-        return ReplyObject(('http://dilbert.com/'
-                           'strip/')+time.strftime("%Y-%m-%d"), True)
+        return ReplyObject(('http://dilbert.com/strip/')+time.strftime("%Y-%m-%d"), True)
 
     if cmd == "xkcd":
         r = requests.get('http://xkcd.com/info.0.json')
@@ -235,19 +214,6 @@ def Command(self, cmd, room, msg, user):
                 "https://www.youtube.com/watch?v=nJ_ysxBi_O0\n"]
         return ReplyObject(dune[0]+dune[1]+dune[2]+dune[3]+dune[4], True)
 
-    if cmd in ["m", "markov"]:
-        if (self.rooms_markov is not None and msg is not 'pm' and
-                msg in self.rooms_markov):
-            return ReplyObject(self.rooms_markov[msg].generateText(10), True)
-        elif (msg and msg not in self.rooms_markov):
-            return ReplyObject("sorry, there is no data for this room.",
-                               True, False, True, False, True)
-        elif (self.rooms_markov is not None and room.title is not 'pm' and
-                room.title in self.rooms_markov):
-            return ReplyObject(self.rooms_markov[room.title].generateText(10), True)
-        else:
-            return ReplyObject("sorry, there is no data for this room.",
-                               True, False, True, False, True)
 
     if cmd == "calc":
         if "," in msg:
@@ -263,8 +229,7 @@ def Command(self, cmd, room, msg, user):
         return ReplyObject(("Read about commands here: {url}wiki/Commands").format(url=URL()), True)
 
     if cmd == "explain":
-        return ReplyObject(('Inspired by dubsbot, this bot is twice '
-                            'as good'), True)
+        return ReplyObject('Inspired by dubsbot, this bot is twice as good', True)
 
     if cmd == 'leave':
         msg = self.removeSpaces(msg)
@@ -327,9 +292,12 @@ def Command(self, cmd, room, msg, user):
     # External commands from plugins (and also room.py)
     try:
         return ExternalCommands[cmd](self, cmd, room, msg, user)
-    except:
+    except KeyError as ke:
         # Do nothing, it's expected some commands doesn't exist
         pass
+    except Exception as e:
+        # Something else went wrong D:
+        return ReplyObject(e)
 
     # Informational commands
     if cmd in Links:
@@ -347,8 +315,7 @@ def Command(self, cmd, room, msg, user):
     if cmd == 'ask':
         return ReplyObject(Lines[random.randint(0, len(Lines) - 1)], True)
     if cmd == 'seen':
-        return ReplyObject(("This is not a command because I value other"
-                            " users' privacy."), True)
+        return ReplyObject("This is not a command because I value other users privacy.", True)
     if cmd == 'squid':
         return ReplyObject('\u304f\u30b3\u003a\u5f61', True)
     if cmd in YoutubeLinks:
@@ -367,9 +334,9 @@ def Command(self, cmd, room, msg, user):
             poke = list(tiers[cmd.replace('team','poke')])
             poke = poke[random.randint(0, len(tiers[cmd.replace('team','poke')])-1)]
             # Test if share dex number with anything in the team
-            if [p for p in team if Pokedex[poke]['dex'] == Pokedex[p]['dex']]:
+            if [p for p in team if Pokedex[poke]['num'] == Pokedex[p]['num']]:
                 continue
-            if hasMega:
+            if hasMega and '-Mega' in poke:
                 continue
             team |= {poke}
             if not acceptableWeakness(team):
@@ -394,7 +361,7 @@ def Command(self, cmd, room, msg, user):
         return ReplyObject(('Format: http://www.smogon.com/dex/xy/formats/'
                             '{tier}/').format(tier = cmd), True)
     # This command is here because it's an awful condition, so try it last :/
-    pkmn_name_regex = re.sub('-(?:mega(?:-(x|y))?|primal|xl|l)','', cmd, flags=re.I) 
+    pkmn_name_regex = re.sub('-(?:mega(?:-(x|y))?|primal|xl|l)$','', cmd, flags=re.I) 
     if filter(lambda p: pkmn_name_regex in self.removespaces(p).lower(), [p for p in Pokedex]):
         cmd = re.sub('-(?:mega(?:-(x|y))?|primal)','', cmd)
         # This doesn't break Arceus-Steel like adding |S to the regex would
@@ -408,20 +375,18 @@ def Command(self, cmd, room, msg, user):
                        'pumpkaboo-xl':'pumpkaboo-super',
                        'giratina-o':'giratina-origin',
                        'mr.mime':'mr_mime',
-                       'mimejr.':'mime_jr'}
-        if cmd.lower() not in [self.removeSpaces(p).lower() for p in Pokedex]:
-            return ReplyObject('{cmd} is not a valid command'.format(cmd=cmd),
-                               True)
+                       'mimejr.':'mime_jr'
+        }
+        # Just in case do a double check before progressing...
+        if cmd.lower() not in (self.removeSpaces(p).lower() for p in Pokedex):
+            return ReplyObject('{cmd} is not a valid command'.format(cmd = cmd), True)
         if cmd in substitutes:
             cmd = substitutes[cmd]
-        if User.compareRanks(room.rank, '*'):
-            return ReplyObject(('/addhtmlbox <a href="http://www.smogon.com/'
-                                 'dex/xy/pokemon/{mon}/">{capital} analysis</a>'
-                                 ).format(mon=cmd, capital=cmd.title()), True,
-                                 True)
-        else:
-            return ReplyObject(('Analysis: http://www.smogon.com/dex/xy/pokemon'
-                                              '/{mon}/').format(mon = cmd), True)
+        if msg not in ('rb', 'gs', 'rs', 'dp', 'bw', 'xy', 'sm'):
+            msg = 'sm'
+        if self.canHtml(room):
+            return ReplyObject('/addhtmlbox <a href="http://www.smogon.com/dex/{gen}/pokemon/{mon}/">{capital} analysis</a>'.format(gen = msg, mon = cmd, capital = cmd.title()), True, True)
+        return ReplyObject('Analysis: http://www.smogon.com/dex/{gen}/pokemon/{mon}/'.format(gen = msg, mon = cmd), reply = True, pmreply = True)
 
     return ReplyObject('{command} is not a valid command.'.format(command=cmd))
 

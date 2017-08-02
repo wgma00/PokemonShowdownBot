@@ -1,5 +1,6 @@
 from room import Room
 from user import User
+import pytest
 
 
 def test_adding_user():
