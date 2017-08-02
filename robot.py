@@ -68,6 +68,10 @@ from plugins.math.markov import Markov
 import details
 
 
+# Module global for automatically update help with the correct symbol in plugins.
+# This will be change from default on creation of every instance of PokemonShowdownBot!
+guidechar = ' '
+
 class PokemonShowdownBot:
     """This class contains most of the functionality of the bot.
 
@@ -76,12 +80,11 @@ class PokemonShowdownBot:
 
     Attributes:
         details: a map mapping serveral variables to sensitive information.
-        owner: string, the user this bot responds too
-        name: string, the name of the bot in chat
-        id: string, a simplified string for identifying a user
+        owner: string, the user this bot responds too.
+        name: string, the name of the bot in chat.
+        id: string, a simplified string for identifying a user.
         rooms: Room object, that keeps track of information in a given room.
-        rooms_markov: a map mapping room names to markov objects used to
-                      generate sentences for certain rooms.
+        apikey: map string to string, keeps track of api keys to services.
         commandchar: string, string that is used to execute certain commands.
         url: string, the url for pokemon showdown's open port that the
              websocket will attempt connecting to.
@@ -90,14 +93,15 @@ class PokemonShowdownBot:
         self.owner = details.master
         self.name = details.bot_name
         self.id = details.bot_id
+        self.apikeys = details.apikeys
         self.rooms = {}
-        self.rooms_markov = {}
         self.commandchar = details.command_char
         self.intro()
         self.splitMessage = onMessage if onMessage else self.onMessage
         self.url = url
         # websocket.enableTrace(True)
         self.openConnection()
+        guidechar = self.commandchar
 
     def onError(self, ws, error):
         """Error message to be printed on error with websocket."""
@@ -114,6 +118,7 @@ class PokemonShowdownBot:
 
     def openConnection(self):
         """Open the websocket connection and setups pokemon battle handler."""
+        if not self.url: return
         self.ws = websocket.WebSocketApp(self.url,
                                          on_message = self.splitMessage,
                                          on_error = self.onError,
@@ -162,6 +167,9 @@ class PokemonShowdownBot:
             challenge: string,
             challengekeyid: string,
         """
+        if self.name == 'username' and self.details['password'] == 'password':
+            print('Error: Login details still at default; will not proceed with execution!')
+            exit()
         payload = { 'act':'login',
                     'name': self.name,
                     'pass': details.password,
@@ -198,9 +206,8 @@ class PokemonShowdownBot:
         if details.avatar >= 0:
             self.send('|/avatar {num}'.format(num=details.avatar))
         print('{name}: Successfully logged in.'.format(name=self.name))
-        for rooms in details.joinRooms:
-            name = [n for n in rooms][0] # joinRoom entry is a list of dicts
-            self.joinRoom(name, rooms[name])
+        for room in details.joinRooms:
+            self.joinRoom(room, details.joinRooms[room]) 
 
     def joinRoom(self, room, data = None):
         """ Joins a room in pokemon showdown.
@@ -213,10 +220,8 @@ class PokemonShowdownBot:
                     data = {'moderate': False, 'allow games': False,
                             'tourwhitelist': []}
         """
-        if room in self.rooms:
-            return
+        if room in self.rooms: return
         self.send('|/join ' + room)
-        self.rooms_markov[room] = Markov(room)
         self.rooms[room] = Room(room, data)
 
     def leaveRoom(self, room):
@@ -340,14 +345,14 @@ class PokemonShowdownBot:
 
     def canStartTour(self, room):
         return User.compareRanks(room.rank, '@')
+    def canHtml(self, room):
+        return User.compareRanks(room.rank, '*')
 
     # Generic permissions test for users
     def isOwner(self, name):
         return self.owner == self.toId(name)
-
-
-    def evalRoomPermission(self, user, room):
-        return user.hasRank(room.broadcast_rank)
+    def userHasPermission(self, user, rank):
+        return self.isOwner(user.id) or User.compareRanks(user.rank, rank)
 
     def saveDetails(self, newAutojoin = False):
         """Saves the current details to the details.yaml."""
@@ -361,9 +366,10 @@ class PokemonShowdownBot:
             if not newAutojoin and e not in self.details['joinRooms']:
                 continue
             room = self.getRoom(e)
-            details['joinRooms'][e] = {'moderate': room.moderate,
-                                       'allow games':room.allowGames,
-                                       'tourwhitelist': room.tourwhitelist}
+            details['joinRooms'][e] = {'moderate': room.moderation.config,
+                                        'allow games':room.allowGames,
+                                        'tourwhitelist': room.tourwhitelist
+                                        }
         with open('details.yaml', 'w') as yf:
             yaml.dump(details, yf, default_flow_style = False, explicit_start = True)
 
@@ -405,9 +411,8 @@ class ReplyObject:
                      attention.
         canPmReply: bool, send this message to PMs.
     """
-    def __init__(self, res = '', reply = False, escape = False,
-                 broadcast = False, game = False, pmreply = False):
-        self.text = res
+    def __init__(self, res = '', reply = False, escape = False, broadcast = False, game = False, pmreply = False):
+        self.text = str(res)
         self.samePlace = reply
         self.ignoreEscaping = escape
         self.ignoreBroadcastPermission = broadcast

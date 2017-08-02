@@ -41,91 +41,69 @@
 #     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 #     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-
-
-# Extended notes:
-# user:
-#     user objects are objects containing some information about the user who
-#     said anything. This information consists of user.id, user.rank, and
-#     user.name. user.id is a format-removed id of the speaker with only a-z
-#     lowercase and 0-9 present.
-#
-#     user.rank contain the auth level of the user, as a single character
-#     string of either ' ', +, %, @, &, #, or ~. To compare groups against each
-#     other self.Groups have the information required when used like:
-#     User.Groups[user.rank] for a numeric value.
-#
-#     Lastly, user.name is the unaltered name as seen in the chatrooms, and
-#     can be used for things like replying, but shouldn't be used for
-#     comparisions.
-
 import json
 import time
 from robot import PokemonShowdownBot, Room, User
 from commands import Command
-from plugins.battling.battleHandler import supportedFormats
-from plugins import moderation
 from plugins.messages import MessageDatabase
 from plugins.workshop import Workshop
 import details
 
 
+
 class PSBot(PokemonShowdownBot):
-    """This is the master class of the Pokemon Showdown Bot project.
+    """Mainly a wrapper class for the Robot class, implementing required methods.
 
-    This is the entry point for the Pokemon Showdown Bot, and contain most of
-    the permission checks for chat returns.
+    This implements the major method required: splitMessage. Also manages the
+    delegation of tasks to their respective handlers. Most of the underlying
+    functionality and/or function calls can be found in the inherited class
+    PokemonShowdownBot in robot.py.
 
-    It's derived from the base class PokemonShowdownBot, and as such hide a lot
-    of it's core functions by simply calling functions from the base class.
-    For any function called here not defined in this file, look in robot.py.
+    You should expect to be somewhat familiar with the PS protocols outlined here:
+    https://github.com/Zarel/Pokemon-Showdown/blob/master/PROTOCOL.md
 
-    Changes to this file should be made with caution, as much of the extended
-    functions depend on this being structured in a specific way.
+    For the sake of simplicity, we assume that the command char used is ~ in the documentation.
+    Utility like functions are placed in the PokemonShowdownBot class, to make this handler
+    class look cleaner.
 
     Attributes:
-        do: Command object which handles '.command' actions from the user
-        usernotes: MessageDatabase object which handles all PMs sent from users
+        do: Command method, handles command behaviour (i.e. ~git returns a url to this project)
+        usernotes: MessageDatabase, which handles/logs all PMs sent from users
     """
     def __init__(self):
         """Initializes the PSBot class
 
         Setups up the commands, usernotes, and opens the websocket to the
-        pokemonshowdown server
+        main pokemonshowdown server hosted on https://play.pokemonshowdown.com.
         """
         self.do = Command
         self.usernotes = MessageDatabase()
         PokemonShowdownBot.__init__(self,
-                                    ("ws://sim.smogon.com:8000/showdown/"
-                                     "websocket"),
+                                    'ws://sim.psim.us:8000/showdown/websocket',
                                     self.splitMessage)
 
     def splitMessage(self, ws, message):
-        """ Splits the string received and delegates tasks to modules
+        """ Decides bot behaviour wth the server based on the content from the websocket.
 
         This method is the modified splitMessage that is passed to the open
-        websocket. This method splits the string given by the websocket and
-        delegates the tasks to the corresponding modules.
+        websocket in the PokemonShowdownBot class. This method splits the string given
+        by the websocket and delegates the tasks to the corresponding interfaces.
 
         Args:
-            ws: websocket that is using this method.
-            message: string given by websocket.
+            ws: websocket, websocket object we are receiving information from.
+            message: string,  information given by the websocket.
         Returns:
             None.
         Raises:
-            None.
+            By default, nothing is raised. But handlers which this method delegates tasks to
+            may produce exceptions, so best follow the path to the individual module.
         """
-        if not message:
-            return
-        if "\n" not in message:
-            self.parseMessage(message, "")
+        if not message: return
+        if '\n' not in message: self.parseMessage(message, '')
 
-        room = ""
-        msg = message.split("\n")
-        # this is the name of the room of the room we're currently in
-        # i.e. ">joim"
-        if msg[0].startswith(">"):
+        room = ''
+        msg = message.split('\n')
+        if msg[0].startswith('>'):
             room = msg[0][1:]
         msg.pop(0)
 
@@ -141,27 +119,21 @@ class PSBot(PokemonShowdownBot):
                 for m in msg:
                     self.bh.parse(room, m)
             except AttributeError as e:
+                import traceback
                 print('AttributeError: {}'.format(e))
+                traceback.print_tb(e.__traceback__)
                 print('MESSAGE THAT CAUSED IT:\n{}'.format(msg))
             return
         # here we handle things like commands or saving user data
         for m in msg:
             self.parseMessage(m, room)
 
-    def testRoombaned(self, room, user):
-        if moderation.shouldBan(self, user, room):
-            self.takeAction(room.title, user, 'roomban',
-                            ("You are blacklisted from this room, so please"
-                            " don't come here."))
-            return True
-        return False
-
     def handleJoin(self, room, message):
-        """Handles new users entering a room
+        """ Handles new users entering a room.
 
         Args:
-            room: Room object that we are inspecting
-            message: string produced by each user on joining
+            room: Room object, room this message was received from.
+            message: string, string produced from user joining this room.
         Returns:
             None.
         Raises:
@@ -171,9 +143,9 @@ class PSBot(PokemonShowdownBot):
             room.rank = message[0]
             room.doneLoading()
         user = User(message, message[0], self.isOwner(message))
-        if self.testRoombaned(room, user):
-            return
-        room.addUser(user)
+        if not room.addUser(user):
+            return self.takeAction(room.title, user, 'roomban', "You are blacklisted from this room, so please don't come here.")
+
         # If the user have a message waiting, tell them that in a pm
         if self.usernotes.shouldNotifyMessage(user.id):
             self.sendPm(user.id, self.usernotes.pendingMessages(user.id))
@@ -181,14 +153,15 @@ class PSBot(PokemonShowdownBot):
     def parseMessage(self, msg, roomName):
         """Parses the message given by a user and delegates the tasks further
 
-        This is the meat and bones of the program. This handles all user
-        related queries such as commands. It also logs information so that the
-        markov chain model can learn from the users.
+        This is where we handle the parsing of all the non-battle related PS protocols.
+        Tasks like user related queries (i.e. commands) are delegated to the Command method.
+        And Showdown tournaments are handled in their own handler in the plugins module.
+        Likewise for the MessageDatabase interface.
 
         Args:
-            room: Room object that we are inspecting.
-            message: string produced by each user on joining.
-                example: "|c:|1467521329| wgma|we need more cowbell".
+            msg: String, string produced from interacting with the websocket connected
+                 to the PS server. Example: "|c:|1467521329| bb8nu|random chat message".
+            roomName: String, name of the room that the message came from.
         Returns:
             None.
         Raises:
@@ -196,7 +169,7 @@ class PSBot(PokemonShowdownBot):
         """
         if not msg.startswith('|'): return
         message = self.escapeMessage(msg).split('|')
-        room = Room('Empty') if not roomName else self.getRoom(roomName)
+        room = self.getRoom(roomName)
 
         # Logging in
         if message[1] == "challstr":
@@ -209,24 +182,23 @@ class PSBot(PokemonShowdownBot):
         # Challenges
         elif "updatechallenges" in message[1]:
             challs = json.loads(message[2])
-            if challs["challengesFrom"]:
-                opp = list(challs["challengesFrom"].keys())[0]
-                if challs["challengesFrom"][opp] in supportedFormats:
-                    self.send("|/accept {name}".format(name=opp))
+            if challs['challengesFrom']:
+                opp = [name for name, form in challs['challengesFrom'].items()][0]
+                format = challs['challengesFrom'][opp]
+                if format in self.bh.supportedFormats:
+                    team = self.bh.getRandomTeam(format)
+                    self.send('|/utm {}'.format(team))
+                    self.send('|/accept {name}'.format(name = opp))
                 else:
-                    self.sendPm(opp, ("Sorry, I only accept challenges in "
-                                      "Challenge Cup 1v1, Random Battles "
-                                      "or Battle Factory :("))
-
-        elif "updatesearch" in message[1]:
-            # This gets sent before `updatechallenges` does when recieving a
-            # battle, but it's not useful for anything, so just return straight
-            # away
+                    self.sendPm(opp, "Sorry, I can't accept challenges in that format :(")
+        elif 'updatesearch' in message[1]:
+            # This gets sent before `updatechallenges` does when receiving a battle, but it's
+            # not useful for anything, so just return straight away
             return
 
         # This is a safeguard for l and n in case that a moderation action
         # happen
-        elif("unlink" == message[1] or "uhtml" in message[1]or
+        elif("unlink" == message[1] or "uhtml" in message[1] or
              "html" == message[1]):
             return
 
@@ -271,8 +243,7 @@ class PSBot(PokemonShowdownBot):
             newUser = User(message[2][1:], message[2][0],
                            self.isOwner(message[2]))
             room.renamedUser(self.toId(message[3]), newUser)
-            self.testRoombaned(room, newUser)
-
+            self.handleJoin(room, message[2])
         # Chat messages
         elif "c" in message[1].lower():
 
@@ -286,38 +257,15 @@ class PSBot(PokemonShowdownBot):
 
             # perform moderation on user content
             room.logChat(user, message[2])
-            if room.moderate and self.canPunish(room):
-                anything = moderation.shouldAct(message[4], user, room,
-                                                message[2])
-                if anything:
-                    action, reason = moderation.getAction(self, room, user,
-                                                          anything, message[2])
-                    self.takeAction(room.title, user, action, reason)
+            saidMessage = '|'.join(message[4:])
+            if saidMessage.startswith(self.commandchar) and saidMessage[1:] and saidMessage[1].isalpha():
+                command = self.extractCommand(saidMessage)
+                self.log('Command', saidMessage, user.id)
 
-            if(room.title not in self.rooms_markov
-               and not message[4].startswith(self.commandchar)):
-                self.rooms_markov[room.title] = Markov(room.title)
-                markov_msg = message[4]
-                self.rooms_markov[room.title].updateDatabase(markov_msg, True)
-            elif not message[4].startswith(self.commandchar):
-                markov_msg = message[4].lower()
-                self.rooms_markov[room.title].updateDatabase(markov_msg, True)
+                res = self.do(self, command, room, saidMessage[len(command) + 1:].lstrip(), user)
+                if not res.text or res.text == 'NoAnswer': return
 
-            # handle commands defined in our commands class
-            if(message[4].startswith(self.commandchar) and message[4][1:] and
-               message[4][1].isalpha()):
-                command = self.extractCommand(message[4])
-                self.log("Command", message[4], user.id)
-
-                res = self.do(self, command, room,
-                              message[4][len(command)+1:].lstrip(),
-                              user)
-                if(not res.text or res.text == 'NoAnswer' 
-                    or (room.title == 'joim' and not details.debug_joim)):
-                    return
-
-                if(self.evalRoomPermission(user, room)
-                   or res.ignoreBroadcastPermission):
+                if self.userHasPermission(user, room.broadcast_rank) or res.ignoreBroadcastPermission:
                     if not res.ignoreEscaping:
                         res.text = self.escapeText(res.text)
                     self.reply(room.title, user, res.text, res.samePlace)
@@ -328,9 +276,13 @@ class PSBot(PokemonShowdownBot):
                 elif res.canPmReply:
                     self.sendPm(user.id, self.escapeText(res.text))
                 else:
-                    print('test markov', res.ignoreBroadcastPermission)
-                    self.sendPm(user.id, ('Please pm the command for'
-                                          ' a response.'))
+                    self.sendPm(user.id, 'Please pm the command for a response.')
+
+            # Test room punishments after commands
+            anything = room.moderation.shouldAct(message[4], user, message[2])
+            if anything and self.canPunish(room):
+                action, reason = room.moderation.getAction(room, user, anything, message[2])
+                self.takeAction(room.title, user, action, reason)
 
             if type(room.activity) == Workshop:
                 room.activity.logSession(room.title, user.rank+user.name,
@@ -349,8 +301,7 @@ class PSBot(PokemonShowdownBot):
                                               "can add me to rooms, sorry :("))
 
             message[4] = '|'.join(message[4:])
-            if(message[4].startswith(self.commandchar) and message[4][1:] and
-               message[4][1].isalpha()):
+            if message[4].startswith(self.commandchar) and message[4][1:] and message[4][1].isalpha():
                 command = self.extractCommand(message[4])
                 self.log('Command', message[4], user.id)
                 params = message[4][len(command)+len(self.commandchar):]
@@ -361,28 +312,26 @@ class PSBot(PokemonShowdownBot):
 
         # Tournaments
         elif 'tournament' == message[1]:
-            if room.loading: return
             if 'create' in message[2]:
-                room.createTour(self.ws, message[3])
+                room.createTour(self.ws, message[3], self.bh)
+
+                if room.loading: return
                 # Tour was created, join it if in supported formats
-                if(self.details['joinTours']
-                   and room.tour.format in supportedFormats):
+                if details.joinTours and room.tour.format in self.bh.supportedFormats:
                     room.tour.joinTour()
             elif 'end' == message[2]:
-                winner, tier = room.getTourWinner(message[3])
-                if self.name in winner:
-                    self.say(room.title,
-                             "I won the {form} tournament!".format(form=tier))
-                else:
-                    self.say(room.title,
-                             ("Congratulations to {name} for winning :)"
-                              "").format(name=", ".join(winner)))
+                if not room.loading:
+                    winner, tier = room.getTourWinner(message[3])
+                    if self.name in winner:
+                        self.say(room.title, 'I won the {form} tournament :o'.format(form = tier))
+                    else:
+                        self.say(room.title, 'Congratulations to {name} for winning :)'.format(name = ', '.join(winner)))
                 room.endTour()
             elif "forceend" in message[2]:
                 room.endTour()
             else:
                 # This is for general tournament updates
-                if not room.tour: return
+                if not room.tour or room.loading: return
                 room.tour.onUpdate(message[2:])
 
 
@@ -395,8 +344,7 @@ if __name__ == "__main__":
             # is connected
             psb.ws.run_forever()
             # If we get here, the socket is closed and disconnected
-            # so we have to reconnect and restart (after waiting a bit
-            # of course say half a minute)
+            # so we have to reconnect and restart (after waiting a bit of course say half a minute)
             time.sleep(30)
             print("30 seconds since last disconnect. Retrying connection...")
             psb.openConnection()
