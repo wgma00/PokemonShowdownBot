@@ -2,7 +2,6 @@ PyYAML == 3.11
 requests == 2.5.1
 simplejson == 3.6.5
 websocket-client == 0.23.0
-<<<<<<< HEAD
 cleverbot == 1.0.2
 python-coveralls
 Pillow == 4.0.0
