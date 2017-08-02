@@ -80,12 +80,11 @@ class PokemonShowdownBot:
 
     Attributes:
         details: a map mapping serveral variables to sensitive information.
-        owner: string, the user this bot responds too
-        name: string, the name of the bot in chat
-        id: string, a simplified string for identifying a user
+        owner: string, the user this bot responds too.
+        name: string, the name of the bot in chat.
+        id: string, a simplified string for identifying a user.
         rooms: Room object, that keeps track of information in a given room.
-        rooms_markov: a map mapping room names to markov objects used to
-                      generate sentences for certain rooms.
+        apikey: map string to string, keeps track of api keys to services.
         commandchar: string, string that is used to execute certain commands.
         url: string, the url for pokemon showdown's open port that the
              websocket will attempt connecting to.
@@ -94,6 +93,7 @@ class PokemonShowdownBot:
         self.owner = details.master
         self.name = details.bot_name
         self.id = details.bot_id
+        self.apikeys = details.apikeys
         self.rooms = {}
         self.commandchar = details.command_char
         self.intro()

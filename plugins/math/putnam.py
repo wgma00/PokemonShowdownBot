@@ -128,7 +128,7 @@ class Putnam(object):
        _problem_archive: a map, maps an integer year to a list of problems for
                         that specific year in TeX format.
     """
-    _client_id = details.client_id
+    _client_id = details.apikeys['imgur']
     _client = pyimgur.Imgur(_client_id)
     download_putnam_problems()
     _problem_archive = parse_tex_files()

@@ -36,7 +36,7 @@ class Latex(OnlineImage):
         client: client object that interacts with the imgur host
     """
 
-    _client_id = details.client_id
+    _client_id = details.apikeys['imgur']
     _client = pyimgur.Imgur(_client_id)
 
     @staticmethod

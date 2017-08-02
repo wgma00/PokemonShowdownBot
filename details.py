@@ -34,8 +34,7 @@ try:
         command_char = details['command']
         avatar = details['avatar']
         joinRooms = details['joinRooms']
-        client_id = details['imgur_apikey']
-        api_key = details['apikey']
+        apikeys = details['apikeys']
 except FileNotFoundError as e:
     print('details.yaml not found')
     try:
@@ -46,8 +45,7 @@ except FileNotFoundError as e:
         command_char = '.'
         avatar = 0
         joinRooms = {}
-        client_id = os.environ['IMGUR_API']
-        api_key = '0'
+        apikeys = {'imgur': os.environ['IMGUR_API']}
     except Exception:
         print('No environment variables for testing on Travis CI')
         print('Please follow instructions for running the bot in README.md')
