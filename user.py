@@ -53,6 +53,7 @@ class UnSpecifiedUserRankException(Exception):
     def __str__(self):
         return 'Unsupported user class:' + self.user_class
 
+
 class User:
     """ Container class for basic user information collected from rooms.
      

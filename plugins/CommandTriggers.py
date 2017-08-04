@@ -15,7 +15,6 @@ def conflict(command_triggers):
     return False
 
 
-def add_trigger(command_triggers):
+def add_trigger(trigger):
     """Add triggers to global triggers"""
-    for trigger in command_triggers:
-        global_triggers[trigger] = True
+    global_triggers[trigger] = True
