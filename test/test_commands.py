@@ -1,8 +1,11 @@
 import pytest
+from commands import Command
 from plugins.Send import Send
 from plugins.Credits import Credits
 from plugins.math.Latex import Latex
 from plugins.Machine import Machine
+
+
 from room import Room
 from user import User
 from robot import ReplyObject
@@ -21,6 +24,16 @@ def before():
     test_user = User('test')
     test_room = Room('test')
     test_owner = User('test', ' ', True)
+
+
+def test_commands_delegation():
+    cmd_out = Command(None, 'send', test_room, 'testing', test_owner)
+    answer = ReplyObject('testing', True, True)
+    assert cmd_out == answer, "delegation to modules doesn't work"
+
+    cmd_out = Command(None, 'machine', test_room, '', test_user)
+    answer = ReplyObject('I am the machine!', True)
+    assert cmd_out == answer, "delegation to modules doesn't work"
 
 
 def test_send():
