@@ -3,6 +3,7 @@ from commands import Command
 from plugins.Send import Send
 from plugins.Credits import Credits
 from plugins.math.Latex import Latex
+from plugins.math.Calculator import Calculator
 from plugins.Machine import Machine
 
 
@@ -131,3 +132,46 @@ def test_machine():
     reply = cmd.response(test_room, test_user, [])
     answer = ReplyObject("I am the machine!", True)
     assert reply == answer, "Help command success output not correct"
+
+
+def test_calc():
+    cmd = Calculator()
+
+    # generic test
+    reply = cmd.response(test_room, test_user, ['1+1'])
+    answer = ReplyObject('2', True)
+    assert reply == answer, 'incorrect arithmetic expression'
+
+    # testing for substitution
+    reply = cmd.response(test_room, test_user, ['|sin(-x)|', '0'])
+    answer = ReplyObject('0', True)
+    assert reply == answer, 'incorrect arithmetic expression'
+
+    # testing for singular substitution
+    reply = cmd.response(test_room, test_user, ['x'])
+    answer = ReplyObject('0', True)
+    assert reply == answer, 'incorrect arithmetic expression'
+
+    # testing on a relatively large factorial
+    reply = cmd.response(test_room, test_user, ['191!'])
+    answer = ReplyObject('1.848941631×10³⁵⁴', True)
+    assert reply == answer, 'incorrect arithmetic expression'
+
+    # testing on incorrect input
+    reply = cmd.response(test_room, test_user, [])
+    answer = ReplyObject('There should be an expression optionally followed by substitution', True)
+    assert reply == answer, 'invalid expression recognized by calculator'
+
+    # break out of the echo '' by completing the ', then do some nasty things
+    reply = cmd.response(test_room, test_user, ["'rm"])
+    answer = ReplyObject('invalid input', True)
+    assert reply == answer, 'dangerous user input not handled correctly'
+
+    reply = cmd.response(test_room, test_user, ["$'rm"])
+    answer = ReplyObject('invalid input', True)
+    assert reply == answer, 'dangerous user input not handled correctly'
+
+    reply = cmd.response(test_room, test_user, ["1+test"])
+    answer = ReplyObject('invalid input', True)
+    assert reply == answer, 'dangerous user input not handled correctly'
+

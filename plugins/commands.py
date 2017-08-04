@@ -73,7 +73,7 @@ from data.tiers import tiers
 from data.types import Types
 from plugins import PluginCommands
 from plugins.images import OnlineImage
-from plugins.math import equation
+from plugins.math import Calculator
 from plugins.math.Latex import Latex
 from plugins.math.partyparrot import PartyParrot
 from plugins.math.putnam import LatexParsingException
@@ -217,9 +217,9 @@ def Command(self, cmd, room, msg, user):
     if cmd == "calc":
         if "," in msg:
             msg = msg.split(",")
-            return ReplyObject(str(equation.solve(msg[0],msg[1])), True)
+            return ReplyObject(str(Calculator.solve(msg[0], msg[1])), True)
         else:
-            return ReplyObject(str(equation.solve(msg)), True)
+            return ReplyObject(str(Calculator.solve(msg)), True)
 
     if cmd == "owner":
         return ReplyObject("Owned by: {owner}".format(owner=self.owner), True)

@@ -44,6 +44,7 @@
 from plugins.Send import Send
 from plugins.Credits import Credits
 from plugins.math.Latex import Latex
+from plugins.math.Calculator import Calculator
 from plugins.Machine import Machine
 
 from robot import ReplyObject
@@ -51,7 +52,7 @@ from user import User
 from room import RoomCommands
 
 
-available_commands = [Send(), Credits(), Latex(), Machine()]
+available_commands = [Send(), Credits(), Latex(), Machine(), Calculator()]
 
 
 def Command(self, cmd, room, msg, user):
