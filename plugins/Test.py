@@ -1,35 +1,10 @@
-import plugins.CommandTriggers as CommandTriggers
+from plugins.CommandBase import CommandBase
+from robot import ReplyObject
 
 
-class DuplicateTriggerConflict(Exception):
-    pass
-
-
-class UnreachableCommand(Exception):
-    pass
-
-
-class CommandBase(object):
-    """Wrapper class for all commands written in this Bot.
-
-    Defines main behaviour each command should have and also keeps track of
-    duplicate commands.
-
-    Attributes:
-        triggers: list of str, keeps track of all the triggers that evoke this command
-        has_html_box_feature: Bool, keeps track of this command has an optional behaviour if html boxes are enabled.
-    """
-    def __init__(self, triggers, has_html_box_feature):
-        if not triggers:
-            raise UnreachableCommand
-        # check for conflicts and raise exception if found
-        for trigger in triggers:
-            if CommandTriggers.conflict(trigger):
-                raise DuplicateTriggerConflict
-            else:
-                CommandTriggers.add_trigger(trigger)
-        self.triggers = triggers
-        self.has_html_box_feature = has_html_box_feature
+class Test(CommandBase):
+    def __init__(self):
+        super().__init__(triggers=['test'], has_html_box_feature=False)
 
     def response(self, room, user, args):
         """ Returns a response to the user.
@@ -37,11 +12,18 @@ class CommandBase(object):
         Args:
             room: Room, room this command was evoked from.
             user: User, user who evoked this command.
-            args: list of str, any sequence of parameters which are supplied to this command
+            args: no arguments should be passed except for help
         Returns:
             ReplyObject
         """
-        raise NotImplementedError
+        print(len(args), args)
+        if len(args) == 1 and args[0] == 'help':
+            print('help:', self._help(room, user, args).text)
+            return self._help(room, user, args)
+        elif len(args) != 0:
+            return self._error(room, user, ['param'])
+        else:
+            return self._success(room, user, args)
 
     def _help(self, room, user, args):
         """ Returns a help response to the user.
@@ -55,7 +37,7 @@ class CommandBase(object):
         Returns:
             ReplyObject
         """
-        raise NotImplementedError
+        return ReplyObject('Responds with word "test"', True)
 
     def _error(self, room, user, args):
         """ Returns an error response to the user.
@@ -70,7 +52,8 @@ class CommandBase(object):
         Returns:
             ReplyObject
         """
-        raise NotImplementedError
+        if args[0] == 'param':
+            return ReplyObject('This command takes 0 parameters', True)
 
     def _success(self, room, user, args):
         """ Returns a success response to the user.
@@ -84,5 +67,4 @@ class CommandBase(object):
         Returns:
             ReplyObject
         """
-        raise NotImplementedError
-
+        return ReplyObject('test', True)
