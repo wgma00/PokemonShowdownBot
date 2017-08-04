@@ -59,29 +59,28 @@
 #   user: A user object like the one described in the app.py file
 
 import random
-import math
 import re
 import time
+
 import requests
 
-from data.tiers import tiers
-from data.tiers import formats
 from data.links import Links
 from data.links import YoutubeLinks
 from data.pokedex import Pokedex
-from data.types import Types
 from data.replies import Lines
+from data.tiers import formats
+from data.tiers import tiers
+from data.types import Types
 from plugins import PluginCommands
+from plugins.images import OnlineImage
 from plugins.math import equation
-from plugins.math.latex import Latex
-from plugins.math.images import OnlineImage 
+from plugins.math.Latex import Latex
 from plugins.math.partyparrot import PartyParrot
-from plugins.math.putnam import Putnam
 from plugins.math.putnam import LatexParsingException
-from decorator import decorator
+from plugins.math.putnam import Putnam
 from robot import ReplyObject
-from user import User
 from room import RoomCommands
+from user import User
 
 ExternalCommands = RoomCommands.copy()
 ExternalCommands.update(PluginCommands)

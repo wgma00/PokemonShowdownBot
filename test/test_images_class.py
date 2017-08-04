@@ -1,8 +1,4 @@
-
-import pytest
-from plugins.math.images import OnlineImage
-import re
-
+from plugins.images import OnlineImage
 
 """ Tests the commands that are within the Command method
 """

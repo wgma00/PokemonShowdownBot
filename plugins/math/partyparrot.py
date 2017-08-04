@@ -16,7 +16,7 @@
 # along with PokemonShowdownBot.  If not, see <http://www.gnu.org/licenses/>.
 
 try:
-    from plugins.math.images import OnlineImage
+    from plugins.images import OnlineImage
 except ImportError:
     from images import OnlineImage
 

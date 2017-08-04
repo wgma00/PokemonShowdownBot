@@ -16,7 +16,6 @@ class Credits(CommandBase):
         Returns:
             ReplyObject
         """
-        print(len(args), args)
         if len(args) == 1 and args[0] == 'help':
             return self._help(room, user, args)
         elif len(args) >= 1:

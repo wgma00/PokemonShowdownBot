@@ -50,7 +50,6 @@ from plugins.workshop import Workshop
 import details
 
 
-
 class PSBot(PokemonShowdownBot):
     """Mainly a wrapper class for the Robot class, implementing required methods.
 
@@ -144,7 +143,8 @@ class PSBot(PokemonShowdownBot):
             room.doneLoading()
         user = User(message, message[0], self.isOwner(message))
         if not room.addUser(user):
-            return self.takeAction(room.title, user, 'roomban', "You are blacklisted from this room, so please don't come here.")
+            return self.takeAction(room.title, user, 'roomban',
+                                   "You are blacklisted from this room, so please don't come here.")
 
         # If the user have a message waiting, tell them that in a pm
         if self.usernotes.shouldNotifyMessage(user.id):
@@ -293,12 +293,11 @@ class PSBot(PokemonShowdownBot):
             if self.userIsSelf(user.id): return
             if message[4].startswith("/invite"):
                 if not message[4][8:] == "lobby":
-                    if user.hasRank("+"):
+                    if user.hasRank("&"):
                         self.joinRoom(message[4][8:])
                         self.log("Invite", message[4], user.id)
                     else:
-                        self.sendPm(user.id, ("Only global voices (+) and up "
-                                              "can add me to rooms, sorry :("))
+                        self.sendPm(user.id, "Only global leaders (&) and up can add me to rooms, sorry :(")
 
             message[4] = '|'.join(message[4:])
             if message[4].startswith(self.commandchar) and message[4][1:] and message[4][1].isalpha():
@@ -323,9 +322,9 @@ class PSBot(PokemonShowdownBot):
                 if not room.loading:
                     winner, tier = room.getTourWinner(message[3])
                     if self.name in winner:
-                        self.say(room.title, 'I won the {form} tournament :o'.format(form = tier))
+                        self.say(room.title, 'I won the {form} tournament :o'.format(form=tier))
                     else:
-                        self.say(room.title, 'Congratulations to {name} for winning :)'.format(name = ', '.join(winner)))
+                        self.say(room.title, 'Congratulations to {name} for winning :)'.format(name=', '.join(winner)))
                 room.endTour()
             elif "forceend" in message[2]:
                 room.endTour()

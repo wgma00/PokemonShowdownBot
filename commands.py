@@ -43,13 +43,14 @@
 
 from plugins.Send import Send
 from plugins.Credits import Credits
+from plugins.math.Latex import Latex
 
 from robot import ReplyObject
 from user import User
 from room import RoomCommands
 
 
-available_commands = [Send(), Credits()]
+available_commands = [Send(), Credits(), Latex()]
 
 
 def Command(self, cmd, room, msg, user):
@@ -70,8 +71,8 @@ def Command(self, cmd, room, msg, user):
         Exception: There was likely improper input in the .calc command or
                    something I entirely missed lol.
     """
-    # filter out empty spaces
-    args = list(filter(lambda m: m != '', msg.split(',')))
+    # filter out empty spaces from list and strip them
+    args = list(filter(lambda m: m != '', [item.strip() for item in msg.split(',')]))
     for command in available_commands:
         if cmd in command.triggers:
             return command.response(room, user, args)
