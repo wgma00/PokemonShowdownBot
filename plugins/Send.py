@@ -4,7 +4,7 @@ from robot import ReplyObject
 
 class Send(CommandBase):
     def __init__(self):
-        super().__init__(triggers=['send'], has_html_box_feature=False)
+        super().__init__(aliases=['send'], has_html_box_feature=False)
 
     def response(self, room, user, args):
         """ Returns a response to the user.

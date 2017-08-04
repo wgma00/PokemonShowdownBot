@@ -1,7 +1,7 @@
-import plugins.CommandTriggers as CommandTriggers
+import plugins.CommandAliases as CommandAliases
 
 
-class DuplicateTriggerConflict(Exception):
+class DuplicateAliasConflict(Exception):
     pass
 
 
@@ -16,19 +16,19 @@ class CommandBase(object):
     duplicate commands.
 
     Attributes:
-        triggers: list of str, keeps track of all the triggers that evoke this command
+        aliases: list of str, keeps track of all the aliases that evoke this command
         has_html_box_feature: Bool, keeps track of this command has an optional behaviour if html boxes are enabled.
     """
-    def __init__(self, triggers, has_html_box_feature):
-        if not triggers:
+    def __init__(self, aliases, has_html_box_feature):
+        if not aliases:
             raise UnreachableCommand
         # check for conflicts and raise exception if found
-        for trigger in triggers:
-            if CommandTriggers.conflict(trigger):
-                raise DuplicateTriggerConflict
+        for alias in aliases:
+            if CommandAliases.conflict(alias):
+                raise DuplicateAliasConflict
             else:
-                CommandTriggers.add_trigger(trigger)
-        self.triggers = triggers
+                CommandAliases.add_alias(alias)
+        self.aliases = aliases
         self.has_html_box_feature = has_html_box_feature
 
     def response(self, room, user, args):

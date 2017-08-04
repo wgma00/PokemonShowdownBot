@@ -41,7 +41,7 @@ class Latex(CommandBase):
         packages: default packages which are run at start
     """
     def __init__(self):
-        super().__init__(triggers=['latex'], has_html_box_feature=True)
+        super().__init__(aliases=['latex'], has_html_box_feature=True)
         self._client_id = details.apikeys['imgur']
         self._client = pyimgur.Imgur(self._client_id)
         self.packages = 'amsmath,amsthm,amssymb,amsfonts,tikz-cd'
