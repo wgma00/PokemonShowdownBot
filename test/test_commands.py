@@ -2,6 +2,7 @@ import pytest
 from plugins.Send import Send
 from plugins.Credits import Credits
 from plugins.math.Latex import Latex
+from plugins.Machine import Machine
 from room import Room
 from user import User
 from robot import ReplyObject
@@ -103,6 +104,17 @@ def test_latex():
     test_room.isPm = False
 
 
+def test_machine():
+    cmd = Machine()
 
+    reply = cmd.response(test_room, test_user, ['help'])
+    answer = ReplyObject("Responds with I am a machine! [[The Machine - Bert Kreischer: THE MACHINE]]", True)
+    assert reply == answer, "Help command output isn't correct"
 
+    reply = cmd.response(test_room, test_user, ["whodamachine?"])
+    answer = ReplyObject("This command doesn't take any arguments", True)
+    assert reply == answer, "Help command Amount of arguments taken is incorrect"
 
+    reply = cmd.response(test_room, test_user, [])
+    answer = ReplyObject("I am the machine!", True)
+    assert reply == answer, "Help command success output not correct"

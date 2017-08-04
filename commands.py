@@ -44,13 +44,14 @@
 from plugins.Send import Send
 from plugins.Credits import Credits
 from plugins.math.Latex import Latex
+from plugins.Machine import Machine
 
 from robot import ReplyObject
 from user import User
 from room import RoomCommands
 
 
-available_commands = [Send(), Credits(), Latex()]
+available_commands = [Send(), Credits(), Latex(), Machine()]
 
 
 def Command(self, cmd, room, msg, user):
@@ -74,7 +75,7 @@ def Command(self, cmd, room, msg, user):
     # filter out empty spaces from list and strip them
     args = list(filter(lambda m: m != '', [item.strip() for item in msg.split(',')]))
     for command in available_commands:
-        if cmd in command.triggers:
+        if cmd in command.aliases:
             return command.response(room, user, args)
 
     return ReplyObject('{command} is not a valid command.'.format(command=cmd))
