@@ -37,7 +37,7 @@ in the ``__init__.py`` module handler ``PluginCommands`` section. Here are some 
 - ``anagram`` is a simple game where the user has to determine, from a randomize string, the original string it was 
   created from. This is pretty famous game in rooms like gamecorner. The game currently only chooses words for Pokemon 
   related stuff like names, and battle moves. 
-  
+ 
 - ``periodic`` is an academic game where the user is given a random word from the BSD dictionary, and must determine a 
   a correct sequence of chemistry symbols (i.e. H, He, Li, etc) which spell out the word.
 
@@ -74,6 +74,8 @@ The following are the necessary dependencies for running this software.
 3. Follow the instructions in `details-example.yaml` to configure your bot for login
 4. Run using `python3 app.py`
 5. (optional) Test for errors you can run ``test.sh`` using ``chmod +x test.sh && ./test.sh``
+6. Run git update-index --assume-unchanged plugins/SecretCommands.py to stop tracking SecretCommands.py
+
 
 
 ### Docker (optional)
