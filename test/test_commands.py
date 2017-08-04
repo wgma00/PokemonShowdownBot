@@ -36,6 +36,10 @@ def test_commands_delegation():
     answer = ReplyObject('I am the machine!', True)
     assert cmd_out == answer, "delegation to modules doesn't work"
 
+    cmd_out = Command(None, 'secret', test_room, '', test_owner)
+    answer = ReplyObject('This is a secret command!', True)
+    assert cmd_out == answer, "delegation to secret commands doesn't work"
+
 
 def test_send():
     cmd = Send()

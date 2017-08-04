@@ -47,6 +47,8 @@ from plugins.math.Latex import Latex
 from plugins.math.Calculator import Calculator
 from plugins.Machine import Machine
 
+from plugins.SecretCommands import Command as SecretCommands
+
 from robot import ReplyObject
 from user import User
 from room import RoomCommands
@@ -78,6 +80,10 @@ def Command(self, cmd, room, msg, user):
     for command in available_commands:
         if cmd in command.aliases:
             return command.response(room, user, args)
+    # check for secret commands we don't want to keep track of on github
+    secret_cmd_out = SecretCommands(self, cmd, room, msg, user)
+    if secret_cmd_out:
+        return secret_cmd_out
 
     return ReplyObject('{command} is not a valid command.'.format(command=cmd))
 
