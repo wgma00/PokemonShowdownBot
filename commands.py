@@ -42,13 +42,14 @@
 #     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from plugins.Send import Send
+from plugins.Credits import Credits
 
 from robot import ReplyObject
 from user import User
 from room import RoomCommands
 
 
-available_commands = [Send()]
+available_commands = [Send(), Credits()]
 
 
 def Command(self, cmd, room, msg, user):

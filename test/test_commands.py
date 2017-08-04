@@ -1,5 +1,6 @@
 import pytest
 from plugins.Send import Send
+from plugins.Credits import Credits
 from room import Room
 from user import User
 from robot import ReplyObject
@@ -36,3 +37,17 @@ def test_send():
     assert reply == answer, "send command's help output incorrect"
 
 
+def test_credits():
+    cmd = Credits()
+
+    reply = cmd.response(test_room, test_user, [])
+    answer = ReplyObject("Source code can be found at: https://github.com/wgma00/quadbot/", True)
+    assert reply == answer, "Credit command's success output is incorrect"
+
+    reply = cmd.response(test_room, test_owner, ['arg1', 'arg2'])
+    answer = ReplyObject("This command doesn't take any arguments", True)
+    assert reply == answer, "Credit command shouldn't take any arguments"
+
+    reply = cmd.response(test_room, test_user, ['help'])
+    answer = ReplyObject("Responds with url to this bot's source code", True)
+    assert reply == answer, "Credit command's help output incorrect"
