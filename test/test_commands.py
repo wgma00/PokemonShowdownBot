@@ -7,6 +7,7 @@ from plugins.math.Calculator import Calculator
 from plugins.Machine import Machine
 from plugins.Xkcd import Xkcd
 from plugins.Dilbert import Dilbert
+from plugins.PartyParrot import PartyParrot
 
 
 from room import Room
@@ -212,3 +213,16 @@ def test_dilbert():
     reply = cmd.response(test_room, test_user, ['args1', 'args2'])
     answer = ReplyObject("This command doesn't take any arguments", True)
     assert reply == answer, 'arguments passed to Dilbert command when they should not'
+
+
+def test_parrot():
+    cmd = PartyParrot()
+
+    reply = cmd.response(test_room, test_user, ['help'])
+    answer = ReplyObject(('If left empty prints a url to a random parrot from http://cultofthepartyparrot.com/, '
+                          'otherwise you may choose to print a specific url. This command supports showimages.'), True)
+    assert reply == answer, 'help for party parrot is not correct'
+
+    reply = cmd.response(test_room, test_user, ['sirocco'])
+    answer = ReplyObject('http://cultofthepartyparrot.com/assets/sirocco.gif', True)
+    assert reply == answer, 'stuff'
