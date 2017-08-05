@@ -5,6 +5,7 @@ from plugins.Credits import Credits
 from plugins.math.Latex import Latex
 from plugins.math.Calculator import Calculator
 from plugins.Machine import Machine
+from plugins.Xkcd import Xkcd
 
 
 from room import Room
@@ -179,3 +180,18 @@ def test_calc():
     answer = ReplyObject('invalid input', True)
     assert reply == answer, 'dangerous user input not handled correctly'
 
+
+def test_xkcd():
+    cmd = Xkcd()
+
+    reply = cmd.response(test_room, test_user, [])
+    assert reply.text.startswith('https'), "xkcd command proper url isn't sent"
+
+    reply = cmd.response(test_room, test_user, ['1'])
+    answer = ReplyObject('https://imgs.xkcd.com/comics/barrel_cropped_(1).jpg', True)
+    assert reply == answer, 'xkcd command individual xkcd article not found'
+
+    reply = cmd.response(test_room, test_user, ['help'])
+    answer = ReplyObject(("Responds with url to random xkcd article, number can also be specified. And this command "
+                          "supports showimages."), True)
+    assert reply == answer, 'xkcd command help function is incorrect'
