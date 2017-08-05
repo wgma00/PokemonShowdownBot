@@ -6,6 +6,7 @@ from plugins.math.Latex import Latex
 from plugins.math.Calculator import Calculator
 from plugins.Machine import Machine
 from plugins.Xkcd import Xkcd
+from plugins.Dilbert import Dilbert
 
 
 from room import Room
@@ -195,3 +196,19 @@ def test_xkcd():
     answer = ReplyObject(("Responds with url to random xkcd article, number can also be specified. And this command "
                           "supports showimages."), True)
     assert reply == answer, 'xkcd command help function is incorrect'
+
+
+def test_dilbert():
+    cmd = Dilbert()
+
+    reply = cmd.response(test_room, test_user, ['help'])
+    answer = ReplyObject(("Responds with url to random xkcd article, number can also be specified. And this command "
+                          "supports showimages."), True)
+    assert reply == answer, 'Help command for Dilbert is incorrect'
+
+    reply = cmd.response(test_room, test_user, [])
+    assert reply.text.startswith('http'), 'Dilbert command url not generated.'
+
+    reply = cmd.response(test_room, test_user, ['args1', 'args2'])
+    answer = ReplyObject("This command doesn't take any arguments", True)
+    assert reply == answer, 'arguments passed to Dilbert command when they should not'

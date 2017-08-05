@@ -5,7 +5,7 @@ def conflict(command_aliases):
     """Determines if there are conflicting commands
 
     Args:
-        command_alias: list of str, aliases for this command
+        command_aliases: list of str, aliases for this command
     Returns:
         True if there is a conflict, false otherwise
     """
