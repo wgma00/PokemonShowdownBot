@@ -57,7 +57,7 @@ class CommandBase(object):
         """
         raise NotImplementedError
 
-    def _error(self, room, user, args):
+    def _error(self, room, user, reason):
         """ Returns an error response to the user.
 
         In particular gives a helpful error response to the user. Errors can range
@@ -66,7 +66,7 @@ class CommandBase(object):
         Args:
             room: Room, room this command was evoked from.
             user: User, user who evoked this command.
-            args: list of str, any sequence of parameters which are supplied to this command
+            reason: str, reason for this error.
         Returns:
             ReplyObject
         """

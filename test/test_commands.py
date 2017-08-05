@@ -126,7 +126,7 @@ def test_machine():
     cmd = Machine()
 
     reply = cmd.response(test_room, test_user, ['help'])
-    answer = ReplyObject("Responds with I am a machine! [[The Machine - Bert Kreischer: THE MACHINE]]", True)
+    answer = ReplyObject("Responds with I am the machine! [[The Machine - Bert Kreischer: THE MACHINE]]", True)
     assert reply == answer, "Help command output isn't correct"
 
     reply = cmd.response(test_room, test_user, ["whodamachine?"])

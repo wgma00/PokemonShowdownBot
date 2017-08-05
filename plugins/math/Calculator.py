@@ -39,16 +39,16 @@ class Calculator(CommandBase):
             ReplyObject
         """
         if len(args) == 0:
-            return self._error(room, user, ['not_enough_args'])
+            return self._error(room, user, 'not_enough_args')
         if len(args) == 1 and args[0] == 'help':
             return self._help(room, user, args)
         elif len(args) > 2:
-            return self._error(room, user, ['too_many_args'])
+            return self._error(room, user, 'too_many_args')
         else:
             try:
                 return self._success(room, user, args)
             except subprocess.CalledProcessError:
-                return self._error(room, user, ['internal_error'])
+                return self._error(room, user, 'internal_error')
 
     def _help(self, room, user, args):
         """ Returns a help response to the user.
@@ -65,7 +65,7 @@ class Calculator(CommandBase):
         return ReplyObject('Calculator functionality through GNOME Calculator. Supports substitution for a value x',
                            True)
 
-    def _error(self, room, user, args):
+    def _error(self, room, user, reason):
         """ Returns an error response to the user.
 
         In particular gives a helpful error response to the user. Errors can range
@@ -74,15 +74,15 @@ class Calculator(CommandBase):
         Args:
             room: Room, room this command was evoked from.
             user: User, user who evoked this command.
-            args: list of str, any sequence of parameters which are supplied to this command
+            reason: str, reason for this error.
         Returns:
             ReplyObject
         """
-        if args[0] == 'internal_error':
+        if reason == 'internal_error':
             return ReplyObject("There was an internal error", True)
-        elif args[0] == 'too_many_args':
+        elif reason == 'too_many_args':
             return ReplyObject('This command supports only 1 substitution for value x', True)
-        elif args[0] == 'not_enough_args':
+        elif reason == 'not_enough_args':
             return ReplyObject('There should be an expression optionally followed by substitution', True)
 
     def _success(self, room, user, args):

@@ -60,28 +60,28 @@ class Latex(CommandBase):
             return self._help(room, user, args)
         # error checking
         elif len(args) == 0:
-            return self._error(room, user, ['insufficient_args'])
+            return self._error(room, user, 'insufficient_args')
         # handling addpackage command and latex command
         elif(len(args) == 2 and args[1] == 'addpackage' and user.hasRank('#')
              and not self.validate_package_install(args[0])):
-            return self._error(room, user, ['invalid_package_install'])
+            return self._error(room, user, 'invalid_package_install')
         elif len(args) == 2 and args[1] == 'addpackage' and not user.hasRank('#'):
-            return self._error(room, user, ['insufficient_user_rank'])
+            return self._error(room, user, 'insufficient_user_rank')
         elif(len(args) == 2 and args[1] == 'addpackage' and user.hasRank('#')
              and self.validate_package_install(args[0])):
             return self._success_add_package(room, user, args)
 
         elif len(args) >= 1 and not self.validate_request(args[0]):
-            return self._error(room, user, ['invalid_latex_expression'])
+            return self._error(room, user, 'invalid_latex_expression')
         elif len(args) == 2 and args[1] == 'showimage' and room.isPM:
-            return self._error(room, user, ['show_image_pms'])
+            return self._error(room, user, 'show_image_pms')
         elif len(args) == 2 and args[1] == 'showimage' and not User.compareRanks(room.rank, '*'):
-            return self._error(room, user, ['insufficient_room_rank'])
+            return self._error(room, user, 'insufficient_room_rank')
         else:
             try:
                 return self._success(room, user, args)
             except subprocess.CalledProcessError:
-                return self._error(room, user, ['internal_error'])
+                return self._error(room, user, 'internal_error')
 
     def _help(self, room, user, args):
         """ Returns a help response to the user.
@@ -99,7 +99,7 @@ class Latex(CommandBase):
                             ' This command supports showimages, but default behaviour is to post the url.'
                             'Note that \write18 command construct is disabled. Room owners may add packages'), True)
 
-    def _error(self, room, user, args):
+    def _error(self, room, user, reason):
         """ Returns an error response to the user.
 
         In particular gives a helpful error response to the user. Errors can range
@@ -108,28 +108,28 @@ class Latex(CommandBase):
         Args:
             room: Room, room this command was evoked from.
             user: User, user who evoked this command.
-            args: list of str, any sequence of parameters which are supplied to this command
+            reason: str, reason for this error.
         Returns:
             ReplyObject
         """
-        if args[0] == 'insufficient_args':
+        if reason == 'insufficient_args':
             return ReplyObject("Insufficient arguments provided. Should have a LaTeX expression surrounded by $.\n",
                                True)
-        elif args[0] == 'invalid_latex_expression':
+        elif reason == 'invalid_latex_expression':
             return ReplyObject(('You have inputted an invalid LaTeX expression. You may have forgotten to surround '
                                 'your expression with $. Or you may have used restricted LaTeX commands'), True)
-        elif args[0] == 'invalid_package_install':
+        elif reason == 'invalid_package_install':
             return ReplyObject(('You may only install one package at a time. i.e. latex tikz-cd, addpackage . If that '
                                 'is not the issue then it is possible that the package specified is not available on '
                                 'the host system'), True)
 
-        elif args[0] == 'insufficient_room_rank':
+        elif reason == 'insufficient_room_rank':
             return ReplyObject('This bot requires * or # rank to showimage in chat', True)
-        elif args[0] == 'insufficient_user_rank':
+        elif reason == 'insufficient_user_rank':
             return ReplyObject('This command is reserved for RoomOwners', True)
-        elif args[0] == 'show_image_pms':
+        elif reason == 'show_image_pms':
             return ReplyObject('This bot cannot showimage in PMs.', True)
-        elif args[0] == 'internal_error':
+        elif reason == 'internal_error':
             return ReplyObject('There was an internal error. Check your LaTeX expression for any errors')
 
     def _success(self, room, user, args):
