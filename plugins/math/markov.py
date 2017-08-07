@@ -21,6 +21,7 @@
 import random
 import os
 
+
 class Markov(object):
     """ This will generate messages based on the messages in a room.
    
