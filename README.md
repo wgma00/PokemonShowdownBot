@@ -46,7 +46,7 @@ The following are the necessary dependencies for running this software.
 - [PIP](https://pip.pypa.io/en/stable/). Package manager for python
 
 #### Guide:
-0. (optional) Setting up an environment separate from your host OS or global python integrator to avoid dependency conflicts. 
+0. (optional) Setting up an environment separate from your host OS or global python interpreter to avoid dependency conflicts. 
 
 - If you're on Linux you might find setting up a virtualenv with the following ``virtualenv -p /usr/bin/python3 quadbot && source quadbot/bin/activate`` will be helpful. 
 - If you're on MacOS or Windows setting up [vagrant](https://www.vagrantup.com/docs/installation/) will be useful. Then you can use ``vagrant init && vagrant ssh`` to load this project's production environment. 
