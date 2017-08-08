@@ -80,11 +80,11 @@ class Room:
                     'spam': False,
                     'banword': False,
                     'caps': False,
+                    'stretching': False,
                     'groupchats': False,
                     'urls': False
                 },
                 'broadcastrank': ' ',
-                'stretching': False,
                 'allow games': False,
                 'tourwhitelist': []}
         self.users = {}

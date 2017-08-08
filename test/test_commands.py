@@ -9,6 +9,7 @@ from plugins.Machine import Machine
 from plugins.Xkcd import Xkcd
 from plugins.Dilbert import Dilbert
 from plugins.PartyParrot import PartyParrot
+from plugins.Broadcast import Broadcast
 
 
 from room import Room
@@ -240,3 +241,40 @@ def test_putnam_problem():
     test_room.isPM = False
     reply = cmd.response(test_room, test_user, ['showimage'])
     assert reply.text.startswith('/addhtmlbox'), "show imaging doesn't work in putnam_problem"
+
+
+def test_broadcast():
+    cmd = Broadcast()
+
+    reply = cmd.response(test_room, test_user, ['help'])
+    answer = ReplyObject(("If no arguments are passed, display current broadcast rank."
+                          " Otherwise you can provide one of the following arguments: "
+                          "off, +, %, @, *, #. This doesn't work in Pms."), True)
+    assert reply == answer, "Broadcast command's help command is incorrect"
+
+    reply = cmd.response(test_room, test_user, ['+'])
+    answer = ReplyObject('This command is reserved for Room Owners(#)', True)
+    assert reply == answer, "Broadcast rank checking is incorrect"
+
+    test_user.rank = '#'  # Make this user a room owner
+    reply = cmd.response(test_room, test_user, ['+'])
+    answer = ReplyObject('Broadcast rank set to +. (This is not saved on reboot)', True)
+    assert reply == answer, "Broadcast rank setting output is incorrect"
+    test_user.rank = ' '
+
+    reply = cmd.response(test_room, test_owner, ['+'])
+    answer = ReplyObject('Broadcast rank set to +. (This is not saved on reboot)', True)
+    assert reply == answer, "Broadcast rank setting output is incorrect"
+
+    reply = cmd.response(test_room, test_owner, ['test'])
+    answer = ReplyObject('You have provided an invalid argument', True)
+    assert reply == answer, "Broadcast command is not detecting incorrect ranks correctly"
+
+    reply = cmd.response(test_room, test_owner, ['arg1', 'arg2'])
+    answer = ReplyObject('This command only takes 1 argument', True)
+    assert reply == answer, "Broadcast command is not handling amount of arguments correctly"
+
+    test_room.isPM = True
+    reply = cmd.response(test_room, test_owner, ['+'])
+    answer = ReplyObject('There are no broadcast ranks in PMs', True)
+    assert reply == answer, "Broadcast command is handling PM commands incorrectly"
