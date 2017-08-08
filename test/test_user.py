@@ -14,7 +14,7 @@ def test_user_rank():
 
 def test_user_owner_privileges():
     reg_user = User('user', ' ')
-    owner = User('user', ' ',  owner=True)
+    owner = User('user', ' ', owner=True)
     assert owner.hasRank('~'), 'owner is not recognized in rank comparison'
     assert owner.isOwner(), 'owner is not owner'
     assert not reg_user.isOwner(), 'regular user is recognized as owner'
@@ -34,4 +34,3 @@ def test_unspecified_user_rank():
         User.compareRanks('^', '*')
     except UnSpecifiedUserRankException as e:
         assert str(e) == 'Unsupported user class:^'
-
