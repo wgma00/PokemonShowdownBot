@@ -26,10 +26,10 @@ joinRooms:
       caps: false
       groupchats: false
       room: room # This should be the same name as the room name above
-      broadcastrank: ' '
       spam: false
       stretching: false
       urls: false
+    broadcastrank: ' '
     allow games: False
     tourwhitelist: []
 
@@ -38,6 +38,6 @@ joinTours: False
 
 # OPTIONAL: For workshops, set `pastebin: 0` to an api key given from Pastebin to automatically paste the workshop log
 apikeys: {
-  pastebin: ''
-  imgur : ''
+  pastebin: '',
+  imgur: ''
 }

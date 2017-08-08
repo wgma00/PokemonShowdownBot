@@ -53,23 +53,24 @@ class UnSpecifiedUserRankException(Exception):
     def __str__(self):
         return 'Unsupported user class:' + self.user_class
 
+
 class User:
     """ Container class for basic user information collected from rooms.
-     
+
     This information consists of user.id, user.rank, and user.name. user.id is
     a format-removed id of user.name with only a-z lowercase and 0-9 present.
 
     user.rank contain the auth level of the user, as a single character string of
-    either ' ', +, ☆, %, @, *, &, #, or ~. Note that ☆ is only relevant for 
-    battle rooms. 
-    
-    To compare groups against each other User.Groups have the information required 
+    either ' ', +, ☆, %, @, *, &, #, or ~. Note that ☆ is only relevant for
+    battle rooms.
+
+    To compare groups against each other User.Groups have the information required
     when used like: User.Groups[user.rank] for a numeric value.
 
-    Lastly, user.name is the unaltered name as seen in the chat rooms, and can be 
-    used for things like replying. Comparison between users should make use of 
+    Lastly, user.name is the unaltered name as seen in the chat rooms, and can be
+    used for things like replying. Comparison between users should make use of
     user.id since users can change their frequently.
-    
+
     Attributes:
         Groups: map string to int, ranks precedence of user ranks by symbols.
         name: string, username.
@@ -85,12 +86,12 @@ class User:
             return User.Groups[rank1] >= User.Groups[rank2]
         except KeyError:
             if rank1 not in User.Groups:
-                print('{rank} is not a supported usergroup'.format(rank = rank1))
+                print('{rank} is not a supported usergroup'.format(rank=rank1))
             if rank2 not in User.Groups:
-                print('{rank} is not a supported usergroup'.format(rank = rank2))
+                print('{rank} is not a supported usergroup'.format(rank=rank2))
             return False
 
-    def __init__(self, name, rank = ' ', owner = False):
+    def __init__(self, name, rank=' ', owner=False):
         self.name = name
         self.id = re.sub(r'[^a-zA-z0-9]', '', name).lower()
         self.rank = rank
@@ -122,5 +123,3 @@ class User:
     def hasRank(self, rank):
         """Determines if a user has sufficient staff rights"""
         return self.owner or User.compareRanks(self.rank, rank)
-
-

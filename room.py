@@ -63,29 +63,30 @@ class Room:
         title: string, name of the room.
         rank: string, the rank of this bot in this room.
         isPM: bool, if this room is considered a private message.
-        moderate: Bool, if this bot should moderate this room.
+        moderation: Bool, if this bot should moderate this room.
         allowGames: Bool, if this bot will allow games in this room.
         tour: Bool, if this bot will allow tours in this room.
         activity: Workshop object, if this room is a workshop.
-        tourwhiteList: list of str, users who are not moderators but who have
+        tourwhitelist: list of str, users who are not moderators but who have
                        permission to start a tour.
     """
-    def __init__(self, room, data = None):
+    def __init__(self, room, data=None):
         """Intializes room with preliminary information."""
-        if not data: data = {
-            'moderate': {
-                'room': room,
-                'anything': False,
-                'spam': False,
-                'banword': False,
-                'caps': False,
-                'groupchats': False,
-                'urls': False
-            },
-            'broadcastrank': ' ',
-            'stretching': False,
-            'allow games':False,
-            'tourwhitelist':[]}
+        if not data:
+            data = {
+                'moderate': {
+                    'room': room,
+                    'anything': False,
+                    'spam': False,
+                    'banword': False,
+                    'caps': False,
+                    'stretching': False,
+                    'groupchats': False,
+                    'urls': False
+                },
+                'broadcastrank': ' ',
+                'allow games': False,
+                'tourwhitelist': []}
         self.users = {}
         self.loading = True
         self.title = room
@@ -110,6 +111,7 @@ class Room:
         if user.id not in self.users:
             self.users[user.id] = user
         return True
+
     def removeUser(self, userid):
         """Removes user from this room."""
         if userid in self.users:
@@ -149,6 +151,7 @@ class Room:
             return False
         self.tourwhitelist.remove(target)
         return True
+
     def createTour(self, ws, form, battleHandler):
         """Creates a tour with the specified format.
 
@@ -157,6 +160,7 @@ class Room:
             form: string, type of format for this tournament.
         """
         self.tour = Tournament(ws, self, form, battleHandler)
+
     def getTourWinner(self, msg):
         """Returns the winner of the current game.
         Args:
@@ -166,8 +170,10 @@ class Room:
         """
         things = json.loads(msg)
         winner = things['results'][0]
-        if self.tour: self.tour.logWin(winner)
+        if self.tour:
+            self.tour.logWin(winner)
         return winner, things['format']
+
     def endTour(self):
         """Ends the current tournament."""
         self.tour = None
@@ -177,10 +183,12 @@ class Room:
 def leaveroom(bot, cmd, room, msg, user):
     reply = r.ReplyObject()
     msg = bot.removeSpaces(msg)
-    if not msg: msg = room.title
+    if not msg:
+        msg = room.title
     if bot.leaveRoom(msg):
-        return reply.response('Leaving room {r} succeeded'.format(r = msg))
-    return reply.response('Could not leave room: {r}'.format(r = msg))
+        return reply.response('Leaving room {r} succeeded'.format(r=msg))
+    return reply.response('Could not leave room: {r}'.format(r=msg))
+
 
 def allowgames(bot, cmd, room, msg, user):
     """Determines if a user is allowed to commence a chat game of any sort.
@@ -194,21 +202,22 @@ def allowgames(bot, cmd, room, msg, user):
         the message should be sent in PMs or public chat.
     """
     reply = r.ReplyObject(True)
-    if not user.hasRank('#'): return reply.response('You do not have permission to change this. (Requires #)')
-    if room.isPM: return reply.response("You can't use this command in a pm.")
+    if not user.hasRank('#'):
+        return reply.response('You do not have permission to change this. (Requires #)')
+    if room.isPM:
+        return reply.response("You can't use this command in a pm.")
     msg = bot.removeSpaces(msg)
-    if msg in ['true','yes','y','True']:
+    if msg in ['true', 'yes', 'y', 'True']:
         if room.allowGames:
-            return reply.response(('Chatgames are already allowed'
-                                   'in this room.'))
+            return reply.response('Chatgames are already allowed in this room.')
         room.allowGames = True
         return reply.response('Chatgames are now allowed in this room.')
 
-    elif msg in ['false', 'no', 'n',' False']:
+    elif msg in ['false', 'no', 'n', ' False']:
         room.allowGames = False
         return reply.response('Chatgames are no longer allowed in this room.')
-    return reply.response(('{param} is not a supported parameter')
-                          .format(param=msg))
+    return reply.response('{param} is not a supported parameter'.format(param=msg))
+
 
 def tour(bot, cmd, room, msg, user):
     """Determines if a user is allowed to commence a tour of any sort.
@@ -222,10 +231,13 @@ def tour(bot, cmd, room, msg, user):
         the message should be sent in PMs or public chat.
     """
     reply = r.ReplyObject('', True, True, True)
-    if room.isPM: return reply.response("You can't use this command in a pm.")
-    if not room.isWhitelisted(user): return reply.response('You are not allowed to use this command. (Requires whitelisting by a Room Owner)')
-    if not bot.canStartTour(room): return reply.response("I don't have the rank required to start a tour :(")
-    return reply.response('/tour {rest}\n/modnote From {user}'.format(rest = msg, user = user.name))
+    if room.isPM:
+        return reply.response("You can't use this command in a pm.")
+    if not room.isWhitelisted(user):
+        return reply.response('You are not allowed to use this command. (Requires whitelisting by a Room Owner)')
+    if not bot.canStartTour(room):
+        return reply.response("I don't have the rank required to start a tour :(")
+    return reply.response('/tour {rest}\n/modnote From {user}'.format(rest=msg, user=user.name))
 
 
 def tourwl(bot, cmd, room, msg, user):
@@ -241,14 +253,13 @@ def tourwl(bot, cmd, room, msg, user):
     """
     reply = r.ReplyObject('', True)
     if not user.hasRank('#'):
-        return reply.response(("You do not have permission to change this."
-                              " (Requires #)"))
+        return reply.response("You do not have permission to change this. (Requires #)")
     target = bot.toId(msg)
     if not room.addToWhitelist(target):
         return reply.response('This user is already whitelisted in that room.')
     bot.saveDetails()
-    return reply.response(("{name} added to the whitelist in this room.")
-                           .format(name = msg))
+    return reply.response("{name} added to the whitelist in this room.".format(name=msg))
+
 
 def untourwl(bot, cmd, room, msg, user):
     """Attempts to remove a user from the whistlist of people who start tours.
@@ -269,13 +280,12 @@ def untourwl(bot, cmd, room, msg, user):
     if not room.delFromWhitelist(target):
         return reply.response('This user is not whitelisted in that room.')
     bot.saveDetails()
-    return reply.response(("{name} removed from the whitelist in this room.")
-                           .format(name = msg))
+    return reply.response("{name} removed from the whitelist in this room.".format(name=msg))
 
 RoomCommands = {
-    'leave'         : leaveroom,
-    'allowgames'    : allowgames,
-    'tour'          : tour,
-    'tourwl'        : tourwl,
-    'untourwl'      : untourwl
+    'leave': leaveroom,
+    'allowgames': allowgames,
+    'tour': tour,
+    'tourwl': tourwl,
+    'untourwl': untourwl
 }
