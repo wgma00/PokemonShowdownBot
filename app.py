@@ -172,7 +172,8 @@ class PSBot(PokemonShowdownBot):
         if not msg.startswith('|'):
             return
         message = self.escapeMessage(msg).split('|')
-        room = self.getRoom(roomName)
+        room = Room('Empty') if not roomName else self.getRoom(roomName)
+
 
         # Logging in
         if message[1] == "challstr":

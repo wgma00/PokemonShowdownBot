@@ -86,7 +86,7 @@ class PokemonShowdownBot:
         name: string, the name of the bot in chat.
         id: string, a simplified string for identifying a user.
         rooms: Room object, that keeps track of information in a given room.
-        apikey: map string to string, keeps track of api keys to services.
+        apikeys: map string to string, keeps track of api keys to services.
         commandchar: string, string that is used to execute certain commands.
         url: string, the url for pokemon showdown's open port that the
              websocket will attempt connecting to.
