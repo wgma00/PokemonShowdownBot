@@ -1,17 +1,17 @@
 # Copyright (C) 2016 William Granados<wiliam.granados@wgma00.me>
-# 
+#
 # This file is part of PokemonShowdownBot.
-# 
+#
 # PokemonShowdownBot is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # PokemonShowdownBot is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with PokemonShowdownBot.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -31,9 +31,8 @@ import random
 START_YEAR = 1985
 END_YEAR = 2016
 
-URLS = ["http://kskedlaya.org/putnam-archive/"+str(i)+".tex"
-        for i in range(START_YEAR, END_YEAR)]
-FILE_PATH = ["putnam_tex/"+str(i)+".tex" for i in range(START_YEAR, END_YEAR)]
+URLS = ["http://kskedlaya.org/putnam-archive/{num}.tex".format(num=i) for i in range(START_YEAR, END_YEAR)]
+FILE_PATH = ["putnam_tex/{num}.tex".format(num=i) for i in range(START_YEAR, END_YEAR)]
 
 
 class LatexParsingException(Exception):
@@ -46,8 +45,8 @@ def download_putnam_problems():
     global FILE_PATH
     for i in range(len(URLS)):
         path_prefix = '' if __name__ == '__main__' else 'plugins/math/'
-        if not os.path.isfile(path_prefix+FILE_PATH[i]):
-            urllib.request.urlretrieve(URLS[i], path_prefix+FILE_PATH[i])
+        if not os.path.isfile(path_prefix + FILE_PATH[i]):
+            urllib.request.urlretrieve(URLS[i], path_prefix + FILE_PATH[i])
 
 
 def parse_tex_files():
@@ -57,7 +56,7 @@ def parse_tex_files():
     path_prefix = '' if __name__ == '__main__' else 'plugins/math/'
     problem_archive = {}
     for i in FILE_PATH:
-        file = open(path_prefix+i)
+        file = open(path_prefix + i)
         file_list = []
         latex_template = []
         latex_problems = []
@@ -78,7 +77,7 @@ def parse_tex_files():
         # get template from end
         end = 0
         stack = []
-        for it in range(len(file_list)-1, -1, -1):
+        for it in range(len(file_list) - 1, -1, -1):
             if file_list[it].strip() == '\\end{itemize}':
                 latex_template.append(file_list[it])
                 end = it
@@ -90,7 +89,7 @@ def parse_tex_files():
         # parse the meat of the problem
         temp_problem = []
         depth_cnt = 0
-        for it in range(start+1, end+1):
+        for it in range(start + 1, end + 1):
             line = file_list[it]
             # begins with something like \item[] or is \end{itemize}
             pattern = "\\item\[[^\[\]]*\]"
@@ -116,7 +115,7 @@ def parse_tex_files():
 
 
 class Putnam(object):
-    """Generates a random putnam problem and upload the problem to imgur.  
+    """Generates a random putnam problem and upload the problem to imgur.
 
     This class will take in commands of the form ".putnam" and It will
     randomly generate a random putnam problem from the following problem
@@ -142,7 +141,7 @@ class Putnam(object):
         """
         global START_YEAR
         global END_YEAR
-        random_year = random.randint(START_YEAR, END_YEAR-1)
+        random_year = random.randint(START_YEAR, END_YEAR - 1)
         random_problem = random.choice(Putnam._problem_archive[random_year])
         return random_problem
 
@@ -176,11 +175,11 @@ class Putnam(object):
         doc_class_line = NoEscape(default_doc[0])
         use_pkg_line = NoEscape(default_doc[1])
         # skip twocolumn since it makes the problem look spread awfully
-        opts = filter(lambda pkg: pkg != 'twocolumn', doc_class_line[doc_class_line.find('[')+1: doc_class_line.find(']')].split(','))
-        args = NoEscape(doc_class_line[doc_class_line.find('{')+1: doc_class_line.find('}')])
+        opts = filter(lambda pkg: pkg != 'twocolumn', doc_class_line[doc_class_line.find('[') + 1: doc_class_line.find(']')].split(','))
+        args = NoEscape(doc_class_line[doc_class_line.find('{') + 1: doc_class_line.find('}')])
         doc = Document(documentclass=Command('documentclass', options=opts, arguments=args))
         # load packages
-        doc.packages = [Package(i) for i in use_pkg_line[use_pkg_line.find('{')+1: use_pkg_line.find('}')].split(',')]
+        doc.packages = [Package(i) for i in use_pkg_line[use_pkg_line.find('{') + 1: use_pkg_line.find('}')].split(',')]
         # position right after \begin{document}
         it = 4
         while default_doc[it].strip() != '\end{document}':
@@ -214,4 +213,3 @@ class Putnam(object):
         """
         problem = Putnam.random_problem()
         return Putnam._upload_problem(problem)
-

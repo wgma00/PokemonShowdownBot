@@ -1,17 +1,17 @@
 # Copyright (C) 2016 William Granados<wiliam.granados@wgma00.me>
-# 
+#
 # This file is part of PokemonShowdownBot.
-# 
+#
 # PokemonShowdownBot is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # PokemonShowdownBot is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with PokemonShowdownBot.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -152,8 +152,7 @@ class Latex(CommandBase):
         if User.compareRanks(room.rank, '*') and show_image:
             # don't render to 100% of screen because latex renders badly
             return ReplyObject('/addhtmlbox <img src="{url}" height="{height}" width="{width}"></img>'.format(
-                                url=uploaded_image, height=uploaded_image_dims[1],
-                                width=uploaded_image_dims[0]), True, True)
+                url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]), True, True)
         else:
             return ReplyObject(uploaded_image, True)
 
@@ -184,8 +183,7 @@ class Latex(CommandBase):
         doc = Document(documentclass='minimal')
         doc.packages = [Package(NoEscape(i)) for i in self.packages.split(',')]
         doc.append(NoEscape(latex_expr))
-        doc.generate_pdf('default', compiler_args=['-no-shell-escape',], compiler="pdflatex",
-                         clean=True, clean_tex=True)
+        doc.generate_pdf('default', compiler_args=['-no-shell-escape', ], compiler="pdflatex", clean=True, clean_tex=True)
         # These are normal Linux commands that are used to convert the pdf
         # file created by pylatex into a snippet
         os.system("pdfcrop default.pdf")
@@ -197,9 +195,9 @@ class Latex(CommandBase):
     def validate_request(self, msg):
         """ Does a very basic check if the expression given is valid.
 
-        the command '\input' is removed since it can display sensitive 
-        information from files like .ssh_config or TLS certs, and other files 
-        which manage to get compiled when ran through LaTeXmk. \def is also 
+        the command '\input' is removed since it can display sensitive
+        information from files like .ssh_config or TLS certs, and other files
+        which manage to get compiled when ran through LaTeXmk. \def is also
         removed since it can cause an infinite loop which borks the bot.
 
         Args:
@@ -234,8 +232,3 @@ class Latex(CommandBase):
         except subprocess.CalledProcessError:
             return False
         return output != ''
-
-
-
-
-

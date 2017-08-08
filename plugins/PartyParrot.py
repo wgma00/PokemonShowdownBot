@@ -1,17 +1,17 @@
 # Copyright (C) 2016 William Granados<wiliam.granados@wgma00.me>
-# 
+#
 # This file is part of PokemonShowdownBot.
-# 
+#
 # PokemonShowdownBot is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # PokemonShowdownBot is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with PokemonShowdownBot.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -40,7 +40,7 @@ class PartyParrot(CommandBase):
                         'confusedparrot': '.gif',
                         'congaparrot': '.gif',
                         'congapartyparrot': '.gif',
-                        'darkbeerparrot':  '.gif',
+                        'darkbeerparrot': '.gif',
                         'dealwithitparrot': '.gif',
                         'dreidel-parrot': '.xcf',
                         'dreidelparrot': '.gif',
@@ -192,5 +192,3 @@ class PartyParrot(CommandBase):
             url = self._Extra[parrot]
             return url, OnlineImage.get_image_info(url)
         return None
-
-

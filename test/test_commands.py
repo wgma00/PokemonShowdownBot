@@ -17,7 +17,7 @@ from robot import ReplyObject
 
 test_room = Room('test')
 test_user = User('user')
-test_owner = User('user', ' ',  True)
+test_owner = User('user', ' ', True)
 
 
 @pytest.fixture
@@ -100,8 +100,8 @@ def test_latex():
     assert reply == answer, "Exceptions aren't handled correctly"
 
     reply = cmd.response(test_room, test_user, '$\input{/etc/passwd}$')
-    answer = ReplyObject( ('You have inputted an invalid LaTeX expression. You may have forgotten to surround '
-                           'your expression with $. Or you may have used restricted LaTeX commands'), True)
+    answer = ReplyObject(('You have inputted an invalid LaTeX expression. You may have forgotten to surround '
+                          'your expression with $. Or you may have used restricted LaTeX commands'), True)
     assert reply == answer, 'Dangerous input not handled correctly'
 
     reply = cmd.response(test_room, test_owner, ['tikz-cd', 'addpackage'])

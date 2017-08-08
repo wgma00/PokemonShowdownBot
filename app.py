@@ -97,8 +97,10 @@ class PSBot(PokemonShowdownBot):
             By default, nothing is raised. But handlers which this method delegates tasks to
             may produce exceptions, so best follow the path to the individual module.
         """
-        if not message: return
-        if '\n' not in message: self.parseMessage(message, '')
+        if not message:
+            return
+        if '\n' not in message:
+            self.parseMessage(message, '')
 
         room = ''
         msg = message.split('\n')
@@ -167,7 +169,8 @@ class PSBot(PokemonShowdownBot):
         Raises:
             None.
         """
-        if not msg.startswith('|'): return
+        if not msg.startswith('|'):
+            return
         message = self.escapeMessage(msg).split('|')
         room = self.getRoom(roomName)
 
@@ -188,7 +191,7 @@ class PSBot(PokemonShowdownBot):
                 if format in self.bh.supportedFormats:
                     team = self.bh.getRandomTeam(format)
                     self.send('|/utm {}'.format(team))
-                    self.send('|/accept {name}'.format(name = opp))
+                    self.send('|/accept {name}'.format(name=opp))
                 else:
                     self.sendPm(opp, "Sorry, I can't accept challenges in that format :(")
         elif 'updatesearch' in message[1]:
@@ -263,7 +266,8 @@ class PSBot(PokemonShowdownBot):
                 self.log('Command', saidMessage, user.id)
 
                 res = self.do(self, command, room, saidMessage[len(command) + 1:].lstrip(), user)
-                if not res.text or res.text == 'NoAnswer': return
+                if not res.text or res.text == 'NoAnswer':
+                    return
 
                 if self.userHasPermission(user, room.broadcast_rank) or res.ignoreBroadcastPermission:
                     if not res.ignoreEscaping:
@@ -285,12 +289,12 @@ class PSBot(PokemonShowdownBot):
                 self.takeAction(room.title, user, action, reason)
 
             if type(room.activity) == Workshop:
-                room.activity.logSession(room.title, user.rank+user.name,
-                                         message[4])
+                room.activity.logSession(room.title, user.rank + user.name, message[4])
 
         elif 'pm' in message[1].lower():
             user = User(message[2][1:], message[2][0], self.isOwner(message[2]))
-            if self.userIsSelf(user.id): return
+            if self.userIsSelf(user.id):
+                return
             if message[4].startswith("/invite"):
                 if not message[4][8:] == "lobby":
                     if user.hasRank("&"):
@@ -303,10 +307,11 @@ class PSBot(PokemonShowdownBot):
             if message[4].startswith(self.commandchar) and message[4][1:] and message[4][1].isalpha():
                 command = self.extractCommand(message[4])
                 self.log('Command', message[4], user.id)
-                params = message[4][len(command)+len(self.commandchar):]
+                params = message[4][len(command) + len(self.commandchar):]
                 params = params.lstrip()
                 response = self.do(self, command, Room('pm'), params, user)
-                if not response.text or response.text == 'NoAnswer': return
+                if not response.text or response.text == 'NoAnswer':
+                    return
                 self.sendPm(user.id, response.text)
 
         # Tournaments
@@ -314,7 +319,8 @@ class PSBot(PokemonShowdownBot):
             if 'create' in message[2]:
                 room.createTour(self.ws, message[3], self.bh)
 
-                if room.loading: return
+                if room.loading:
+                    return
                 # Tour was created, join it if in supported formats
                 if details.joinTours and room.tour.format in self.bh.supportedFormats:
                     room.tour.joinTour()
@@ -330,7 +336,8 @@ class PSBot(PokemonShowdownBot):
                 room.endTour()
             else:
                 # This is for general tournament updates
-                if not room.tour or room.loading: return
+                if not room.tour or room.loading:
+                    return
                 room.tour.onUpdate(message[2:])
 
 
@@ -355,4 +362,3 @@ if __name__ == "__main__":
     except SystemExit:
         print("bot closed by SystemExit")
         exit()
-

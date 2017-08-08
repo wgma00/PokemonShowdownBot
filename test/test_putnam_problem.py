@@ -1,4 +1,4 @@
-from plugins.math.putnam import  Putnam
+from plugins.math.putnam import Putnam
 from plugins.math.putnam import LatexParsingException
 import pytest
 
@@ -22,5 +22,3 @@ def test_putnam_problem_exception_handling():
               'cases, if any, in which it is attained.',
               '\\begin{itemize}'])
         )
-
-

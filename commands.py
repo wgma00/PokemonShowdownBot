@@ -89,4 +89,3 @@ def Command(self, cmd, room, msg, user):
         return secret_cmd_out
 
     return ReplyObject('{command} is not a valid command.'.format(command=cmd))
-

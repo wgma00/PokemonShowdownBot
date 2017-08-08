@@ -105,4 +105,3 @@ class Xkcd(CommandBase):
                                                                 width=uploaded_image_dims[0]), True, True)
         else:
             return ReplyObject(uploaded_image, True)
-

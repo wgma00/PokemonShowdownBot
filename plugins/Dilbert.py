@@ -68,4 +68,3 @@ class Dilbert(CommandBase):
             ReplyObject
         """
         return ReplyObject('http://dilbert.com/strip/' + time.strftime("%Y-%m-%d"), True)
-

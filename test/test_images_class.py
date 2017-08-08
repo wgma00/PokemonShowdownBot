@@ -9,4 +9,3 @@ def test_get_image_info_url():
     url = 'http://i.imgur.com/b9STQvf.jpg'
     width, height = OnlineImage.get_image_info(url)
     assert width == 750 and height == 712
-

@@ -29,8 +29,10 @@ import robot as r
 from data.pokedex import Pokedex
 from plugins.battling.battle import Battle, Pokemon
 from plugins.battling.battleLogic import getAction, getSwitch, getLead
-# This currently only work in singles and not doubles / triples
+
+
 class BattleHandler:
+    """ This currently only work in singles and not doubles / triples """
     def __init__(self, ws, name):
         self.ws = ws
         self.botName = name
@@ -47,25 +49,28 @@ class BattleHandler:
         except:
             # No teams.yaml file exists, so create an empty one
             with open('plugins/battling/teams.yaml', 'w+') as file:
-                 yaml.dump(self.teams, file, default_flow_style = False, explicit_start = True)
+                yaml.dump(self.teams, file, default_flow_style=False, explicit_start=True)
 
     def send(self, msg):
         self.ws.send(msg)
 
     def lead(self, battle, poke, rqid):
-        self.send('{room}|/team {mon}|{rqid}'.format(room = battle, mon = poke, rqid = rqid))
+        self.send('{room}|/team {mon}|{rqid}'.format(room=battle, mon=poke, rqid=rqid))
+
     def act(self, battle, action, move, rqid):
-        print('{room}|/choose {act} {move}|{rqid}'.format(room = battle, act = action, move = str(move), rqid = rqid))
-        self.send('{room}|/choose {act} {move}|{rqid}'.format(room = battle, act = action, move = str(move), rqid = rqid))
+        print('{room}|/choose {act} {move}|{rqid}'.format(room=battle, act=action, move=str(move), rqid=rqid))
+        self.send('{room}|/choose {act} {move}|{rqid}'.format(room=battle, act=action, move=str(move), rqid=rqid))
+
     def respond(self, battle, msg):
-        self.send('{room}|{msg}'.format(room = battle, msg = msg))
+        self.send('{room}|{msg}'.format(room=battle, msg=msg))
 
     def handleOutcome(self, battle, won):
         if won:
             self.respond(battle.name, 'O-oh, I won?')
         else:
             self.respond(battle.name, 'I guess that was expected...')
-        print('Battle: {outcome} against {opponent}'.format(outcome = 'Won' if won else 'Lost', opponent = battle.other.name))
+        print('Battle: {outcome} against {opponent}'.format(outcome='Won' if won else 'Lost', opponent=battle.other.name))
+
     def getRandomTeam(self, metagame):
         try:
             teamCount = len(self.teams[metagame])
@@ -76,14 +81,18 @@ class BattleHandler:
 
     def getSpecies(self, details):
         pokemon = details.split(',')[0].replace('-*', '')
-        if pokemon in Pokedex: return pokemon
+        if pokemon in Pokedex:
+            return pokemon
         pokemon = pokemon.split('-')[0]
         return pokemon
 
     def parse(self, battle, message):
-        if not message: return
-        if not message.startswith('|'): return
-        if battle in self.activeBattles and message.startswith('|init'): return
+        if not message:
+            return
+        if not message.startswith('|'):
+            return
+        if battle in self.activeBattles and message.startswith('|init'):
+            return
 
         msg = message.split('|')
 
@@ -98,7 +107,8 @@ class BattleHandler:
             self.activeBattles[battle].isLadderMatch()
 
         btl = self.activeBattles[battle] if battle in self.activeBattles else None
-        if not btl or btl.spectating: return
+        if not btl or btl.spectating:
+            return
         if 'request' == msg[1]:
             # This is where all the battle picking happen
             request = json.loads(msg[2])
@@ -108,8 +118,8 @@ class BattleHandler:
             teamSlot = 1
             for poke in sidedata['pokemon']:
                 btl.me.updateTeam(
-                    Pokemon(self.getSpecies(poke['details']),poke['details'],poke['condition'],poke['active'],
-                            poke['stats'],poke['moves'],poke['baseAbility'],poke['item'], False, teamSlot, btl.me))
+                    Pokemon(self.getSpecies(poke['details']), poke['details'], poke['condition'], poke['active'],
+                            poke['stats'], poke['moves'], poke['baseAbility'], poke['item'], False, teamSlot, btl.me))
                 teamSlot += 1
             if 'active' in request:
                 btl.myActiveData = request['active']
@@ -127,13 +137,14 @@ class BattleHandler:
         elif 'poke' == msg[1]:
             if not self.activeBattles[battle].me.id == msg[2]:
                 species = self.getSpecies(msg[3])
-                stats = {'atk':1,'def':1,'spa':1,'spd':1,'spe':1}
-                moves = ['','','','']
+                stats = {'atk': 1, 'def': 1, 'spa': 1, 'spd': 1, 'spe': 1}
+                moves = ['', '', '', '']
                 hasMega = True if 'hasMega' in Pokedex[species] else False
                 btl.other.updateTeam(
                     Pokemon(species, msg[3], '100/100', False, stats, moves, Pokedex[species]['abilities']['0'], '', hasMega, len(self.activeBattles[battle].other.team) + 1, btl.other))
         elif 'player' == msg[1]:
-            if len(msg) < 4: return
+            if len(msg) < 4:
+                return
             if msg[3] == self.botName:
                 btl.setMe(msg[3], msg[2])
                 self.respond(battle, '/timer on')
@@ -158,7 +169,8 @@ class BattleHandler:
                 mon = self.getSpecies(msg[3])
                 if mon not in btl.other.team:
                     btl.other.updateTeam(Pokemon(self.getSpecies(msg[3]), msg[3], '100/100', False,
-                                {'atk':1,'def':1,'spa':1,'spd':1,'spe':1}, ['','','',''], '', '', False, len(btl.other.team)+1, btl.other))
+                                                 {'atk': 1, 'def': 1, 'spa': 1, 'spd': 1, 'spe': 1}, ['', '', '', ''],
+                                                 '', '', False, len(btl.other.team) + 1, btl.other))
                 btl.other.setActive(btl.other.getPokemon(mon))
         elif msg[1] in ['win', 'tie']:
             self.handleOutcome(btl, msg[2] == self.botName)
@@ -207,7 +219,7 @@ class BattleHandler:
                 btl.other.active.boosts[stat] -= int(msg[4])
 
         # Because of how they're treated, taking damage and healing it are done the same things to
-        elif msg[1] in ['-heal','-damage']:
+        elif msg[1] in ['-heal', '-damage']:
             parts = msg[3].split()
             if not msg[2].startswith(btl.me.id):
                 btl.other.active.setCondition(parts[0], parts[1] if ' ' in msg[3] else '')
@@ -229,13 +241,15 @@ class BattleHandler:
 def acceptTeam(self, cmd, room, msg, user):
     reply = r.ReplyObject('')
     meta, team = msg.split()
-    if not team: return reply.response('You forgot a team')
-    if not team.startswith('|'): return reply.response("This team doesn't look like a valid packed team :(")
-    if not meta in self.bh.teams:
+    if not team:
+        return reply.response('You forgot a team')
+    if not team.startswith('|'):
+        return reply.response("This team doesn't look like a valid packed team :(")
+    if meta not in self.bh.teams:
         self.bh.teams[meta] = []
-    if not meta in self.bh.supportedFormats:
+    if meta not in self.bh.supportedFormats:
         self.bh.supportedFormats.append(meta)
     self.bh.teams[meta].append(team)
     with open('plugins/battling/teams.yaml', 'w+') as file:
-        yaml.dump(self.bh.teams, file, default_flow_style = False, explicit_start = True)
+        yaml.dump(self.bh.teams, file, default_flow_style=False, explicit_start=True)
     return reply.response('Saved that team for you so that I can play with it :)')

@@ -85,4 +85,3 @@ class CommandBase(object):
             ReplyObject
         """
         raise NotImplementedError
-
