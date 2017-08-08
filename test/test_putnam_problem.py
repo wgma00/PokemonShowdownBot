@@ -1,14 +1,13 @@
-from plugins.math.Putnam import Putnam
-from plugins.math.Putnam import LatexParsingException
+from plugins.math.putnam import  Putnam
+from plugins.math.putnam import LatexParsingException
 import pytest
 
 
 def test_putnam_problem_exception_handling():
-    cmd = Putnam()
     # this example we can see everything should compile fine except at the end
     # we have not closed the \begin{itemize} case, so it will break on pdflatex
     with pytest.raises(LatexParsingException):
-        cmd._upload_problem(
+        Putnam._upload_problem(
             (['\\documentclass[amssymb,twocolumn,pra,10pt,aps]{revtex4-1}', '\\usepackage{mathptmx,amsmath}', '',
               '\\begin{document}', '\\title{The Fiftieth Annual William Lowell Putnam Competition \\\\',
               'Saturday, December 2, 1989}', '\\maketitle', '', '\\begin{itemize}', '\\end{itemize}',
@@ -23,3 +22,5 @@ def test_putnam_problem_exception_handling():
               'cases, if any, in which it is attained.',
               '\\begin{itemize}'])
         )
+
+

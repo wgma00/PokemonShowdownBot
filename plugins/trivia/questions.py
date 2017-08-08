@@ -20,8 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 class QuestionGenerator:
-
     def makeQuestion(self):
-        return {'a': '42', 'q': 'What is the meaning of life?'}
+        return {'a':'42','q':'What is the meaning of life?'}
