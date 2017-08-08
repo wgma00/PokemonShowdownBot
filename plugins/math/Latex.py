@@ -70,7 +70,6 @@ class Latex(CommandBase):
         elif(len(args) == 2 and args[1] == 'addpackage' and user.hasRank('#')
              and self.validate_package_install(args[0])):
             return self._success_add_package(room, user, args)
-
         elif len(args) >= 1 and not self.validate_request(args[0]):
             return self._error(room, user, 'invalid_latex_expression')
         elif len(args) == 2 and args[1] == 'showimage' and room.isPM:
@@ -176,7 +175,7 @@ class Latex(CommandBase):
             latex_expr: string that is to converte to LaTeX, requires that string is enclosed by $.
             >>> handle_request("$\int \sqrt{1+\cos x + \sin x} dx$")
         Returns:
-            A tuple (str, (int, int)), where str is the url, on codecogs and
+            A tuple (str, (int, int)), where str is the url, on imgur and
             the tuples are the dimensions of the image (width, height).
         """
         # create a bare bones latex document with only the one line specified from the user in the document.

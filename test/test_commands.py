@@ -4,6 +4,7 @@ from plugins.Send import Send
 from plugins.Credits import Credits
 from plugins.math.Latex import Latex
 from plugins.math.Calculator import Calculator
+from plugins.math.Putnam import Putnam
 from plugins.Machine import Machine
 from plugins.Xkcd import Xkcd
 from plugins.Dilbert import Dilbert
@@ -226,3 +227,16 @@ def test_parrot():
     reply = cmd.response(test_room, test_user, ['sirocco'])
     answer = ReplyObject('http://cultofthepartyparrot.com/assets/sirocco.gif', True)
     assert reply == answer, 'stuff'
+
+
+def test_putnam_problem():
+    cmd = Putnam()
+
+    reply = cmd.response(test_room, test_user, ['help'])
+    answer = ReplyObject('This generates a link to a random putnam problem from {start} to {end} and supports showimages'.format(start=1985, end=2016), True)
+    assert reply == answer, 'help output for putnam problem is incorrect.'
+
+    test_room.rank = '*'
+    test_room.isPM = False
+    reply = cmd.response(test_room, test_user, ['showimage'])
+    assert reply.text.startswith('/addhtmlbox'), "show imaging doesn't work in putnam_problem"

@@ -45,6 +45,7 @@ from plugins.Send import Send
 from plugins.Credits import Credits
 from plugins.math.Latex import Latex
 from plugins.math.Calculator import Calculator
+from plugins.math.Putnam import Putnam
 from plugins.Machine import Machine
 from plugins.Xkcd import Xkcd
 from plugins.Dilbert import Dilbert
@@ -57,7 +58,7 @@ from user import User
 from room import RoomCommands
 
 
-available_commands = [Send(), Credits(), Latex(), Machine(), Calculator(), Xkcd(), Dilbert(), PartyParrot()]
+available_commands = [Send(), Credits(), Latex(), Machine(), Calculator(), Xkcd(), Dilbert(), PartyParrot(), Putnam()]
 
 
 def Command(self, cmd, room, msg, user):
