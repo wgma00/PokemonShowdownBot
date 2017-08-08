@@ -31,7 +31,7 @@ from plugins.battling import battleHandler
 # This is where you pick what the name of the command actually is, then map it to a function.
 # Every command needs a function to work, with the parameters (bot, cmd, room, msg, user)
 # in that order.
-PluginCommands = {
+PluginExtraCommands = {
     'moderate': moderation.moderate,
     'banuser': moderation.banthing,
     'banphrase': moderation.banthing,

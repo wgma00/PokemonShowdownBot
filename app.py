@@ -174,7 +174,6 @@ class PSBot(PokemonShowdownBot):
         message = self.escapeMessage(msg).split('|')
         room = Room('Empty') if not roomName else self.getRoom(roomName)
 
-
         # Logging in
         if message[1] == "challstr":
             print("{name}: Attempting to login...".format(name=self.name))

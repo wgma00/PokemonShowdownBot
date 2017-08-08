@@ -51,12 +51,14 @@ from plugins.Xkcd import Xkcd
 from plugins.Dilbert import Dilbert
 from plugins.PartyParrot import PartyParrot
 from plugins.Broadcast import Broadcast
-
 from plugins.SecretCommands import Command as SecretCommands
-
+from plugins import PluginExtraCommands
+from room import RoomCommands
 from robot import ReplyObject
 from user import User
-from room import RoomCommands
+
+RoomCmds = RoomCommands.copy()
+PluginsExtraCmds = PluginExtraCommands.copy()
 
 
 available_commands = [Send(), Credits(), Latex(), Machine(), Calculator(), Xkcd(), Dilbert(), PartyParrot(), Putnam(), Broadcast()]
@@ -89,5 +91,12 @@ def Command(self, cmd, room, msg, user):
     secret_cmd_out = SecretCommands(self, cmd, room, msg, user)
     if secret_cmd_out:
         return secret_cmd_out
-
+    # check for room commands like leaving and tours and such
+    room_cmd_out = RoomCmds[cmd](self, cmd, room, msg, user) if cmd in RoomCmds else None
+    if room_cmd_out:
+        return room_cmd_out
+    # check for plugins extra commands like games and such
+    plugins_extra_cmd_out = PluginsExtraCmds[cmd](self, cmd, room, msg, user) if cmd in PluginsExtraCmds else None
+    if plugins_extra_cmd_out:
+        return plugins_extra_cmd_out
     return ReplyObject('{command} is not a valid command.'.format(command=cmd))
