@@ -5,36 +5,56 @@ Pokemon Showdown chat bot made in Python 3.
 
 Functionality
 -------------
-This chat bot supports some of the following. More functionality can be found in our [wiki](https://github.com/wgma00/quadbot/wiki/Commands) 
+This chat bot supports the following
 - Moderation
 - Games and leader-boards
 - LaTeX compilation
-
+- Battling
+- Sentence generator using Markov chains
+- More functionality detailed in ``commands.py`` and ``commands.md``
 
 Structure
 ---------
 
-The Showdown bot is built from two main components:
+The Showdown bot is built from four main components:
 
-- ``app.py`` which contains the class PSBot, the central workings, and serves it's purpose of parsing messages and delegating information to proper modules.
+- app.py which contains the class PSBot, the central workings, and is where most of the connections to other pieces of 
   the app is created.
-- ``commands.py`` which parses the user input and determines which command to pass user's arguments to.
+- The class PSBot is extended from the base class PokemonShowdownBot found in robot.py, which contains almost all basic 
+  functions that are required for the bot to function. Most of the more general functions like ``join``, ``leave`` and 
+  ``say`` are defined here.
+- The third file that this relies on is room.py, as every room joined creates new room objects that store information 
+  for the bot, such as ``userlists`` and ``allowed uses``.
   
+- ``commands.py`` delegates or handles most of the commands given by users. You can define your own commands here
+   or have them defined in the plugins module. These are considered ``External Commands``.
+  
+Most of the fun modules are implemented in the plugins section and are treated as stand alone programs, so to not 
+interfere up the core functionality of the bot. These modules are meant to contain the implementation of chat games. 
+If you want to develop your own feature you should create a submodule in plugins, and map the handler for the command 
+in the ``__init__.py`` module handler ``PluginCommands`` section. Here are some examples of implemented commands.
+
+- ``anagram`` is a simple game where the user has to determine, from a randomize string, the original string it was 
+  created from. This is pretty famous game in rooms like gamecorner. The game currently only chooses words for Pokemon 
+  related stuff like names, and battle moves. 
+  
+- ``periodic`` is an academic game where the user is given a random word from the BSD dictionary, and must determine a 
+  a correct sequence of chemistry symbols (i.e. H, He, Li, etc) which spell out the word.
+
 
 
 Style
 -------
-Follow the PEP8 Standard and also the Google Python Standard for documentation. W503 (line length 80 chars) is ignored 
-since some lines would look unintuitive when spread out.
+This project follows the PEP8 Standard and also the Google Python Standard. There may be some discrepancies, as I 
+am trying to claw my way closer to these standards.
 
 Setting up
 ---------
 The following are the necessary dependencies for running this software.
 
 ### Operating System:
-- APT/RPM based Linux distribution like Debian or Fedora
-- Some functionality may still work on Windows and MacOS, but have not been fully tested. Use at your own discretion.
-- If you're not running Linux natively then consider running this project in [vagrant](https://www.vagrantup.com/); more info provided below.
+- APT/RPM based linux distribution like Debian or Fedora
+- Some functionality may still work on Windows, but have not been fully tested. Use at your own discretion.
 
 ### LaTeX:
 - Requires the following to be installed, ``texlive`` and ``poppler-utils``
@@ -43,30 +63,29 @@ The following are the necessary dependencies for running this software.
 - Requires that ``gcalccmd`` is installed
 
 #### Python:
-- Python 3.4+. No plans are made to make this support earlier versions.
-- [PIP](https://pip.pypa.io/en/stable/). Package manager for python
+- Python 3.4, not tested for any other versions yet. And no plans are made to make it Python 2 compliant.
+- PIP - package manager for python
 
 #### Guide:
-0. (optional) Setting up an environment separate from your host OS or global python interpreter to avoid dependency conflicts. 
-
-- If you're on Linux you might find setting up a virtualenv with the following ``virtualenv -p /usr/bin/python3 quadbot && source quadbot/bin/activate`` will be helpful. 
-- If you're on MacOS or Windows setting up [vagrant](https://www.vagrantup.com/docs/installation/) will be useful. Then you can use ``vagrant init && vagrant ssh`` to load this project's production environment. 
-
+0. (optional) setup a virtualenv with the following ``virtualenv -p /usr/bin/python3 pokemonshowdownbot && source pokemonshowdownbot/bin/activate`` 
 1. Clone the git repo to your desired location
-2. Run ``git update-index --assume-unchanged plugins/SecretCommands.py`` to stop tracking SecretCommands.py
-3. Install pip dependencies manually  with `pip install -r requirements.txt`, and install the aforementioned software manually. 
+2. Install pip dependencies manually  with `pip install -r requirements.txt`, and install the aforementioned software manually. 
    Or you run the install script using  ``chmod +x install.sh && ./install.sh``
-4. Follow the instructions in `details-example.yaml` to configure your bot for login
-5. Run using `python3 app.py`
-6. (optional) Test for errors you can run ``test.sh`` using ``chmod +x test.sh && ./test.sh``
+3. Follow the instructions in `details-example.yaml` to configure your bot for login
+4. Run using `python3 app.py`
+5. (optional) Test for errors you can run ``test.sh`` using ``chmod +x test.sh && ./test.sh``
 
+
+### Docker (optional)
+A docker image is available with the all of the necessary dependencies installed. You will still need to follow steps
+3-4 in the above guide. ``docker pull wgma/pokemonshowdownbot``
 
 License
 -------
 
 This project is distributed under the terms of the [GPLv3 and MIT License][1].
 
-  [1]: https://github.com/wgma00/quadbot/blob/master/NOTICE
+  [1]: https://github.com/wgma00/PokemonShowdownBot/blob/master/NOTICE
 
 Credits
 -------
@@ -75,5 +94,5 @@ Maintainer
 
 - wgma00 
 
-Upstream maintainer:
+Previous maintainer:
 - QuiteQuiet

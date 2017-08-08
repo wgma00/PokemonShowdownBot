@@ -20,7 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 class Pokemon:
     def __init__(self, ident, details, condition, active, stats, moves, baseAbility, item, canMegaEvo, slot, side):
         self.species = ident
@@ -35,11 +34,11 @@ class Pokemon:
         self.canMega = canMegaEvo
         self.teamSlot = slot
         self.side = side
-        self.boosts = {'atk': 0, 'def': 0, 'spa': 0, 'spd': 0, 'spe': 0, 'evasion': 0, 'accuracy': 0}
+        self.boosts = {'atk':0, 'def':0, 'spa':0, 'spd':0, 'spe':0, 'evasion':0, 'accuracy':0}
         self.lastMoveUsed = None
 
     def clearBoosts(self):
-        self.boosts = {'atk': 0, 'def': 0, 'spa': 0, 'spd': 0, 'spe': 0, 'evasion': 0, 'accuracy': 0}
+        self.boosts = {'atk':0, 'def':0, 'spa':0, 'spd':0, 'spe':0, 'evasion':0, 'accuracy':0}
 
     def markLastUsedMove(self, move):
         self.lastMoveUsed = move
@@ -51,7 +50,6 @@ class Pokemon:
         self.condition = cond
         self.status = status
 
-
 class Player:
     def __init__(self):
         self.name = ''
@@ -61,30 +59,25 @@ class Player:
         self.active = None
         self.team = {}
         self.side = {}
-
     def setActive(self, poke):
         self.active = poke
         self.active.clearBoosts()
-
     def updateTeam(self, poke):
         if poke.species in self.team:
             poke.boosts = self.team[poke.species].boosts
         self.team[poke.species] = poke
-
     def changeTeamSlot(self, old, new):
         if not old:
             for m in self.team:
                 if self.team[m]:
                     old = self.team[m]
         old.teamSlot, new.teamSlot = new.teamSlot, old.teamSlot
-
     def getPokemon(self, species):
         for poke in self.team:
             if self.team[poke].species == species:
                 return self.team[poke]
         # Logically this shouldn't happen, but apparently it does sometimes?
-        raise AttributeError('{mon} isn\'t in the team'.format(mon=species))
-
+        raise AttributeError('{mon} isn\'t in the team'.format(mon = species))
     def removeBaseForm(self, pokemon, mega):
         self.team[mega] = self.team.pop(pokemon, None)
         self.team[mega].species = mega
@@ -92,7 +85,6 @@ class Player:
 
     def usedZmove(self):
         self.canZmove = False
-
 
 class Battle:
     def __init__(self, name):
@@ -108,14 +100,12 @@ class Battle:
     def setMe(self, me, pId):
         self.me.name = me
         self.me.id = pId
-
     def setOther(self, other, pId):
         self.other.name = other
         self.other.id = pId
-
     def isLadderMatch(self):
         self.ladderGame = True
-
     def setFieldCond(self, cond):
         # TODO: do this
         pass
+
