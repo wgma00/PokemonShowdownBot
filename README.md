@@ -24,7 +24,8 @@ The Showdown bot is built from two main components:
 
 Style
 -------
-Ideally should follow the PEP8 Standard and also the Google Python Standard for documentation. These aren't enforced so you should look around where you're editing to see the style.
+Follow the PEP8 Standard and also the Google Python Standard for documentation. W503 (line length 80 chars) is ignored 
+since some lines would look unintuitive when spread out.
 
 Setting up
 ---------
