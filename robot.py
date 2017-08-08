@@ -66,11 +66,13 @@ from user import User
 from plugins.battling.battleHandler import BattleHandler
 from plugins.math.markov import Markov
 import details
+import yaml
 
 
 # Module global for automatically update help with the correct symbol in plugins.
 # This will be change from default on creation of every instance of PokemonShowdownBot!
 guidechar = ' '
+
 
 class PokemonShowdownBot:
     """This class contains most of the functionality of the bot.
@@ -84,7 +86,7 @@ class PokemonShowdownBot:
         name: string, the name of the bot in chat.
         id: string, a simplified string for identifying a user.
         rooms: Room object, that keeps track of information in a given room.
-        apikey: map string to string, keeps track of api keys to services.
+        apikeys: map string to string, keeps track of api keys to services.
         commandchar: string, string that is used to execute certain commands.
         url: string, the url for pokemon showdown's open port that the
              websocket will attempt connecting to.
@@ -118,11 +120,12 @@ class PokemonShowdownBot:
 
     def openConnection(self):
         """Open the websocket connection and setups pokemon battle handler."""
-        if not self.url: return
+        if not self.url:
+            return
         self.ws = websocket.WebSocketApp(self.url,
-                                         on_message = self.splitMessage,
-                                         on_error = self.onError,
-                                         on_close = self.onClose)
+                                         on_message=self.splitMessage,
+                                         on_error=self.onError,
+                                         on_close=self.onClose)
         self.ws.on_open = self.onOpen
         self.bh = BattleHandler(self.ws, self.name)
 
@@ -140,7 +143,6 @@ class PokemonShowdownBot:
         print("|and the NOTICE file. This is free software, and you are welcome to redistribute it|")
         print("|under the certain conditions outlined in the aforementioned files.                |")
         print("+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+")
-
 
     def log(self, sort, msg, user):
         """Log commands made by users in chat.
@@ -170,19 +172,17 @@ class PokemonShowdownBot:
         if self.name == 'username' and self.details['password'] == 'password':
             print('Error: Login details still at default; will not proceed with execution!')
             exit()
-        payload = { 'act':'login',
-                    'name': self.name,
-                    'pass': details.password,
-                    'challengekeyid': challengekeyid,
-                    'challenge': challenge
-                    }
+        payload = {'act': 'login',
+                   'name': self.name,
+                   'pass': details.password,
+                   'challengekeyid': challengekeyid,
+                   'challenge': challenge}
         r = requests.post('http://play.pokemonshowdown.com/action.php',
                           data=payload)
         assertion = json.loads(r.text[1:])['assertion']
 
         if assertion:
-            self.send(('|/trn '+ self.name + ',0,' + str(assertion)
-                      ).encode('utf-8'))
+            self.send(('|/trn ' + self.name + ',0,' + str(assertion)).encode('utf-8'))
             return True
         else:
             print('Assertion failed')
@@ -207,9 +207,9 @@ class PokemonShowdownBot:
             self.send('|/avatar {num}'.format(num=details.avatar))
         print('{name}: Successfully logged in.'.format(name=self.name))
         for room in details.joinRooms:
-            self.joinRoom(room, details.joinRooms[room]) 
+            self.joinRoom(room, details.joinRooms[room])
 
-    def joinRoom(self, room, data = None):
+    def joinRoom(self, room, data=None):
         """ Joins a room in pokemon showdown.
 
         Args:
@@ -220,20 +220,19 @@ class PokemonShowdownBot:
                     data = {'moderate': False, 'allow games': False,
                             'tourwhitelist': []}
         """
-        if room in self.rooms: return
+        if room in self.rooms:
+            return
         self.send('|/join ' + room)
         self.rooms[room] = Room(room, data)
 
     def leaveRoom(self, room):
-        ''' Attempts to leave a PS room
+        """ Attempts to leave a PS room
 
         Returns:
-            True if succesful, False otherwise.
-        '''
+            True if successful, False otherwise.
+        """
         if room not in self.rooms:
-            print("""Error! {name} not in {room}
-
-                  """.format(name = self.name, room = room))
+            print('Error! {name} not in {room}'.format(name=self.name, room=room))
             return False
         self.send('|/leave ' + room)
         self.rooms.pop(room, None)
@@ -252,7 +251,7 @@ class PokemonShowdownBot:
         """
         if roomName not in self.rooms:
             return Room('Empty')
-        alias = {'nu':'neverused'}
+        alias = {'nu': 'neverused'}
         if roomName in alias:
             roomName = alias[roomName]
         if roomName not in self.rooms:
@@ -316,22 +315,21 @@ class PokemonShowdownBot:
 
     def removeSpaces(self, text):
         """removes spaces from a string"""
-        return text.replace(' ','')
+        return text.replace(' ', '')
 
     def extractCommand(self, msg):
         """Extracts the command character i.e. '.' from the message."""
         return msg[len(self.commandchar):].split(' ')[0].lower()
+
     def escapeMessage(self, message):
         for harmful in ['\u202e']:
             message = message.replace(harmful, harmful.encode('unicode_escape').decode('ascii'))
         return message
 
     def takeAction(self, room, user, action, reason):
-        """Takes authorative(mod) action against a user."""
+        """Takes authoritative(mod) action against a user."""
         self.log('Action', action, user.id)
-        self.send("""{room}|/{act} {user}, {reason}
-                  """.format(room = room, act = action,
-                  user = user.id, reason = reason))
+        self.send('{room}|/{act} {user}, {reason}'.format(room=room, act=action, user=user.id, reason=reason))
 
     def canHTMLBox(self, room):
         return User.compareRanks(room.rank, '*')
@@ -345,18 +343,20 @@ class PokemonShowdownBot:
 
     def canStartTour(self, room):
         return User.compareRanks(room.rank, '@')
+
     def canHtml(self, room):
         return User.compareRanks(room.rank, '*')
 
     # Generic permissions test for users
     def isOwner(self, name):
         return self.owner == self.toId(name)
+
     def userHasPermission(self, user, rank):
         return self.isOwner(user.id) or User.compareRanks(user.rank, rank)
 
-    def saveDetails(self, newAutojoin = False):
+    def saveDetails(self, newAutojoin=False):
         """Saves the current details to the details.yaml."""
-        details = {k:v for k,v in self.details.items() if not k == 'rooms' and
+        details = {k: v for k, v in self.details.items() if not k == 'rooms' and
                    not k == 'joinRooms'}
         details['joinRooms'] = {}
         for e in self.rooms:
@@ -367,11 +367,10 @@ class PokemonShowdownBot:
                 continue
             room = self.getRoom(e)
             details['joinRooms'][e] = {'moderate': room.moderation.config,
-                                        'allow games':room.allowGames,
-                                        'tourwhitelist': room.tourwhitelist
-                                        }
+                                       'allow games': room.allowGames,
+                                       'tourwhitelist': room.tourwhitelist}
         with open('details.yaml', 'w') as yf:
-            yaml.dump(details, yf, default_flow_style = False, explicit_start = True)
+            yaml.dump(details, yf, default_flow_style=False, explicit_start=True)
 
     # Default onMessage if none is given (This only support logging in,
     # nothing else). To get any actual use from the bot, create a custom
@@ -387,7 +386,8 @@ class PokemonShowdownBot:
         Raises:
             None.
         """
-        if not message: return
+        if not message:
+            return
         parts = message.split('|')
         if parts[1] == 'challstr':
             print('Attempting to log in...')
@@ -411,7 +411,7 @@ class ReplyObject:
                      attention.
         canPmReply: bool, send this message to PMs.
     """
-    def __init__(self, res = '', reply = False, escape = False, broadcast = False, game = False, pmreply = False):
+    def __init__(self, res='', reply=False, escape=False, broadcast=False, game=False, pmreply=False):
         self.text = str(res)
         self.samePlace = reply
         self.ignoreEscaping = escape

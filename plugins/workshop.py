@@ -24,6 +24,7 @@ import requests
 import robot as r
 from plugins.games.game import GenericGame
 
+
 class Workshop(GenericGame):
     def __init__(self, host):
         self.host = host
@@ -53,7 +54,7 @@ class Workshop(GenericGame):
     def logSession(self, room, user, message):
         file_path = 'logs/{room}-workshop-{host}.txt'.format(room=room,
                                                              host=self.host)
-        with open(file_path,'a') as log:
+        with open(file_path, 'a') as log:
             log.write('{name}: {text}\n'.format(name=user, text=message))
 
     def pasteLog(self, room, apiKey):
@@ -63,17 +64,15 @@ class Workshop(GenericGame):
                                                              host=self.host)
         with open(file_path, 'r') as log:
             r = requests.post('http://pastebin.com/api/api_post.php',
-                              data = {'api_dev_key': apiKey,
-                                      'api_option':'paste',
-                                      'api_paste_code': log.read(),
-                                      'api_paste_private': 0,
-                                      'api_paste_expire_date':'N' })
+                              data={'api_dev_key': apiKey, 'api_option': 'paste', 'api_paste_code': log.read(),
+                                    'api_paste_private': 0, 'api_paste_expire_date': 'N'})
             if 'Bad API request' in r.text:
                 return 'Something went wrong ({error})'.format(error=r.text)
             return r.text
 
     def hasHostingRights(self, user):
         return self.host == user.id or user.hasRank('@')
+
 
 def handler(bot, cmd, room, msg, user):
     reply = r.ReplyObject('', True)
@@ -92,26 +91,23 @@ def handler(bot, cmd, room, msg, user):
     workshop = room.activity
     if msg.startswith('add'):
         if not workshop.hasHostingRights(user):
-            return reply.response('Only the workshop host or a Room Moderator'
-                                  ' can add Pokemon')
+            return reply.response('Only the workshop host or a Room Moderator can add Pokemon')
         return reply.response(workshop.addPokemon(msg[4:].strip()))
     elif msg.startswith('remove'):
         if not workshop.hasHostingRights(user):
-            return reply.response('Only the workshop host or a Room Moderator'
-                                  ' can remove Pokemon')
+            return reply.response('Only the workshop host or a Room Moderator can remove Pokemon')
         return reply.response(workshop.removePokemon(msg[7:].strip()))
     elif msg == 'clear':
         if not workshop.hasHostingRights(user):
-            return reply.response('Only the workshop host or a Room Moderator'
-                                  ' can clear the team')
+            return reply.response('Only the workshop host or a Room Moderator can clear the team')
         return reply.response(workshop.clearTeam())
     elif msg == 'team':
         return reply.response(workshop.getTeam())
     elif msg == 'end':
-        if not workshop.hasHostingRights(user): return reply.response('Only the workshop host or a Room Moderator can end the workshop')
+        if not workshop.hasHostingRights(user):
+            return reply.response('Only the workshop host or a Room Moderator can end the workshop')
         bot.sendPm(user.id, workshop.pasteLog(room.title, bot.apikeys['pastebin']))
         room.activity = None
         return reply.response('Workshop session ended')
     unreg_cmd = msg if msg else 'nothing'
     return reply.response('Unrecognized command: {cmd}'.format(unreg_cmd))
-

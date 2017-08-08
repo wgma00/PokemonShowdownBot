@@ -25,16 +25,20 @@ from datetime import datetime, timedelta
 import random
 import re
 
+
 class Message:
     def __init__(self, sent, msg):
         self.sent = sent
         self.msg = msg
+
     def replyFormat(self):
-        return 'From {user}: {msg}'.format(user = self.sent, msg = self.msg)
+        return 'From {user}: {msg}'.format(user=self.sent, msg=self.msg)
+
 
 class MessageDatabase:
     # Constant
-    def NOTIFICATION_GAP(self): return timedelta(hours = 1)
+    def NOTIFICATION_GAP(self):
+        return timedelta(hours=1)
 
     def __init__(self):
         self.messages = {}
@@ -44,7 +48,7 @@ class MessageDatabase:
         cnt = len(self.messages[user])
         return ('You have {nr} message{s} waiting for you.\n'
                 'Use ~read [number] to get [number] of messages shown to you'
-                '').format(nr = cnt, s = 's' if cnt > 1 else '')
+                '').format(nr=cnt, s='s' if cnt > 1 else '')
 
     def addMessage(self, to, sent, msg):
         if to not in self.messages:
@@ -68,7 +72,8 @@ class MessageDatabase:
         # This can be super-spammy for users with a lot of pending messages
         # as they can opt to look at all at once
         reply = ''
-        if amnt > len(self.messages[user]): amnt = len(self.messages[user])
+        if amnt > len(self.messages[user]):
+            amnt = len(self.messages[user])
         while amnt > 0:
             reply += self.getMessage(user) + ('\n' if amnt > 1 else '')
             amnt -= 1
@@ -111,20 +116,23 @@ class MessageDatabase:
     def removeMessage(self, to, frm):
         msg = self.messages[to].pop(frm, None)
         # If the user has no message left, clear the name entry
-        if len(self.messages[to]) < 1: self.messages.pop(to)
+        if len(self.messages[to]) < 1:
+            self.messages.pop(to)
         return msg
 
     # Unused but still supported
     def removeAllMessages(self, to):
         return self.messages.pop(to, None)
 
+
 # Commands
 def tell(bot, cmd, room, msg, user):
     reply = r.ReplyObject()
     notes = bot.usernotes
-    if not msg: return reply.response('You need to specify a user and a '
-                                      'message to send in the format: [user],'
-                                      ' [message]')
+    if not msg:
+        return reply.response('You need to specify a user and a '
+                              'message to send in the format: [user],'
+                              ' [message]')
     msg = msg.split(',')
     to = bot.toId(msg[0])
     message = ','.join(msg[1:]).lstrip()
@@ -140,10 +148,11 @@ def tell(bot, cmd, room, msg, user):
         return reply.response("Username is too long. This user doesn't exist")
     notes.addMessage(to, user.name, message)
     reply.samePlace = True
-    responseText = "I'll be sure to tell {user} that.".format(user = msg[0])
+    responseText = "I'll be sure to tell {user} that.".format(user=msg[0])
     if to == user.id:
         responseText = "You sent yourself a message. Was this intended? It will work, but why?"
     return reply.response(responseText)
+
 
 def read(bot, cmd, room, msg, user):
     reply = r.ReplyObject()
@@ -151,12 +160,13 @@ def read(bot, cmd, room, msg, user):
     if not notes.hasMessage(user.id):
         return reply.response('You have no messages waiting')
     if not msg:
-        # If the user didn't speify any amount to return,
+        # If the user didn't specify any amount to return,
         # give back a single message
         return reply.response(notes.getMessages(user.id, 1))
     if not msg.isdigit() and int(msg) < 1:
         return reply.response('Please enter a positive integer')
     return reply.response(notes.getMessages(user.id, int(msg)))
+
 
 def untell(bot, cmd, room, msg, user):
     reply = r.ReplyObject()
@@ -168,4 +178,3 @@ def untell(bot, cmd, room, msg, user):
     if not notes.removeMessage(msg, user.id):
         return reply.response('You have no message to this user waiting')
     return reply.response('Message removed')
-
