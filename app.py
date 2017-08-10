@@ -274,7 +274,7 @@ class PSBot(PokemonShowdownBot):
                         res.text = self.escapeText(res.text)
                     self.reply(room.title, user, res.text, res.samePlace)
 
-                elif not self.evalRoomPermission(user, room):
+                elif not self.userHasPermission(user, room.broadcast_rank):
                     self.sendPm(user.id, 'You do not have broadcast rank, requires {}'.format(room.broadcast_rank))
 
                 elif res.canPmReply:
