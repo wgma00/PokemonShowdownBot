@@ -24,7 +24,9 @@ class Xkcd(CommandBase):
             return self._help(room, user, args)
         elif len(args) > 2:
             return self._error(room, user, 'too_many_args')
-        elif len(args) == 1 and not args[0].isdigit():
+        elif len(args) == 1 and args[0] == 'showimage':
+            return self._success(room, user, args)
+        elif 1 <= len(args) <= 2 and (not args[0] == 'rand' and not args[0].isdigit()):
             return self._error(room, user, 'incorrect_args')
         else:
             return self._success(room, user, args)
@@ -41,8 +43,8 @@ class Xkcd(CommandBase):
         Returns:
             ReplyObject
         """
-        return ReplyObject(("Responds with url to random xkcd article, number can also be specified. And this command "
-                           "supports showimages."), True)
+        return ReplyObject(("Responds with url to xkcd article. if left empty, returns most recent. If 'rand' is passed generates a random article. "
+                            "If a 'number' is passed, returns that specified xkcd article. This command also supports showimages."), True)
 
     def _error(self, room, user, reason):
         """ Returns an error response to the user.
@@ -60,7 +62,7 @@ class Xkcd(CommandBase):
         if reason == 'too_many_args':
             return ReplyObject("This command doesn't take any arguments", True)
         if reason == 'incorrect_args':
-            return ReplyObject('first argument should be a number if you want a specific xkcd article', True)
+            return ReplyObject('first argument should be a number if you want a specific xkcd article, otherwise rand to chose a random article.', True)
 
     def _success(self, room, user, args):
         """ Returns a success response to the user.
@@ -95,9 +97,6 @@ class Xkcd(CommandBase):
             uploaded_image = data['img']
             uploaded_image_dims = OnlineImage.get_image_info(uploaded_image)
             alt_data = data['alt']
-        elif msg is not '':
-            return ReplyObject(('Please select a valid xkcd article from 1 to {num} or use rand to generate'
-                                'a random one').format(num=data['num']), True)
 
         if User.compareRanks(room.rank, '*') and show_image:
             return ReplyObject(('/addhtmlbox <img src="{url}" height=100% width=100%></img>'

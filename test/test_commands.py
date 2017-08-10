@@ -195,9 +195,22 @@ def test_xkcd():
     answer = ReplyObject('https://imgs.xkcd.com/comics/barrel_cropped_(1).jpg', True)
     assert reply == answer, 'xkcd command individual xkcd article not found'
 
+    reply = cmd.response(test_room, test_user, ['rand'])
+    assert reply.text.startswith('https'), 'xkcd command rand xkcd article not found'
+
+    test_room.rank = '*'
+    reply = cmd.response(test_room, test_user, ['rand', 'showimage'])
+    assert reply.text.startswith('/addhtmlbox'), 'xkcd command rand showimage xkcd article not found'
+    test_room.rank = ' '
+
+    test_room.rank = '*'
+    reply = cmd.response(test_room, test_user, ['showimage'])
+    assert reply.text.startswith('/addhtmlbox'), 'xkcd command recent showimage xkcd article not found'
+    test_room.rank = ' '
+
     reply = cmd.response(test_room, test_user, ['help'])
-    answer = ReplyObject(("Responds with url to random xkcd article, number can also be specified. And this command "
-                          "supports showimages."), True)
+    answer = ReplyObject(("Responds with url to xkcd article. if left empty, returns most recent. If 'rand' is passed generates a random article. "
+                          "If a 'number' is passed, returns that specified xkcd article. This command also supports showimages."), True)
     assert reply == answer, 'xkcd command help function is incorrect'
 
 
