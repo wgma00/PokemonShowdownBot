@@ -107,6 +107,10 @@ class PartyParrot(CommandBase):
             return self._help(room, user, args)
         elif len(args) == 1 and not self.valid(args[0]):
             return self._error(room, user, 'incorrect_args')
+        elif len(args) >= 1 and args[-1] == 'showimage' and room.rank != '*':
+            return self._error(room, user, 'insufficient_room_rank')
+        elif len(args) > 2:
+            return self._error(room, user, 'too_many_args')
         else:
             return self._success(room, user, args)
 
@@ -123,8 +127,7 @@ class PartyParrot(CommandBase):
             ReplyObject
         """
         return ReplyObject(('If left empty prints a url to a random parrot from http://cultofthepartyparrot.com/, '
-                            'otherwise you may choose to print a specific url. This command supports showimages.'),
-                           True)
+                            'otherwise you may choose to print a specific url. This command supports showimages.'), True)
 
     def _error(self, room, user, reason):
         """ Returns an error response to the user.
@@ -141,6 +144,10 @@ class PartyParrot(CommandBase):
         """
         if reason == 'incorrect_args':
             return ReplyObject('Correct args are nothing or something on http://cultofthepartyparrot.com/', True)
+        elif reason == 'insufficient_room_rank':
+            return ReplyObject('This bot requires * or # rank to showimage in chat', True)
+        if reason == 'too_many_args':
+            return ReplyObject('Too many argsuments passed, takes at most 2 arguments.', True)
 
     def _success(self, room, user, args):
         """ Returns a success response to the user.
@@ -155,11 +162,12 @@ class PartyParrot(CommandBase):
             ReplyObject
         """
         uploaded_image_data = self.random_parrot()
-        if args and self.get_parrot(args[0]):
+        show_image = args[-1] == 'showimage' if args else False
+        if args and args[0] != 'showimage' and self.get_parrot(args[0]):
             uploaded_image_data = self.get_parrot(args[0])
         uploaded_image = uploaded_image_data[0]
         uploaded_image_dims = uploaded_image_data[1]
-        if User.compareRanks(room.rank, '*'):
+        if User.compareRanks(room.rank, '*') and show_image:
             return ReplyObject(('/addhtmlbox <img src="{url}" height="{height}" width={width}></img>'
                                 '').format(url=uploaded_image, height=uploaded_image_dims[1],
                                            width=uploaded_image_dims[0]), True, True)
@@ -172,7 +180,7 @@ class PartyParrot(CommandBase):
         Args:
             arg: str, possible command
         """
-        if (not arg) or (arg in self._Parrot) or (arg in self._Extra):
+        if (not arg) or (arg in self._Parrot) or (arg in self._Extra) or arg == 'showimage':
             return True
         return False
 

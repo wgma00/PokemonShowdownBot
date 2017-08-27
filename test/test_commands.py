@@ -242,6 +242,14 @@ def test_parrot():
     answer = ReplyObject('http://cultofthepartyparrot.com/assets/sirocco.gif', True)
     assert reply == answer, 'stuff'
 
+    reply = cmd.response(test_room, test_user, ['sirocco', 'showimage'])
+    answer = ReplyObject('This bot requires * or # rank to showimage in chat', True)
+    assert reply == answer, 'stuff'
+
+    test_room.rank = '*'
+    reply = cmd.response(test_room, test_user, ['sirocco', 'showimage'])
+    assert reply.text.startswith('/addhtmlbox'), 'stuff'
+
 
 def test_putnam_problem():
     cmd = Putnam()
