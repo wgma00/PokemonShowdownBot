@@ -45,6 +45,7 @@ import json
 import time
 from robot import PokemonShowdownBot, Room, User
 from commands import Command
+from commands import CommandLearn
 from plugins.messages import MessageDatabase
 from plugins.workshop import Workshop
 import details
@@ -67,6 +68,8 @@ class PSBot(PokemonShowdownBot):
 
     Attributes:
         do: Command method, handles command behaviour (i.e. ~git returns a url to this project)
+        learn: Command method, sends data to commands which change behaviour
+               (i.e. ~markov uses chat data to generate sentences).
         usernotes: MessageDatabase, which handles/logs all PMs sent from users
     """
     def __init__(self):
@@ -76,6 +79,7 @@ class PSBot(PokemonShowdownBot):
         main pokemonshowdown server hosted on https://play.pokemonshowdown.com.
         """
         self.do = Command
+        self.learn = CommandLearn
         self.usernotes = MessageDatabase()
         PokemonShowdownBot.__init__(self,
                                     'ws://sim.psim.us:8000/showdown/websocket',
@@ -261,6 +265,8 @@ class PSBot(PokemonShowdownBot):
             # perform moderation on user content
             room.logChat(user, message[2])
             saidMessage = '|'.join(message[4:])
+
+            # this message follows the command structure i.e. '~send hi'
             if saidMessage.startswith(self.commandchar) and saidMessage[1:] and saidMessage[1].isalpha():
                 command = self.extractCommand(saidMessage)
                 self.log('Command', saidMessage, user.id)
@@ -281,6 +287,9 @@ class PSBot(PokemonShowdownBot):
                     self.sendPm(user.id, self.escapeText(res.text))
                 else:
                     self.sendPm(user.id, 'Please pm the command for a response.')
+            else:
+                # this message should be considered to be any normal message found in chat
+                self.learn(room, user, saidMessage)
 
             # Test room punishments after commands
             anything = room.moderation.shouldAct(message[4], user, message[2])

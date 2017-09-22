@@ -100,3 +100,26 @@ def Command(self, cmd, room, msg, user):
     if plugins_extra_cmd_out:
         return plugins_extra_cmd_out
     return ReplyObject('{command} is not a valid command.'.format(command=cmd))
+
+
+def CommandLearn(self, room, msg, user):
+    """ passes information to commands which learn from chat data.
+
+    Better documentation of how certain commands learn can be found in the respective command files.
+
+    Args:
+        self: PSBot object of the main program.
+        room: Room object that this command was posted in.
+        msg: the remaining message after this command.
+        user: User object that initiated this command.
+    Returns:
+        None
+    Raises:
+        Exception: There was likely improper input in the .calc command or
+                   something I entirely missed lol.
+    """
+    # note that messages like '~send hi' which have a command structure
+    # will be ignored and not sent to commands learning structure
+    for command in available_commands:
+        if command.can_learn:
+            command.learn(room, user, msg)
