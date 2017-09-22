@@ -133,11 +133,14 @@ class Putnam(CommandBase):
     """
 
     def __init__(self):
-        super().__init__(aliases=['putnam'], has_html_box_feature=True)
+        super().__init__(aliases=['putnam'], can_learn=False)
         self._client_id = details.apikeys['imgur']
         self._client = pyimgur.Imgur(self._client_id)
         download_putnam_problems()
         self._problem_archive = parse_tex_files()
+
+    def learn(self, room, user, data):
+        pass
 
     def response(self, room, user, args):
         """ Returns a response to the user.

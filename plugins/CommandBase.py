@@ -17,9 +17,9 @@ class CommandBase(object):
 
     Attributes:
         aliases: list of str, keeps track of all the aliases that evoke this command
-        has_html_box_feature: Bool, keeps track of this command has an optional behaviour if html boxes are enabled.
+        can_learn: Bool,  specifying if chat data should be sent to this bot.
     """
-    def __init__(self, aliases, has_html_box_feature):
+    def __init__(self, aliases, can_learn):
         if not aliases:
             raise UnreachableCommand
         # check for conflicts and raise exception if found
@@ -29,7 +29,20 @@ class CommandBase(object):
             else:
                 CommandAliases.add_alias(alias)
         self.aliases = aliases
-        self.has_html_box_feature = has_html_box_feature
+        self.can_learn = can_learn
+
+    def learn(self, room, user, data):
+        """ Use user chat data to modify command behaviour.
+
+        Args:
+            room: Room, room this command was evoked from.
+            user: User, user who evoked this command.
+            data: str, messages recorded by user in chat.
+
+        Returns:
+            None
+        """
+        raise NotImplementedError
 
     def response(self, room, user, args):
         """ Returns a response to the user.

@@ -26,7 +26,10 @@ def MATH_CONST():
 
 class Calculator(CommandBase):
     def __init__(self):
-        super().__init__(aliases=['calc', 'calculator'], has_html_box_feature=False)
+        super().__init__(aliases=['calc', 'calculator'], can_learn=False)
+
+    def learn(self, room, user, data):
+        pass
 
     def response(self, room, user, args):
         """ Returns a response to the user.

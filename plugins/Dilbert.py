@@ -5,7 +5,10 @@ import time
 
 class Dilbert(CommandBase):
     def __init__(self):
-        super().__init__(aliases=['dilbert'], has_html_box_feature=False)
+        super().__init__(aliases=['dilbert'], can_learn=False)
+
+    def learn(self, room, user, data):
+        pass
 
     def response(self, room, user, args):
         """ Returns a response to the user.

@@ -8,7 +8,10 @@ import random
 
 class Xkcd(CommandBase):
     def __init__(self):
-        super().__init__(aliases=['xkcd'], has_html_box_feature=False)
+        super().__init__(aliases=['xkcd'], can_learn=False)
+
+    def learn(self, room, user, data):
+        pass
 
     def response(self, room, user, args):
         """ Returns a response to the user.

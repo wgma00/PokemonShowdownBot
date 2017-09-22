@@ -24,7 +24,7 @@ from user import User
 
 class PartyParrot(CommandBase):
     def __init__(self):
-        super().__init__(aliases=['pp', 'parrot', 'party', 'partyparrot'], has_html_box_feature=False)
+        super().__init__(aliases=['pp', 'parrot', 'party', 'partyparrot'], can_learn=False)
         self._Base = 'http://cultofthepartyparrot.com/parrots/'
         self._Extra = {'sirocco': 'http://cultofthepartyparrot.com/assets/sirocco.gif'}
         self._Parrot = {'aussiecongaparrot': '.gif',
@@ -92,6 +92,9 @@ class PartyParrot(CommandBase):
                         'witnessprotectionparrot': '.gif',
                         'moonwalkingparrot': '.gif',
                         'reversecongaparrot': '.gif'}
+
+    def learn(self, room, user, data):
+        pass
 
     def response(self, room, user, args):
         """ Returns a response to the user.

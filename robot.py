@@ -64,7 +64,6 @@ import re
 from room import Room
 from user import User
 from plugins.battling.battleHandler import BattleHandler
-from plugins.math.markov import Markov
 import details
 import yaml
 
