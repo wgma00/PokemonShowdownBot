@@ -9,7 +9,7 @@ services:
 before_install:
   - docker pull wgma/pokemonshowdownbot
   - docker ps -a
-  - docker run carlad/sinatra /bin/sh -c "python3 -m pytest --pep8 --cov-report term-missing --doctest-modules --cov=. test"
+  - docker run wgma/pokemonshowdown /bin/sh -c "python3 -m pytest --pep8 --cov-report term-missing --doctest-modules --cov=. test"
 
 install:
     - pip install -r requirements.txt
