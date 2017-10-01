@@ -11,4 +11,4 @@ services:
 install:
     - docker build -t quadbot .
 script: 
-    - docker run --rm -it -e IMGUR_API=$IMGUR_API -e COVERALLS_REPO_TOKEN=$COVERALLS_TOKEN quadbot bash -c "python3 -m pytest --pep8 --cov-report term-missing --doctest-modules --cov=. test && coveralls"
+    - docker run --rm -it -e IMGUR_API="${IMGUR_API}" -e COVERALLS_REPO_TOKEN="${COVERALLS_TOKEN}" quadbot bash -c "python3 -m pytest --pep8 --cov-report term-missing --doctest-modules --cov=. test && coveralls"
