@@ -1,0 +1,24 @@
+FROM python:3.4-jessie
+
+RUN apt-get update && \
+    apt-get install -y \
+        texlive-full \
+        texlive-pictures \
+        poppler-utils \
+        pnmtopng \
+        gnome-calculator \
+        xzdec
+
+RUN tlmgr init-usertree && \
+    tlmgr option repository ftp://tug.org/historic/systems/texlive/2015/tlnet-final && \
+    tlmgr install pgf && \
+    tlmgr install tikz-cd
+
+# For running docker build by CI
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+
+ONBUILD COPY requirements.txt /usr/src/app/
+ONBUILD RUN pip install --no-cache-dir -r requirements.txt
+
+ONBUILD COPY . /usr/src/app

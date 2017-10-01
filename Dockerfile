@@ -1,0 +1,2 @@
+FROM dhoeric/quadbot-base
+
