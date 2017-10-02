@@ -1,2 +1,2 @@
-FROM dhoeric/quadbot-base
+FROM wgma/quadbot-base
 
