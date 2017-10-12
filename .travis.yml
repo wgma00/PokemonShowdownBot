@@ -9,7 +9,7 @@ services:
   - docker
 
 before_install:
-  - sudo docker pull wgma/quadbot-base:latest .
+  - sudo docker pull wgma/quadbot-base:latest
 
 install:
   - sudo docker build -t --cache-from quadbot .
