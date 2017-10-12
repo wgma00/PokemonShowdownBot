@@ -8,7 +8,24 @@ python:
 services:
   - docker
 
+before_install:
+  - sudo docker pull wgma/quadbot-base:latest .
+
 install:
-    - docker pull --cache-from wgma/quadbot-base:latest .
-script: 
-    - docker run --rm -it -e IMGUR_API="${IMGUR_API}" -e COVERALLS_REPO_TOKEN="${COVERALLS_TOKEN}" quadbot bash -c "python3 -m pytest --pep8 --cov-report term-missing --doctest-modules --cov=. test && coveralls"
+  - sudo docker build -t --cache-from quadbot .
+script:
+  - sudo docker run --rm -it -e IMGUR_API="${IMGUR_API}" -e COVERALLS_REPO_TOKEN="${COVERALLS_TOKEN}" quadbot bash -c "python3 -m pytest --pep8 --cov-report term-missing --doctest-modules --cov=. test && coveralls"
+
+after_sucess:
+  - |
+      # only update docker instance on merges or changes to master branch
+      if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+        # tag the current builds with the build number
+        # if nothing has been changed the push will detect that
+        # and the new tag will appear on Docker Hub without anything being
+        # actually uploaded
+        docker login -u wgma -p $DOCKER_PASSWORD
+        sudo docker tag wgma/quadbot-base:latest wgma/quadbotbase:$TRAVIS_BUILD_NUMBER
+        docker push wgma/quadbot-base
+      fi
+
