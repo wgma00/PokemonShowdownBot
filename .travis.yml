@@ -12,7 +12,7 @@ before_install:
   - sudo docker pull wgma/quadbot-base:latest
 
 install:
-  - sudo docker build --cache-from quadbot .
+  - sudo docker build --cache-from wgma/quadbot-base:latest -t quadbot .
 script:
   - sudo docker run --rm -it -e IMGUR_API="${IMGUR_API}" -e COVERALLS_REPO_TOKEN="${COVERALLS_TOKEN}" quadbot bash -c "python3 -m pytest --pep8 --cov-report term-missing --doctest-modules --cov=. test && coveralls"
 
