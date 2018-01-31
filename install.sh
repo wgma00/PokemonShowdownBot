@@ -2,21 +2,22 @@
 
 
 install_dep_apt() {
-    apt-get install texlive-full
-    apt-get install texlive-pictures
-    tlmgr install pgf
-    tlmgr install tikz-cd
+    apt-get update
+    apt-get install texlive-full -y
+    apt-get install texlive-pictures -y
+    tlmgr install pgf -y
+    tlmgr install tikz-cd -y
 
 
-    apt-get install poppler-utils
+    apt-get install poppler-utils - y
     # might not be installed on some systems with poppler-utils
-    apt-get install pnmtopng
+    apt-get install pnmtopng -y
     # gnome-calculator package was formally known as gcalctool on earlier
     # versions like ubuntu 12.04
     if [[ -z `apt-cache search gnome-calculator` ]]; then
-        apt-get install gcalctool
+        apt-get install gcalctool -y
     else
-        apt-get install gnome-calculator
+        apt-get install gnome-calculator -y
     fi
 }
 
