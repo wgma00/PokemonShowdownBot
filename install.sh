@@ -9,7 +9,7 @@ install_dep_apt() {
     tlmgr install tikz-cd -y
 
 
-    apt-get install poppler-utils - y
+    apt-get install poppler-utils -y
     # might not be installed on some systems with poppler-utils
     apt-get install pnmtopng -y
     # gnome-calculator package was formally known as gcalctool on earlier
