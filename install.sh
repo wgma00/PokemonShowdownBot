@@ -40,7 +40,7 @@ fi
 
 
 # install the relevant pip manager if it's not installed
-if [[ -z PIP_CMD ]]; then
+if [[ ! -z PIP_CMD ]]; then
     wget https://bootstrap.pypa.io/get-pip.py
     python3 get-pip.py
     echo "pip installed for python3"
