@@ -1,40 +1,38 @@
-# Create a copy of this file named details.yaml and edit settings accordingly
-# This is the username you want the bot to have, MUST BE REGISTRED
-user: 
+ps_config:
+    # This is the username you want the bot to have, MUST BE REGISTRED
+    bot_username: ''
+    # The password for the bot
+    bot_password: ''
+    # MASTER bypass every allowance check and can do everything
+    owner: ''
+    # command character, preferably something people don't start sentences with
+    command_char: '.'
+    # OPTIONAL: The specific avatar the bot should use. Leave as 0 to pick the 
+    # default one.
+    avatar: 0
+    # The rooms that should be joined on login. Leave moderate as fale to not 
+    # enforce punishments. allow games: Specify if chatgames like hangman should 
+    # be allowed in the room. tourwhitelist: If you want to make specific people
+    # able to start tournaments without being @, add them to this list
+    joinRooms:
+      math:
+        moderate:
+          anything: false
+          banword: false
+          caps: false
+          groupchats: false
+          room: math # This should be the same name as the room name above
+          spam: false
+          stretching: false
+          urls: false
+        broadcastrank: '+'
+        allow games: False
+        tourwhitelist: []
+    # Set if the bot will attempt to join any tornament that is started in the 
+    # room, if the tiers it got accepts it. Default is False
+    joinTours: False
 
-# The password for the bot
-password: 
-
-# MASTER bypass every allowance check and can do everything
-master: 
-
-# command character, preferably something that people don't start sentences with. Use '' as bounds
-command: '.'
-
-
-# OPTIONAL: The specific avatar the bot should use. Leave as 0 to pick the default one.
-avatar: 0
-
-# The rooms that should be joined on login. Leave moderate as fale to not enforce punishments.
-# allow games: Specify if chatgames like hangman should be allowed in the room
-# tourwhitelist: If you want to make specific people able to start tournaments without being @, add them to this list
-joinRooms:
-  room:
-    moderate:
-      anything: false
-      banword: false
-      caps: false
-      groupchats: false
-      room: room # This should be the same name as the room name above
-      spam: false
-      stretching: false
-      urls: false
-    broadcastrank: ' '
-    allow games: False
-    tourwhitelist: []
-
-# Set if the bot will attempt to join any tornament that is started in the room, if the tiers it got accepts it. Default is False
-joinTours: False
+discord_config:
 
 # OPTIONAL: For workshops, set `pastebin: 0` to an api key given from Pastebin to automatically paste the workshop log
 apikeys: {

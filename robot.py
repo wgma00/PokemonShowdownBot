@@ -64,7 +64,7 @@ import re
 from room import Room
 from user import User
 from plugins.battling.battleHandler import BattleHandler
-import details
+from details import ps_config, apikeys
 import yaml
 
 
@@ -91,16 +91,17 @@ class PokemonShowdownBot:
              websocket will attempt connecting to.
     """
     def __init__(self, url, onMessage=None):
-        self.owner = details.master
-        self.name = details.bot_name
-        self.id = details.bot_id
-        self.apikeys = details.apikeys
+        self.details = ps_config
+        self.owner = ps_config['owner']
+        self.name = ps_config['bot_username']
+        self.id = ps_config['bot_id']
+        self.apikeys = apikeys
         self.rooms = {}
-        self.commandchar = details.command_char
+        self.commandchar = ps_config['command_char']
         self.intro()
         self.splitMessage = onMessage if onMessage else self.onMessage
         self.url = url
-        # websocket.enableTrace(True)
+        websocket.enableTrace(True)
         self.openConnection()
         guidechar = self.commandchar
 
@@ -168,12 +169,12 @@ class PokemonShowdownBot:
             challenge: string,
             challengekeyid: string,
         """
-        if self.name == 'username' and self.details['password'] == 'password':
+        if self.name == 'username' and self.details['bot_password'] == 'password':
             print('Error: Login details still at default; will not proceed with execution!')
             exit()
         payload = {'act': 'login',
                    'name': self.name,
-                   'pass': details.password,
+                   'pass': self.details['bot_password'],
                    'challengekeyid': challengekeyid,
                    'challenge': challenge}
         r = requests.post('http://play.pokemonshowdown.com/action.php',
@@ -202,11 +203,11 @@ class PokemonShowdownBot:
             print('crashing now; have a nice day :)')
             exit()
 
-        if details.avatar >= 0:
-            self.send('|/avatar {num}'.format(num=details.avatar))
+        if self.details['avatar'] >= 0:
+            self.send('|/avatar {num}'.format(num=self.details['avatar']))
         print('{name}: Successfully logged in.'.format(name=self.name))
-        for room in details.joinRooms:
-            self.joinRoom(room, details.joinRooms[room])
+        for room in self.details['joinRooms']:
+            self.joinRoom(room, self.details['joinRooms'][room])
 
     def joinRoom(self, room, data=None):
         """ Joins a room in pokemon showdown.
@@ -357,7 +358,7 @@ class PokemonShowdownBot:
         """Saves the current details to the details.yaml."""
         details = {k: v for k, v in self.details.items() if not k == 'rooms' and
                    not k == 'joinRooms'}
-        details['joinRooms'] = {}
+        self.details['joinRooms'] = {}
         for e in self.rooms:
             # no need to save details for group chats as they expire
             if e.startswith('groupchat'):
@@ -365,11 +366,11 @@ class PokemonShowdownBot:
             if not newAutojoin and e not in self.details['joinRooms']:
                 continue
             room = self.getRoom(e)
-            details['joinRooms'][e] = {'moderate': room.moderation.config,
+            self.details['joinRooms'][e] = {'moderate': room.moderation.config,
                                        'allow games': room.allowGames,
                                        'tourwhitelist': room.tourwhitelist}
         with open('details.yaml', 'w') as yf:
-            yaml.dump(details, yf, default_flow_style=False, explicit_start=True)
+            yaml.dump(self.details, yf, default_flow_style=False, explicit_start=True)
 
     # Default onMessage if none is given (This only support logging in,
     # nothing else). To get any actual use from the bot, create a custom
