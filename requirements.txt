@@ -14,3 +14,4 @@ pytest-cov
 coveralls
 pytest-pep8
 websockets == 4.0.1
+aiohttp == 2.3.10
