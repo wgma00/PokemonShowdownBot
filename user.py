@@ -78,27 +78,20 @@ class User:
         rank: string, user rank.
         owner: Bool, is this you.
     """
-    Groups = {' ': 0, '+': 1, '☆': 1, '%': 2, '@': 3, '*': 3.1, '&': 4, '#': 5, '~': 6}
-
-    @staticmethod
-    def compareRanks(rank1, rank2):
-        try:
-            return User.Groups[rank1] >= User.Groups[rank2]
-        except KeyError:
-            if rank1 not in User.Groups:
-                print('{rank} is not a supported usergroup'.format(rank=rank1))
-            if rank2 not in User.Groups:
-                print('{rank} is not a supported usergroup'.format(rank=rank2))
-            return False
+    Groups = {' ': 0, '+': 1, '☆': 1, '%': 2, '@': 3, '*': 4, '&': 5, '#': 6, '~': 7}
 
     def __init__(self, name, rank=' ', owner=False):
         self.name = name
-        self.id = re.sub(r'[^a-zA-z0-9]', '', name).lower()
+        self.id = User.username_to_id(self.name)
         self.rank = rank
         self.owner = owner
 
     @staticmethod
-    def compareRanks(rank1, rank2):
+    def username_to_id(name):
+        return re.sub(r'[^a-zA-z0-9]', '', name).lower()
+
+    @staticmethod
+    def compare_ranks(rank1, rank2):
         """Compares two user ranks.
         Args:
             rank1: char, user rank of first person
@@ -116,10 +109,10 @@ class User:
             if rank2 not in User.Groups:
                 raise UnSpecifiedUserRankException(rank2)
 
-    def isOwner(self):
+    def is_owner(self):
         """Checks if the current user object is the master(hence you)"""
         return self.owner
 
-    def hasRank(self, rank):
+    def has_rank(self, rank):
         """Determines if a user has sufficient staff rights"""
         return self.owner or User.compareRanks(self.rank, rank)

@@ -46,36 +46,41 @@
 # Objects control settings on a room-per-room basis, meaning every room can
 # be treated differently.
 
-import json
-from collections import deque
-from plugins.tournaments import Tournament
-import robot as r
 from user import User
-from plugins.moderation import ModerationHandler
 
 
 class Room:
     """ Contains all important information of a pokemon showdown room.
 
     Attributes:
+        name: string, name of this room.
+        room_setting: dict, dictionary containing a lot of the room settings in this room
+                      defined below:
+                      room_setting = {
+                            'moderate': {
+                                'room': str,
+                                'anything': bool,
+                                'spam': bool,
+                                'banword': bool,
+                                'caps': bool,
+                                'stretching': bool,
+                                'groupchats': bool,
+                                'urls': bool
+                            },
+                            'broadcastrank': ' ',
+                            'allowgames': False,
+                            'tourwhitelist': []
+                        }
         users: map, maps user ids to users.
-        loading: Bool, if this room is still loading information.
-        title: string, name of the room.
         rank: string, the rank of this bot in this room.
-        isPM: bool, if this room is considered a private message.
-        moderation: Bool, if this bot should moderate this room.
-        allowGames: Bool, if this bot will allow games in this room.
-        tour: Bool, if this bot will allow tours in this room.
-        activity: Workshop object, if this room is a workshop.
-        tourwhitelist: list of str, users who are not moderators but who have
-                       permission to start a tour.
+        broadcastrank: string, rank required in this room for users to use commands.
     """
-    def __init__(self, room, data=None):
+    def __init__(self, name, room_setting=None):
         """Intializes room with preliminary information."""
-        if not data:
-            data = {
+        if not room_setting:
+            room_setting = {
                 'moderate': {
-                    'room': room,
+                    'room': name.lower(),
                     'anything': False,
                     'spam': False,
                     'banword': False,
@@ -88,204 +93,18 @@ class Room:
                 'allow games': False,
                 'tourwhitelist': []}
         self.users = {}
-        self.loading = True
-        self.title = room
-        self.broadcast_rank = data['broadcastrank']
-        self.isPM = room.lower() == 'pm'
-        self.rank = ' '
-        self.moderation = ModerationHandler(data['moderate'])
-        self.allowGames = data['allow games']
-        self.tour = None
-        self.activity = None
-        self.tourwhitelist = data['tourwhitelist']
-        self.chatlog = deque({'': -1}, 20)
-        self.moderation.assignRoom(self)
+        self.rank = ' ' # should be changed later
+        self.name = name.lower()
+        self.room_setting = room_setting
+        self.is_pm = self.name == 'pm'
+        self.broadcastrank = self.room_setting['broadcastrank']
 
-    def doneLoading(self):
-        """Set loading status to False"""
-        self.loading = False
-
-    def addUser(self, user):
-        if self.moderation.isBannedFromRoom(user):
-            return
+    def add_user(self, user):
+        """Adds a user to the current rooms list of users.
+        Args:
+            user: User object, user object containing rank, userid, name, etc.
+        """
         if user.id not in self.users:
             self.users[user.id] = user
-        return True
-
-    def removeUser(self, userid):
-        """Removes user from this room."""
-        if userid in self.users:
-            return self.users.pop(userid)
-
-    def renamedUser(self, old, new):
-        """updates user credentials."""
-        self.removeUser(old)
-        self.addUser(new)
-
-    def getUser(self, name):
-        """Returns true if this user is in this room."""
-        if name in self.users:
-            return self.users[name]
-
-    def botHasBanPermission(self):
-        return User.compareRanks(self.rank, '@')
-
-    def logChat(self, user, message):
-        """Logs the message unto our message queue"""
-        self.chatlog.append({user.id: len(message)})
-
-    def isWhitelisted(self, user):
-        """Returns true if this user is white listed for tours."""
-        return user.hasRank('@') or user in self.tourwhitelist
-
-    def addToWhitelist(self, user):
-        """Adds user to whitelist"""
-        if user in self.tourwhitelist:
-            return False
-        self.tourwhitelist.append(user)
-        return True
-
-    def delFromWhitelist(self, target):
-        """Returns true if the operation was succesful."""
-        if target not in self.tourwhitelist:
-            return False
-        self.tourwhitelist.remove(target)
-        return True
-
-    def createTour(self, ws, form, battleHandler):
-        """Creates a tour with the specified format.
-
-        Args:
-            ws: websocket.
-            form: string, type of format for this tournament.
-        """
-        self.tour = Tournament(ws, self, form, battleHandler)
-
-    def getTourWinner(self, msg):
-        """Returns the winner of the current game.
-        Args:
-            msg:str, winning message from the tour.
-        Returns:
-            tuple (str,str) , represeting the user and the format won.
-        """
-        things = json.loads(msg)
-        winner = things['results'][0]
-        if self.tour:
-            self.tour.logWin(winner)
-        return winner, things['format']
-
-    def endTour(self):
-        """Ends the current tournament."""
-        self.tour = None
 
 
-# Commands
-def leaveroom(bot, cmd, room, msg, user):
-    reply = r.ReplyObject()
-    msg = bot.removeSpaces(msg)
-    if not msg:
-        msg = room.title
-    if bot.leaveRoom(msg):
-        return reply.response('Leaving room {r} succeeded'.format(r=msg))
-    return reply.response('Could not leave room: {r}'.format(r=msg))
-
-
-def allowgames(bot, cmd, room, msg, user):
-    """Determines if a user is allowed to commence a chat game of any sort.
-    Args:
-        bot: Robot, connection between this funciton and the main program.
-        cmd: str, the command the user is executing.
-        msg: str, any message found after the command.
-        user: user object.
-    Returns:
-        Reply object denoting the mesage to be returned and whether or not it
-        the message should be sent in PMs or public chat.
-    """
-    reply = r.ReplyObject(True)
-    if not user.hasRank('#'):
-        return reply.response('You do not have permission to change this. (Requires #)')
-    if room.isPM:
-        return reply.response("You can't use this command in a pm.")
-    msg = bot.removeSpaces(msg)
-    if msg in ['true', 'yes', 'y', 'True']:
-        if room.allowGames:
-            return reply.response('Chatgames are already allowed in this room.')
-        room.allowGames = True
-        return reply.response('Chatgames are now allowed in this room.')
-
-    elif msg in ['false', 'no', 'n', ' False']:
-        room.allowGames = False
-        return reply.response('Chatgames are no longer allowed in this room.')
-    return reply.response('{param} is not a supported parameter'.format(param=msg))
-
-
-def tour(bot, cmd, room, msg, user):
-    """Determines if a user is allowed to commence a tour of any sort.
-    Args:
-        bot: Robot, connection between this funciton and the main program.
-        cmd: str, the command the user is executing.
-        msg: str, any message found after the command.
-        user: user object.
-    Returns:
-        Reply object denoting the mesage to be returned and whether or not it
-        the message should be sent in PMs or public chat.
-    """
-    reply = r.ReplyObject('', True, True, True)
-    if room.isPM:
-        return reply.response("You can't use this command in a pm.")
-    if not room.isWhitelisted(user):
-        return reply.response('You are not allowed to use this command. (Requires whitelisting by a Room Owner)')
-    if not bot.canStartTour(room):
-        return reply.response("I don't have the rank required to start a tour :(")
-    return reply.response('/tour {rest}\n/modnote From {user}'.format(rest=msg, user=user.name))
-
-
-def tourwl(bot, cmd, room, msg, user):
-    """Adds a user to the whitelist of people who can start a tour.
-    Args:
-        bot: Robot, connection between this funciton and the main program.
-        cmd: str, the command the user is executing.
-        msg: str, any message found after the command.
-        user: user object.
-    Returns:
-        Reply object denoting the mesage to be returned and whether or not it
-        the message should be sent in PMs or public chat.
-    """
-    reply = r.ReplyObject('', True)
-    if not user.hasRank('#'):
-        return reply.response("You do not have permission to change this. (Requires #)")
-    target = bot.toId(msg)
-    if not room.addToWhitelist(target):
-        return reply.response('This user is already whitelisted in that room.')
-    bot.saveDetails()
-    return reply.response("{name} added to the whitelist in this room.".format(name=msg))
-
-
-def untourwl(bot, cmd, room, msg, user):
-    """Attempts to remove a user from the whistlist of people who start tours.
-    Args:
-        bot: Robot, connection between this funciton and the main program.
-        cmd: str, the command the user is executing.
-        msg: str, any message found after the command.
-        user: user object.
-    Returns:
-        Reply object denoting the mesage to be returned and whether or not it
-        the message should be sent in PMs or public chat.
-    """
-    reply = r.ReplyObject('', True)
-    if not user.hasRank('#'):
-        return reply.response(("You do not have permission to change this."
-                              " (Requires #)"))
-    target = bot.toId(msg)
-    if not room.delFromWhitelist(target):
-        return reply.response('This user is not whitelisted in that room.')
-    bot.saveDetails()
-    return reply.response("{name} removed from the whitelist in this room.".format(name=msg))
-
-RoomCommands = {
-    'leave': leaveroom,
-    'allowgames': allowgames,
-    'tour': tour,
-    'tourwl': tourwl,
-    'untourwl': untourwl
-}
