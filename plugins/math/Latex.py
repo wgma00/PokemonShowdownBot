@@ -46,6 +46,25 @@ class Latex(CommandBase):
         self._client = pyimgur.Imgur(self._client_id)
         self.packages = 'amsmath,amsthm,amssymb,amsfonts,tikz-cd'
 
+    def parse_args(self, msg):
+        """Special parsing which ignores commas between the first set of $.
+        Args:
+            msg: str, string containing information from user.
+        Returns:
+            list of str, containing arguments pass to command
+        """
+        args = []
+        if msg.find('$') == -1:
+            args = [msg]
+        else:
+            first_cash = msg.find('$')
+            last_cash = msg.rfind('$')
+            latex_expr = msg[first_cash:last_cash+1]
+            msg = msg[:first_cash] + msg[last_cash+1:]
+            args = super().parse_args(msg)
+            args = [latex_expr]  + args
+        return args
+
     def learn(self, room, user, data):
         pass
 
@@ -59,6 +78,7 @@ class Latex(CommandBase):
         Returns:
             ReplyObject
         """
+        print(args)
         if len(args) == 1 and args[0] == 'help':
             return self._help(room, user, args)
         # error checking

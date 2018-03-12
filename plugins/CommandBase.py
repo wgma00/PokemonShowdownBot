@@ -31,6 +31,16 @@ class CommandBase(object):
         self.aliases = aliases
         self.can_learn = can_learn
 
+    def parse_args(self, msg):
+        """Default parsing for commands by commas.
+        Args:
+            msg: str, string containing information from user.
+        Returns:
+            list of str, containing arguments pass to command
+        """
+        return list(filter(lambda m: m != '', [item.strip() for item in msg.split(',')]))
+
+
     def learn(self, room, user, data):
         """ Use user chat data to modify command behaviour.
 
