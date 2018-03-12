@@ -92,6 +92,10 @@ def test_latex():
     reply = cmd.response(test_room, test_user, ['$1+1$', 'showimage'])
     assert 'http' in reply.text, "Compiling, showimaging, and/or  uploading to imgur doesn't work"
 
+    test_room.rank = '*'
+    reply = cmd.response(test_room, test_user, cmd.parse_args('$\begin{tikzcd}\cdots\arrow[r]&A_{n+1}\arrow[r,"\partial_A"]\arrow[d,"f_{n+1}"]&A_n\arrow[r,"\partial_A"]\arrow[d,"f_n"]&A_{n-1}\arrow[r]\arrow[d,"f_{n-1}"]&\cdots\\\cdots\arrow[r]&B_{n+1}\arrow[r,"\partial_B"]&B_n\arrow[r,"\partial_B"]&B_{n-1}\arrow[r]&\cdots\end{tikzcd}$'))
+    assert 'http' in reply.text, "Compiling, showimaging, and/or  uploading to imgur doesn't work when commas inserted between $$"
+
     test_room.rank = ' '
     reply = cmd.response(test_room, test_user, ['$1+1$', 'showimage'])
     answer = ReplyObject('This bot requires * or # rank to showimage in chat', True)
