@@ -83,10 +83,9 @@ def Command(self, cmd, room, msg, user):
                    something I entirely missed lol.
     """
     # filter out empty spaces from list and strip them
-    args = list(filter(lambda m: m != '', [item.strip() for item in msg.split(',')]))
     for command in available_commands:
         if cmd in command.aliases:
-            return command.response(room, user, args)
+            return command.response(room, user, command.parse_args(msg))
     # check for secret commands we don't want to keep track of on github
     secret_cmd_out = SecretCommands(self, cmd, room, msg, user)
     if secret_cmd_out:
