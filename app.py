@@ -55,7 +55,7 @@ invoker = Invoker()
 def chat_handler(message):
     # handle the command logic elsewhere elsewhere
     if message.requests_command():
-        reply = invoker.invoke_command(message)
+        reply = yield from invoker.invoke_command(message)
         if not message.is_pm:
             yield from psclient.send_room(message.room.name, reply.text)
         else:
@@ -69,4 +69,5 @@ def battle_handler(message):
 
 
 if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(psclient.make_connection())
+    event_loop = asyncio.get_event_loop()
+    event_loop.run_until_complete(psclient.make_connection())

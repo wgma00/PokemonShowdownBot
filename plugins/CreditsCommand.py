@@ -1,3 +1,4 @@
+import asyncio
 from plugins.CommandBase import CommandBase
 from showdown import ReplyObject
 
@@ -9,6 +10,7 @@ class Credits(CommandBase):
     def learn(self, room, user, data):
         pass
 
+    @asyncio.coroutine 
     def response(self, room, user, args):
         """ Returns a response to the user.
 
@@ -19,6 +21,7 @@ class Credits(CommandBase):
         Returns:
             ReplyObject
         """
+        yield from asyncio.sleep(0)
         if len(args) == 1 and args[0] == 'help':
             return self._help(room, user, args)
         elif len(args) >= 1:

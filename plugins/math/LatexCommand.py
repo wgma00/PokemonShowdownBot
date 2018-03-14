@@ -15,9 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with PokemonShowdownBot.  If not, see <http://www.gnu.org/licenses/>.
 
+import asyncio
 import os
 import subprocess
 import pyimgur
+import asyncio
 from pylatex import Document
 from pylatex import NoEscape
 from pylatex import Package
@@ -68,6 +70,8 @@ class Latex(CommandBase):
     def learn(self, room, user, data):
         pass
 
+
+    @asyncio.coroutine
     def response(self, room, user, args):
         """ Returns a response to the user.
 
@@ -78,7 +82,7 @@ class Latex(CommandBase):
         Returns:
             ReplyObject
         """
-        print(args)
+        yield from asyncio.sleep(0)
         if len(args) == 1 and args[0] == 'help':
             return self._help(room, user, args)
         # error checking
@@ -97,11 +101,11 @@ class Latex(CommandBase):
             return self._error(room, user, 'invalid_latex_expression')
         elif len(args) == 2 and args[1] == 'showimage' and room.isPM:
             return self._error(room, user, 'show_image_pms')
-        elif len(args) == 2 and args[1] == 'showimage' and not User.compareRanks(room.rank, '*'):
+        elif len(args) == 2 and args[1] == 'showimage' and not User.compare_ranks(room.rank, '*'):
             return self._error(room, user, 'insufficient_room_rank')
         else:
             try:
-                return self._success(room, user, args)
+                return (yield from self._success(room, user, args))
             except subprocess.CalledProcessError:
                 return self._error(room, user, 'internal_error')
 
@@ -154,6 +158,7 @@ class Latex(CommandBase):
         elif reason == 'internal_error':
             return ReplyObject('There was an internal error. Check your LaTeX expression for any errors')
 
+    @asyncio.coroutine
     def _success(self, room, user, args):
         """ Returns a success response to the user.
 
@@ -166,12 +171,12 @@ class Latex(CommandBase):
         Returns:
             ReplyObject
         """
-        uploaded_image_data = self.handle_request(args[0])
+        uploaded_image_data = yield from self.handle_request(args[0])
         uploaded_image = uploaded_image_data[0]
         uploaded_image_dims = uploaded_image_data[1]
 
         show_image = args[-1] == 'showimage'
-        if User.compareRanks(room.rank, '*') and show_image:
+        if User.compare_ranks(room.rank, '*') and show_image:
             # don't render to 100% of screen because latex renders badly
             return ReplyObject('/addhtmlbox <img src="{url}" height="{height}" width="{width}"></img>'.format(
                 url=uploaded_image, height=uploaded_image_dims[1], width=uploaded_image_dims[0]), True, True)
@@ -191,6 +196,7 @@ class Latex(CommandBase):
         self.packages = '{prev_pkgs},{new_pkg}'.format(prev_pkgs=self.packages, new_pkg=args[0])
         return ReplyObject('{new_pkg} has been added. This is not saved on restart'.format(new_pkg=args[0]), True, True)
 
+    @asyncio.coroutine
     def handle_request(self, latex_expr):
         """Uploads LaTeX formated equations to imgur and returns a URL.
 
@@ -205,7 +211,19 @@ class Latex(CommandBase):
         doc = Document(documentclass='minimal')
         doc.packages = [Package(NoEscape(i)) for i in self.packages.split(',')]
         doc.append(NoEscape(latex_expr))
-        doc.generate_pdf('default', compiler_args=['-no-shell-escape', ], compiler="pdflatex", clean=True, clean_tex=True)
+        doc.generate_tex()
+        compile_cmd = ['pdflatex', '-no-shell-escape', '--interaction=nonstopmode', 'default.tex']
+        process = yield from asyncio.create_subprocess_exec(*compile_cmd,
+                                                stdin=asyncio.subprocess.PIPE,
+                                                stdout=asyncio.subprocess.PIPE,
+                                                stderr=asyncio.subprocess.PIPE)
+        yield from process.wait()
+        compile_cmd = ['pdflatex', '-no-shell-escape', '--interaction=nonstopmode', 'default.tex']
+        process = yield from asyncio.create_subprocess_exec(*compile_cmd,
+                                                stdin=asyncio.subprocess.PIPE,
+                                                stdout=asyncio.subprocess.PIPE,
+                                                stderr=asyncio.subprocess.PIPE)
+        yield from process.wait()
         # These are normal Linux commands that are used to convert the pdf
         # file created by pylatex into a snippet
         os.system("pdfcrop default.pdf")

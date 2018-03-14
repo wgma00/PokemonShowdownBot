@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with PokemonShowdownBot.  If not, see <http://www.gnu.org/licenses/>.
 
+import asyncio
 import importlib
 import glob
 from showdown import ReplyObject
@@ -39,12 +40,17 @@ class Invoker:
     def _load_modules(self):
         """Loads in command files labelled as *Command.py in plugins folder."""
         module_paths = self.get_files('plugins')
+        print('Loading command modules.')
         for path in module_paths:
             base_file_path = path.replace('/', '.')[:-3]
             class_name = base_file_path[base_file_path.rfind('.')+1 : base_file_path.rfind('Command')]
             class_var = getattr(importlib.import_module(base_file_path), class_name)
             obj = class_var()
             self.modules.append(obj)
+            print('{} has been loaded.'.format(class_var.__name__))
+            print(base_file_path, class_name)
+            print('\n')
+
 
     def get_files(self, master_path):
         """Recursively gets the path to all html files in a directory.
@@ -96,6 +102,7 @@ class Invoker:
         alias = raw_message[1:] if first_white_space_index < 0 else raw_message[1:first_white_space_index]
         return alias
 
+    @asyncio.coroutine
     def invoke_command(self, message):
         """Attempt to invoke invoke the specific command with provided arguments.
         Args:
@@ -107,7 +114,8 @@ class Invoker:
         command_msg = message.content[len(command_alias)+1:].lstrip()
         for cmd in self.modules:
             if command_alias in cmd.aliases:
-                return cmd.response(message.room, message.user, [])
-        return ReplyObject()
+                response = yield from cmd.response(message.room, message.user, cmd.parse_args(command_msg))
+                return response
+        return (yield from ReplyObject())
 
         
