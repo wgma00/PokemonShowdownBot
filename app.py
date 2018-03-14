@@ -43,15 +43,23 @@
 
 import showdown
 import asyncio
+from plugins.invoker import Invoker
+from showdown import ReplyObject
 
 psclient = showdown.Client()
+invoker = Invoker()
 
 
 @psclient.event
 @asyncio.coroutine
 def chat_handler(message):
+    # handle the command logic elsewhere elsewhere
     if message.requests_command():
-        yield from psclient.send_pm(message.user.id, 'WORK IN PROGRESS')
+        reply = invoker.invoke_command(message)
+        if not message.is_pm:
+            yield from psclient.send_room(message.room.name, reply.text)
+        else:
+            yield from psclient.send_pm(message.user.name, reply.text)
 
 
 @psclient.event

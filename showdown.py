@@ -83,6 +83,8 @@ class Client:
                     parsed_messages= lines[1:]
                 parsed_messages = list(filter(lambda x: x != '', parsed_messages))  # remove empty lines
                 for msg in parsed_messages:
+                    # random prompt from PS which we don't need to interpret
+                    if not msg.startswith('|'): continue
                     content = msg.split('|')
                     event = content[1].lower() # event capitalization not standardized
                     room = self.get_room(room_name) # create a new room object if we don't already have one
@@ -307,7 +309,7 @@ class MessageWrapper:
         return '|{prt}|{time}|{user}|{msg}'.format(prt, self.unix_time, self.user.id, self.content)
 
 
-class Reply:
+class ReplyObject:
     """Reply object containing important information about how to handle an
     event to a user.
 

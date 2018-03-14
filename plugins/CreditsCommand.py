@@ -1,5 +1,5 @@
 from plugins.CommandBase import CommandBase
-from robot import ReplyObject
+from showdown import ReplyObject
 
 
 class Credits(CommandBase):
