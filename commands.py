@@ -47,6 +47,7 @@ from plugins.math.Latex import Latex
 from plugins.math.Calculator import Calculator
 from plugins.math.Putnam import Putnam
 from plugins.Machine import Machine
+from plugins.Steam import Steam 
 from plugins.Xkcd import Xkcd
 from plugins.Dilbert import Dilbert
 from plugins.PartyParrot import PartyParrot
@@ -61,7 +62,7 @@ RoomCmds = RoomCommands.copy()
 PluginsExtraCmds = PluginExtraCommands.copy()
 
 
-available_commands = [Send(), Credits(), Latex(), Machine(), Calculator(), Xkcd(), Dilbert(), PartyParrot(), Putnam(), Broadcast()]
+available_commands = [Send(), Credits(), Latex(), Machine(), Xkcd(), Dilbert(), PartyParrot(), Putnam(), Broadcast(), Steam()]
 
 
 def Command(self, cmd, room, msg, user):
@@ -98,7 +99,7 @@ def Command(self, cmd, room, msg, user):
     plugins_extra_cmd_out = PluginsExtraCmds[cmd](self, cmd, room, msg, user) if cmd in PluginsExtraCmds else None
     if plugins_extra_cmd_out:
         return plugins_extra_cmd_out
-    return ReplyObject('{command} is not a valid command.'.format(command=cmd))
+    return ReplyObject('')
 
 
 def CommandLearn(self, room, msg, user):
