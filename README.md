@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/wgma00/quadbot.svg?branch=master)](https://travis-ci.org/wgma00/quadbot) 
+[![Build Status](https://travis-ci.org/wlgranados/quadbot.svg?branch=master)](https://travis-ci.org/wlgranados/quadbot) 
 [![Coverage Status](https://coveralls.io/repos/github/wgma00/PokemonShowdownBot/badge.svg)](https://coveralls.io/github/wgma00/PokemonShowdownBot)
 
 Pokemon Showdown chat bot made in Python 3.
