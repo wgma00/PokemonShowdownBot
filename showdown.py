@@ -106,7 +106,8 @@ class Client:
                             unix_time, user_name, user_msg = str(int(time.time())), content[3], content[4]
                             user = User(user_name)
                             message = MessageWrapper(unix_time, user, user_msg, room, self.config)
-                            yield from self.chat_handler(message)
+                            # ignore messages on first loading a room, to avoid overloading on commands, and start fresh
+                            if room.loaded: yield from self.chat_handler(message)
                         elif event == 'pm':
                             # |pm|user|recepient| message => ['', 'pm', 'user', 'recepient', 'message']
                             unix_time, user_name, other_name, user_msg = str(int(time.time())), content[2], content[3], content[4]
@@ -114,6 +115,9 @@ class Client:
                             user = User(user_name)
                             message = MessageWrapper(unix_time, user, user_msg, room, self.config)
                             yield from self.chat_handler(message)
+                        elif event == 'raw':
+                            # |raw|<div class="infobox"> You joined Bot Development</div>
+                            room.loaded = True
                         else:
                             print(event, 'is not implemented at the moment')
 

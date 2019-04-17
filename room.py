@@ -73,6 +73,7 @@ class Room:
                         }
         users: map, maps user ids to users.
         rank: string, the rank of this bot in this room.
+        loaded: bool, determines if all the information for this room has been loaded yet.
         broadcastrank: string, rank required in this room for users to use commands.
     """
     def __init__(self, name, room_setting=None):
@@ -96,6 +97,7 @@ class Room:
         self.rank = ' ' # should be changed later
         self.name = name.lower()
         self.room_setting = room_setting
+        self.loaded = False
         self.is_pm = self.name == 'pm'
         self.broadcastrank = self.room_setting['broadcastrank']
 
