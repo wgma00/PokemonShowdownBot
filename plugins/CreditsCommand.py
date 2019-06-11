@@ -4,6 +4,11 @@ from showdown import ReplyObject
 
 
 class Credits(CommandBase):
+    """
+    Usage: .credits
+        - Returns a url to this page.
+        [test](google.ca)
+    """
     def __init__(self):
         super().__init__(aliases=['credits', 'git', 'source'], can_learn=False)
 

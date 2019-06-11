@@ -73,6 +73,7 @@ class Client:
                 message_stream = yield from self.ws.recv()
                 parsed_messages = [message_stream]  # assume the original message stream only contains one message
                 room_name = 'Empty'
+                print(message_stream)
                 # message streams starting with > means we're provided serveral message protocols
                 # delimited by new line characters
                 if message_stream.startswith('>'):
@@ -90,7 +91,8 @@ class Client:
                     room = self.get_room(room_name) # create a new room object if we don't already have one
                     # battle rooms don't require the same interface as chatrooms or private messages
                     if room.name.startswith('battle-'):
-                        pass
+                        message = MessageWrapper()
+                        yield from self.battle_handler(message)
                     else:
                         if event == 'challstr':
                             challengekeyid, challenge = content[2], content[3]
@@ -103,6 +105,7 @@ class Client:
                             # |c:|unix_time|user| message => ['', 'c:', 'unix_time', 'user', 'message']
                             # we'll use our own unix time for now, since it's not standarized across pm's and
                             # chat messages
+                            
                             unix_time, user_name, user_msg = str(int(time.time())), content[3], content[4]
                             user = User(user_name)
                             message = MessageWrapper(unix_time, user, user_msg, room, self.config)
@@ -115,6 +118,21 @@ class Client:
                             user = User(user_name)
                             message = MessageWrapper(unix_time, user, user_msg, room, self.config)
                             yield from self.chat_handler(message)
+                        # battle related stuff
+                        elif event == 'updatechallenges':
+                            # |updatechallenges|{"challengesFrom":{"wgma":"gen7randombattle", "amgw", "gen7randombattle"},"challengeTo":null}
+                            challenge = json.loads(content[2])
+                            if challenge['challengesFrom']:
+                                opponents = [key for key in challenge['challengesFrom'].keys()]
+                               # |request|{"active":[{"moves":[{"move":"Volt Switch","id":"voltswitch","pp":32,"maxpp":32,"target":"normal","disabled":false},{"move":"Focus Blast","id":"focusblast","pp":8,"maxpp":8,"target":"normal","disabled":false},{"move":"Encore","id":"encore","pp":8,"maxpp":8,"target":"normal","disabled":false},{"move":"Grass Knot","id":"grassknot","pp":32,"maxpp":32,"target":"normal","disabled":false}]}],"side":{"name":"octbot","id":"p2","pokemon":[{"ident":"p2: Raichu","details":"Raichu, L89, M","condition":"252/252","active":true,"stats":{"atk":165,"def":149,"spa":211,"spd":193,"spe":247},"moves":["voltswitch","focusblast","encore","grassknot"],"baseAbility":"lightningrod","item":"focussash","pokeball":"pokeball","ability":"lightningrod"},{"ident":"p2: Infernape","details":"Infernape, L82, M","condition":"259/259","active":false,"stats":{"atk":175,"def":164,"spa":218,"spd":164,"spe":224},"moves":["nastyplot","fireblast","vacuumwave","focusblast"],"baseAbility":"blaze","item":"fightiniumz","pokeball":"pokeball","ability":"blaze"},{"ident":"p2: Mew","details":"Mew, L80","condition":"291/291","active":false,"stats":{"atk":165,"def":206,"spa":206,"spd":206,"spe":206},"moves":["nastyplot","willowisp","psyshock","icebeam"],"baseAbility":"synchronize","item":"leftovers","pokeball":"pokeball","ability":"synchronize"},{"ident":"p2: Hitmonchan","details":"Hitmonchan, L88, M","condition":"231/231","active":false,"stats":{"atk":235,"def":189,"spa":112,"spd":244,"spe":184},"moves":["icepunch","bulkup","drainpunch","firepunch"],"baseAbility":"ironfist","item":"lifeorb","pokeball":"pokeball","ability":"ironfist"},{"ident":"p2: Arcanine","details":"Arcanine, L84, M","condition":"287/287","active":false,"stats":{"atk":233,"def":183,"spa":216,"spd":183,"spe":208},"moves":["extremespeed","flareblitz","willowisp","wildcharge"],"baseAbility":"intimidate","item":"lifeorb","pokeball":"pokeball","ability":"intimidate"},{"ident":"p2: Seismitoad","details":"Seismitoad, L86, M","condition":"321/321","active":false,"stats":{"atk":213,"def":178,"spa":195,"spd":178,"spe":177},"moves":["scald","sludgewave","earthquake","knockoff"],"baseAbility":"waterabsorb","item":"assaultvest","pokeball":"pokeball","ability":"waterabsorb"}]},"rqid":3}
+                                for opp in opponents:
+                                    battle_format = challenge['challengesFrom'][opp]
+                                    if battle_format == 'gen7randombattle':
+                                        team = ''
+                                        yield from self.ws.send('|/utm {}'.format(team))
+                                        yield from self.ws.send('|/accept {}'.format(opp))
+                                    else:
+                                        yield from self.ws.send_pm(opp, 'Sorry, I can\'t accept challnges in that format')
                         elif event == 'raw':
                             # |raw|<div class="infobox"> You joined Bot Development</div>
                             room.loaded = True
@@ -279,6 +297,40 @@ class Client:
 
 
 class MessageWrapper:
+    """Message wrapper with several utilities for getting information from a message
+
+    Attributes:
+        unix_time: str, string containing the unix time of the message since 1970.
+        user: user object, user object from the user to send this message.
+        content: str, content of the message that was sent.
+        room: room object, the room this message was sent from.
+        _config: config object containing bot details.
+        is_pm: bool, verify if this message is a private message or not.
+    """
+    def __init__(self, unix_time, user, content, room, config):
+        self.unix_time = unix_time
+        self.user = user
+        self.content = content
+        self.room = room
+        self._config = config
+        self.is_pm = room.name == 'pm'
+
+    def from_self(self):
+        """Determines if this message was from the bot instance itself."""
+        return self.user.name == self._config['bot_username']
+
+    def requests_command(self):
+        """Determines if the message sent by the user starts with a command character."""
+        return self.content.startswith(self._config['command_char'])
+
+    def __str__(self):
+        # |c:|unix_time|user| message => ['c:', 'unix_time', 'user', 'message']
+        # or
+        # |pm|user| message => ['pm', 'user', 'message']
+        prt = 'pm' if self.is_pm else 'c:'
+        return '|{prt}|{time}|{user}|{msg}'.format(prt, self.unix_time, self.user.id, self.content)
+
+class BattleMessageWrapper:
     """Message wrapper with several utilities for getting information from a message
 
     Attributes:

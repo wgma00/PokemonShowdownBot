@@ -70,5 +70,5 @@ def init():
         load_config('details.yaml')
     except FileNotFoundError as e:
         load_travis_defaults()
-
-init()
+if __name__ == '__main__':
+    init()

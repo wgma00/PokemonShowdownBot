@@ -26,7 +26,7 @@ from pylatex import Package
 
 from plugins.images import OnlineImage
 from plugins.CommandBase import CommandBase
-from robot import ReplyObject
+from showdown import ReplyObject
 from user import User
 import details
 
@@ -36,6 +36,9 @@ class Latex(CommandBase):
 
     This class will take in commands of the form ".latex $equation$". It will
     generate the corresponding LaTeX and upload it to the imgur image hosting.
+
+    Usage: .latex $[command]$
+        - command: str, string with latex equation you would like to use. 
 
     Attributes:
         _client_id: client object that interacts with the imgur host

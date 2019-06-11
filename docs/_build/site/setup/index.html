@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Setup - Quadbot Documentation</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Setup";
+    var mkdocs_page_input_path = "setup.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> Quadbot Documentation</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">Setup</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#setting-up">Setting up</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#operating-system">Operating System:</a></li>
+        
+            <li><a class="toctree-l3" href="#latex">LaTeX:</a></li>
+        
+            <li><a class="toctree-l3" href="#calculator">Calculator:</a></li>
+        
+        </ul>
+    
+
+    <li class="toctree-l2"><a href="#license">License</a></li>
+    
+
+    <li class="toctree-l2"><a href="#credits">Credits</a></li>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../showdown/">Development</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Commands</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../plugins/CreditsCommand/">Credits</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../plugins/LatexCommand/">Latex</a>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">Quadbot Documentation</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Setup</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/wlgranados/quadbot/edit/master/docs/setup.md"
+          class="icon icon-github"> Edit on GitHub</a>
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h2 id="setting-up">Setting up</h2>
+<p>The following are the necessary dependencies for running this software.</p>
+<h3 id="operating-system">Operating System:</h3>
+<ul>
+<li>APT/RPM based Linux distribution like Debian or Fedora</li>
+<li>Some functionality may still work on Windows and MacOS, but have not been fully tested. Use at your own discretion.</li>
+<li>If you're not running Linux natively then consider running this project in <a href="https://www.vagrantup.com/">vagrant</a>; more info provided below.</li>
+</ul>
+<h3 id="latex">LaTeX:</h3>
+<ul>
+<li>Requires the following to be installed, <code>texlive</code> and <code>poppler-utils</code></li>
+</ul>
+<h3 id="calculator">Calculator:</h3>
+<ul>
+<li>Requires that <code>gcalccmd</code> is installed</li>
+</ul>
+<h4 id="python">Python:</h4>
+<ul>
+<li>Python 3.4+. No plans are made to make this support earlier versions.</li>
+<li><a href="https://pip.pypa.io/en/stable/">PIP</a>. Package manager for python</li>
+</ul>
+<h4 id="guide">Guide:</h4>
+<ol>
+<li>
+<p>(optional) Setting up an environment separate from your host OS or global python interpreter to avoid dependency conflicts. </p>
+</li>
+<li>
+<p>If you're on Linux you might find setting up a virtualenv with the following <code>virtualenv -p /usr/bin/python3 quadbot &amp;&amp; source quadbot/bin/activate</code> will be helpful. </p>
+</li>
+<li>
+<p>If you're on MacOS or Windows setting up <a href="https://www.vagrantup.com/docs/installation/">vagrant</a> will be useful. Then you can use <code>vagrant init &amp;&amp; vagrant ssh</code> to load this project's production environment. </p>
+</li>
+<li>
+<p>Clone the git repo to your desired location</p>
+</li>
+<li>Run <code>git update-index --assume-unchanged plugins/SecretCommands.py</code> to stop tracking SecretCommands.py</li>
+<li>Install pip dependencies manually  with <code>pip install -r requirements.txt</code>, and install the aforementioned software manually. 
+   Or you run the install script using  <code>chmod +x install.sh &amp;&amp; ./install.sh</code></li>
+<li>Follow the instructions in <code>details-example.yaml</code> to configure your bot for login</li>
+<li>Run using <code>python3 app.py</code></li>
+<li>(optional) Test for errors you can run <code>test.sh</code> using <code>chmod +x test.sh &amp;&amp; ./test.sh</code></li>
+</ol>
+<h2 id="license">License</h2>
+<p>This project is distributed under the terms of the <a href="https://github.com/wgma00/quadbot/blob/master/NOTICE">GPLv3 and MIT License</a>.</p>
+<h2 id="credits">Credits</h2>
+<p>Maintainer</p>
+<ul>
+<li>wgma00 </li>
+</ul>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../showdown/" class="btn btn-neutral float-right" title="Development">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a href="https://github.com/wlgranados/quadbot/" class="fa fa-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../showdown/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+
+</body>
+</html>
